@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark light">
+  <script src="js/theme-boot.js?v=0.1.0"></script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23101114'/%3E%3Ccircle cx='32' cy='34' r='19' fill='none' stroke='%23e2a93b' stroke-width='5'/%3E%3Cpath d='M32 34V22M32 34l9 6' stroke='%23e9e4da' stroke-width='5' stroke-linecap='round'/%3E%3Crect x='26' y='6' width='12' height='7' rx='2' fill='%23e2a93b'/%3E%3C/svg%3E">
+  <title>WoW Tracker v0.1.0 - Resets, Events &amp; Holidays | RadMage Labs</title>
+  <meta name="description" content="World of Warcraft reset and event dashboard: daily and weekly reset countdowns for the Americas and Europe, what is scheduled now and next, holidays, the Darkmoon Faire and Timewalking, in your local time.">
+  <link rel="stylesheet" href="style.css?v=0.1.0">
+</head>
+<body>
+  <a class="skip" href="#coming-title">Skip to Coming up</a>
+  <header class="topbar">
+    <div class="brand">
+      <h1>WoW Tracker</h1>
+      <span class="tag">v0.1.0 · Resets, Events &amp; Holidays · <a id="labs-link" href="https://radmagelabs.com/">RadMage Labs</a></span>
+    </div>
+    <div class="region seg" role="group" aria-label="Region">
+      <button type="button" class="seg-btn" data-region="us" aria-pressed="true">Americas</button>
+      <button type="button" class="seg-btn" data-region="eu" aria-pressed="false">Europe</button>
+    </div>
+    <div class="tools">
+      <button type="button" class="btn" id="theme-btn" aria-label="Theme: dark">Dark</button>
+      <button type="button" class="btn" id="about-btn" aria-haspopup="dialog">About</button>
+    </div>
+  </header>
+
+  <main>
+    <p class="notice-bar" id="clock-notice" hidden></p>
+
+    <section class="summary panel" aria-label="Time and resets">
+      <ul class="summary-list" id="summary"></ul>
+      <p class="region-line" id="region-line"></p>
+    </section>
+
+    <section class="controls panel" aria-label="Filters">
+      <div class="chips" id="category-chips" role="group" aria-label="Categories"></div>
+      <div class="control-row">
+        <div class="seg" role="group" aria-label="Show">
+          <button type="button" class="seg-btn" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="seg-btn" data-filter="starred" aria-pressed="false">Starred</button>
+        </div>
+        <label class="field">Coming up for
+          <select id="ahead">
+            <option value="1">1 hour</option>
+            <option value="2">2 hours</option>
+            <option value="4">4 hours</option>
+            <option value="8">8 hours</option>
+            <option value="24">24 hours</option>
+            <option value="72">3 days</option>
+            <option value="168">7 days</option>
+          </select>
+        </label>
+        <label class="field">Times
+          <select id="time-mode">
+            <option value="local">Local</option>
+            <option value="both">Local + UTC</option>
+            <option value="utc">UTC</option>
+          </select>
+        </label>
+        <button type="button" class="btn small" id="compact-btn" aria-pressed="false">Compact</button>
+        <button type="button" class="btn small" id="hidden-btn" aria-haspopup="dialog">Hidden (0)</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="now-title">
+      <div class="section-head">
+        <h2 id="now-title">Happening now</h2>
+        <span class="hint">scheduled windows</span>
+      </div>
+      <p class="explain">Inside its scheduled window. Times come from published schedules, not from the game, so a realm can open late or close early during maintenance.</p>
+      <div class="cards" id="now-list"></div>
+      <p class="empty" id="now-empty" hidden>Nothing you follow is in its scheduled window right now.</p>
+    </section>
+
+    <section aria-labelledby="coming-title">
+      <div class="section-head">
+        <h2 id="coming-title" tabindex="-1">Coming up</h2>
+        <span class="hint" id="coming-hint"></span>
+      </div>
+      <ol class="rows" id="next-list"></ol>
+      <p class="empty" id="next-empty" hidden></p>
+    </section>
+
+    <section class="week panel" aria-labelledby="week-title">
+      <div class="section-head">
+        <h2 id="week-title">Weekly overview</h2>
+        <span class="hint" id="week-hint"></span>
+      </div>
+      <div class="week-grid" id="week-grid"></div>
+    </section>
+
+    <section aria-labelledby="calendar-title">
+      <div class="section-head">
+        <h2 id="calendar-title">Event calendar</h2>
+        <span class="hint" id="calendar-hint"></span>
+      </div>
+      <div class="calendar" id="calendar"></div>
+      <p class="untracked" id="untracked"></p>
+    </section>
+
+    <section class="news panel" aria-labelledby="news-title">
+      <div class="section-head">
+        <h2 id="news-title">Latest news</h2>
+        <button type="button" class="link-btn" id="news-toggle" aria-expanded="false" aria-controls="news-body">Show</button>
+      </div>
+      <div id="news-body" hidden>
+        <p class="news-note" id="news-note"></p>
+        <ul class="news-list" id="news-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-links" id="footer-links" aria-label="Project links"></nav>
+    <p class="revision" id="revision"></p>
+    <p>Free, no ads, no tracking, no account.</p>
+    <p class="legal">Unofficial fan tool, not affiliated with or endorsed by Blizzard Entertainment. World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.</p>
+  </footer>
+
+  <dialog id="about" aria-labelledby="about-title">
+    <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
+    <h2 id="about-title">WoW Tracker v0.1.0</h2>
+    <p>A World of Warcraft (Retail) dashboard for resets and scheduled events: when the next daily and weekly resets are, what is in its scheduled window now, and what starts next, in your local time.</p>
+    <h3>Scheduled, not live</h3>
+    <p>Every time here comes from a published schedule or a fixed game rule. The game offers no public live-event feed, so nothing on this page is read from the game. During maintenance or a hotfix a realm can be early or late.</p>
+    <h3>Labels</h3>
+    <ul>
+      <li><strong>Confirmed</strong> times have an official Blizzard source or a documented game rule. They carry no label.</li>
+      <li><strong>Predicted</strong> times follow a pattern from earlier months or years that Blizzard has not published for these dates yet. They are always labeled.</li>
+      <li>Activities with no verified schedule are not shown as times at all; they are listed under the calendar.</li>
+    </ul>
+    <h3>Schedule data</h3>
+    <p id="about-data"></p>
+    <h3>Privacy</h3>
+    <p id="about-privacy">Settings, stars and hidden events are saved in this browser only. Two things leave it: the clock check asks this site's own address for the time, and opening Latest news asks this site for Blizzard's news list.</p>
+    <p class="legal">Unofficial fan tool, not affiliated with or endorsed by Blizzard Entertainment. World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.</p>
+  </dialog>
+
+  <dialog id="hidden-dialog" aria-labelledby="hidden-title">
+    <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
+    <h2 id="hidden-title">Hidden events</h2>
+    <ul class="hidden-list" id="hidden-list"></ul>
+    <p class="empty" id="hidden-empty">Nothing is hidden.</p>
+    <button type="button" class="btn small" id="unhide-all" hidden>Show all</button>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/config.js?v=0.1.0"></script>
+  <script src="events-data.js?r=1"></script>
+  <script src="js/schedule.js?v=0.1.0"></script>
+  <script src="js/store.js?v=0.1.0"></script>
+  <script src="js/news.js?v=0.1.0"></script>
+  <script src="js/clock.js?v=0.1.0"></script>
+  <script src="js/app.js?v=0.1.0"></script>
+</body>
+</html>

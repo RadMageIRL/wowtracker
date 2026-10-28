@@ -1,0 +1,138 @@
+{
+ "contentItems": [
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Hotfixes: October 27, 2026",
+    "category": "News",
+    "lastUpdated": "2026-10-28T00:42:32Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/24307310/hotfixes-october-27-2026"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Bring the Spirit of the Sea Home with the New Grimtide Estate and Grimtide Decor Packs!",
+    "category": "Shop Now",
+    "lastUpdated": "2026-10-27T20:13:49Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/24303011/bring-the-spirit-of-the-sea-home-with-the-new-grimtide-estate-and-grimtide-decor-packs"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Add the Living Heartsbane Cauldron Mount to your Collection",
+    "category": "Shop Now",
+    "lastUpdated": "2026-10-27T19:29:36Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/24304164/add-the-living-heartsbane-cauldron-mount-to-your-collection"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Your Next Adventure in WoW: Forever Starts in the WoW Portal Room",
+    "category": "News",
+    "lastUpdated": "2026-10-27T19:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/24315203/your-next-adventure-in-wow-forever-starts-in-the-wow-portal-room"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Now Live! Get Your Ticket to the WoW: Forever Poster Signing at the Irvine Improv",
+    "category": "News",
+    "lastUpdated": "2026-10-26T19:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/24302547/now-live-get-your-ticket-to-the-wow-forever-poster-signing-at-the-irvine-improv"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Join in the Talebound Demo on October 30",
+    "category": "News",
+    "lastUpdated": "2026-10-26T18:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/24313107/join-in-the-talebound-demo-on-october-30"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Watch the WoW: Forever Short Story, “Unbowed”",
+    "category": "News",
+    "lastUpdated": "2026-10-26T17:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/24313105/watch-the-wow-forever-short-story-unbowed"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Dive Into WoW: Forever, the Gods of Zul’Aman, Hallow’s End, and More in WoW Weekly",
+    "category": "This Week in WoW",
+    "lastUpdated": "2026-10-23T17:01:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/24313106/dive-into-wow-forever-the-gods-of-zulaman-hallows-end-and-more-in-wow-weekly"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Watch the World of Warcraft: Midnight Motion Comic, “Singularity”",
+    "category": "News",
+    "lastUpdated": "2026-10-23T17:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/24313104/watch-the-world-of-warcraft-midnight-motion-comic-singularity"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "BCCA: The Gods of Zul'Aman Now Live",
+    "category": "New Content Update",
+    "lastUpdated": "2026-10-22T22:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/24310652/bcca-the-gods-of-zul-aman-now-live"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "<b>Markup</b> &amp; entities &#8212; dash",
+    "category": "News",
+    "lastUpdated": "2026-10-19T10:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/1/markup?utm_source=x#frag"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Off-site link",
+    "category": "News",
+    "lastUpdated": "2026-10-29T10:00:00Z",
+    "newsUrl": "https://evil.example/en-us/article/2"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Plain http",
+    "category": "News",
+    "lastUpdated": "2026-10-29T10:00:00Z",
+    "newsUrl": "http://news.blizzard.com/en-us/article/3"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "",
+    "category": "News",
+    "lastUpdated": "2026-10-29T10:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/4"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "No date",
+    "category": "News",
+    "newsUrl": "https://news.blizzard.com/en-us/article/5/no-date"
+   }
+  }
+ ]
+}

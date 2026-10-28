@@ -54,9 +54,11 @@ export function unitTests(test) {
     assert.deepEqual(p.categories, ['holiday']);
   });
 
-  test('a saved region, filter, span, time mode and theme come back as saved', () => {
-    const p = Store.sanitizePrefs({ region: 'eu', filter: 'starred', aheadHours: 8, timeMode: 'utc', theme: 'system', compact: true, newsOpen: true }, EVENTS, CATS, 'America/Chicago');
-    assert.deepEqual([p.region, p.filter, p.aheadHours, p.timeMode, p.theme, p.compact, p.newsOpen], ['eu', 'starred', 8, 'utc', 'system', true, true]);
+  test('a saved region, filter, span, time mode, theme and news choices come back as saved', () => {
+    const p = Store.sanitizePrefs({ region: 'eu', filter: 'starred', aheadHours: 8, timeMode: 'utc', theme: 'system', compact: true, newsOpen: true, newsShop: true }, EVENTS, CATS, 'America/Chicago');
+    assert.deepEqual([p.region, p.filter, p.aheadHours, p.timeMode, p.theme, p.compact, p.newsOpen, p.newsShop], ['eu', 'starred', 8, 'utc', 'system', true, true, true]);
+    assert.equal(Store.sanitizePrefs({}, EVENTS, CATS, 'UTC').newsShop, false, 'shop posts are hidden by default');
+    assert.equal(Store.sanitizePrefs({ newsShop: 'yes' }, EVENTS, CATS, 'UTC').newsShop, false);
   });
 
   test('settings round-trip through storage under the wowtracker:v1: prefix; blocked storage never throws', () => {
@@ -74,13 +76,37 @@ export function unitTests(test) {
 
   // ---- News ----
 
-  test('news keeps Blizzard links as plain text, newest first, at most eight', () => {
+  test('news keeps Blizzard links as plain text, newest first, up to twenty, and shows at most eight', () => {
     const items = News.parseNews(FEED);
-    assert.equal(items.length, 8);
+    assert.equal(items.length, 19); // every usable post in the fixture, under the 20 kept
     for (let i = 1; i < items.length; i++) assert.ok(items[i - 1].dateMs >= items[i].dateMs);
     for (const i of items) assert.match(i.link, /^https:\/\/news\.blizzard\.com\/en-us\/[^?#]*$/);
     assert.equal(items[0].title, 'Hotfixes: October 27, 2026');
     assert.equal(items[0].category, 'News');
+    assert.equal(News.visible(items, false).length, 8);
+    assert.equal(News.visible(items, true).length, 8);
+  });
+
+  test('shop posts are only Blizzard\'s Shop Now, Sale, On Sale and Pre-purchase categories, in any case or spacing', () => {
+    const items = News.parseNews(FEED);
+    assert.deepEqual(items.filter(News.isShop).map((i) => i.category).sort(), ['ON SALE', 'Pre-purchase', 'Sale', 'Shop Now', 'Shop Now']);
+    assert.equal(News.isShop({ title: 'Anything', category: ' PRE-PURCHASE ' }), true);
+    for (const category of ['News', 'This Week in WoW', 'New Content Update', 'Trading Post', 'Twitch Drops', 'Limited-Time Event', 'New Mount', 'Pre-order', 'Prepurchase', '']) {
+      assert.equal(News.isShop({ title: 'Shop sale: 50% off a new mount', category }), false, category);
+    }
+  });
+
+  test('by default the shop posts are left out, game news that mentions a sale or a mount stays, and asking shows them', () => {
+    const items = News.parseNews(FEED);
+    const plain = News.visible(items, false);
+    assert.ok(plain.every((i) => !News.isShop(i)));
+    assert.ok(plain.some((i) => i.title === 'Hotfixes: a mount sale price shown wrong in the shop is fixed'));
+    assert.ok(plain.some((i) => i.title === 'Twitch Drop now live: a free mount'));
+    assert.ok(items.filter((i) => !News.isShop(i)).some((i) => i.category === 'New Mount'), 'New Mount posts stay');
+    assert.ok(!plain.some((i) => i.category === 'Pre-purchase'), 'Pre-purchase posts are left out');
+    const all = News.visible(items, true);
+    assert.ok(all.some((i) => i.title === 'Bring the Spirit of the Sea Home with the New Grimtide Estate and Grimtide Decor Packs!'));
+    assert.deepEqual(News.visible(null, false), []);
   });
 
   test('news drops off-site, plain http and empty-title posts, strips markup and turns dashes plain', () => {

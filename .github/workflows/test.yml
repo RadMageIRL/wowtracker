@@ -1,0 +1,39 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Unit tests, data rules and house checks
+        run: node tests/run.mjs
+      - name: Schedule data is current and every rule passes
+        run: node tools/build-data.mjs --check
+
+  smoke:
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Reproducible build
+        run: node tools/build.mjs --verify
+      - name: Browser tests
+        run: node tests/smoke.mjs
+        env:
+          CI: 'true'

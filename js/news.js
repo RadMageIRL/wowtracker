@@ -13,7 +13,15 @@
   const BLIZZARD_NEWS = 'https://news.blizzard.com/en-us/feed/world-of-warcraft';
   /** Blizzard's list behind news.json (used by tools/serve.mjs). */
   const UPSTREAM = 'https://news.blizzard.com/en-us/api/feed/world-of-warcraft';
+  /** Headlines shown, and how many are kept so filtering still leaves enough to show. */
   const MAX_ITEMS = 8;
+  const KEEP_ITEMS = 20;
+  /**
+   * Blizzard's own labels for store posts. Only these exact categories count as shop posts, never
+   * words in a title, so a game update that mentions a sale or a mount is never hidden. "New Mount"
+   * stays visible on purpose.
+   */
+  const SHOP_CATEGORIES = ['shop now', 'sale', 'on sale', 'pre-purchase'];
   /** A copy younger than this is used as is; an open section asks again once it is older. */
   const REFRESH_MS = 15 * 60000;
   const TIMEOUT_MS = 8000;
@@ -80,20 +88,28 @@
       const i = item(p.title, p.newsUrl, dateMs, p.category);
       if (i) items.push(i);
     }
-    return newestFirst(items, max || MAX_ITEMS);
+    return newestFirst(items, max || KEEP_ITEMS);
   }
 
   const isFresh = (cache, nowMs) => Boolean(cache) && nowMs >= cache.fetchedAt && nowMs - cache.fetchedAt < REFRESH_MS;
+
+  /** True for a post Blizzard files under one of its store categories. */
+  const isShop = (item) => SHOP_CATEGORIES.includes(String(item && item.category || '').trim().toLowerCase());
+
+  /** The headlines to show: shop posts left out unless asked for, newest first, at most MAX_ITEMS. */
+  function visible(items, showShop) {
+    return (items || []).filter((i) => showShop || !isShop(i)).slice(0, MAX_ITEMS);
+  }
 
   /** A copy read back from storage, kept only if it still looks like what parseNews returns. */
   function sanitizeCache(raw) {
     if (!isObj(raw) || typeof raw.fetchedAt !== 'number' || !Number.isFinite(raw.fetchedAt) || !Array.isArray(raw.items)) return null;
     const items = raw.items.filter(isObj).filter((i) => typeof i.link === 'string' && cleanLink(i.link) === i.link)
       .map((i) => item(i.title, i.link, i.dateMs, i.category)).filter(Boolean);
-    return items.length ? { fetchedAt: raw.fetchedAt, items: newestFirst(items, MAX_ITEMS) } : null;
+    return items.length ? { fetchedAt: raw.fetchedAt, items: newestFirst(items, KEEP_ITEMS) } : null;
   }
 
-  const News = { NEWS_PATH, NEWS_HOST, BLIZZARD_NEWS, UPSTREAM, MAX_ITEMS, REFRESH_MS, TIMEOUT_MS, plainText, cleanLink, parseNews, isFresh, sanitizeCache };
+  const News = { NEWS_PATH, NEWS_HOST, BLIZZARD_NEWS, UPSTREAM, MAX_ITEMS, KEEP_ITEMS, SHOP_CATEGORIES, REFRESH_MS, TIMEOUT_MS, plainText, cleanLink, parseNews, isShop, visible, isFresh, sanitizeCache };
   if (typeof module === 'object' && module.exports) module.exports = News;
   else root.WoWNews = News;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

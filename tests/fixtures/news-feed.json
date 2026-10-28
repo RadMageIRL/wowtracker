@@ -133,6 +133,69 @@
     "category": "News",
     "newsUrl": "https://news.blizzard.com/en-us/article/5/no-date"
    }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Up to 50% off in the Fall Sale",
+    "category": "Sale",
+    "lastUpdated": "2026-10-25T10:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/915/fall-sale"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Save on Classic services",
+    "category": " ON SALE ",
+    "lastUpdated": "2026-10-24T10:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/916/classic-services"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Hotfixes: a mount sale price shown wrong in the shop is fixed",
+    "category": "News",
+    "lastUpdated": "2026-10-24T09:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/917/hotfix-shop-text"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Twitch Drop now live: a free mount",
+    "category": "Twitch Drops",
+    "lastUpdated": "2026-10-24T08:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/918/twitch-drop"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "The Trading Post's November rewards",
+    "category": "Trading Post",
+    "lastUpdated": "2026-10-24T07:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/919/trading-post"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Pre-Purchase the Next Expansion Today",
+    "category": "Pre-purchase",
+    "lastUpdated": "2026-10-24T06:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/920/pre-purchase"
+   }
+  },
+  {
+   "contentType": "blogs",
+   "properties": {
+    "title": "Owltastic Adventures Await with a New Mount",
+    "category": "New Mount",
+    "lastUpdated": "2026-10-24T05:00:00Z",
+    "newsUrl": "https://news.blizzard.com/en-us/article/921/new-mount"
+   }
   }
  ]
 }

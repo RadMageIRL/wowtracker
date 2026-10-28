@@ -245,4 +245,36 @@ export async function dataTests(test) {
   test('a reset without its daily or weekly rule is refused', () => {
     refused((s) => { delete s.resets.eu.weekly; }, /weekly missing/);
   });
+  test("a dated window that starts after its category's knownUntil is refused", () => {
+    refused((s) => { ev(s, 'timewalking').schedules.us.windows.push({ start: '2026-12-08T15:00:00Z', end: '2026-12-15T14:00:00Z', name: 'Unknown Timewalking' }); }, /after its category's knownUntil/);
+  });
+  test("a repeating schedule with no until, or one past its category's knownUntil, is refused", () => {
+    refused((s) => { delete ev(s, 'darkmoon-faire').schedules.us.until; }, /needs an until/);
+    refused((s) => { ev(s, 'world-boss-luashal').schedules.eu.until = '2027-01-01T04:00:00Z'; }, /needs an until/);
+  });
+  test('a category without knownUntil for a region, or without the reason it stops, is refused', () => {
+    refused((s) => { delete s.categories[0].knownUntil.eu; }, /knownUntil\.eu/);
+    refused((s) => { delete s.categories[0].gap; }, /gap/);
+  });
+
+  // ---- Coverage: where schedules stop being known ----
+
+  test('weekly categories are known to the December 1 reset in each region; holidays, small events and the Faire to the end of March 2027', () => {
+    const k = Object.fromEntries(DATA.categories.map((c) => [c.id, c.knownUntil]));
+    for (const id of ['timewalking', 'bonus', 'world-boss', 'outdoor']) assert.deepEqual(k[id], { us: '2026-12-01T15:00:00Z', eu: '2026-12-02T04:00:00Z' }, id);
+    for (const id of ['holiday', 'minor', 'darkmoon']) assert.deepEqual(k[id], { us: '2027-04-01T00:00:00Z', eu: '2027-04-01T00:00:00Z' }, id);
+    // The weekly data stops exactly at a weekly reset in each region.
+    assert.equal(S.previousReset(DATA.resets.us.weekly.rule, utc(k.bonus.us)), utc(k.bonus.us));
+    assert.equal(S.previousReset(DATA.resets.eu.weekly.rule, utc(k.bonus.eu)), utc(k.bonus.eu));
+  });
+
+  test("no schedule produces a window at or after its category's knownUntil (checked by expanding every schedule to 2028)", () => {
+    for (const e of DATA.events) {
+      const c = DATA.categories.find((x) => x.id === e.category);
+      for (const [r, s] of Object.entries(e.schedules)) {
+        const late = S.windows(s, utc(c.knownUntil[r]), utc('2028-01-01T00:00:00Z')).filter((w) => w.start >= utc(c.knownUntil[r]));
+        assert.deepEqual(late, [], `${e.id} ${r}`);
+      }
+    }
+  });
 }

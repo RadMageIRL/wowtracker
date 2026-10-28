@@ -10,6 +10,18 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23101114'/%3E%3Ccircle cx='32' cy='34' r='19' fill='none' stroke='%23e2a93b' stroke-width='5'/%3E%3Cpath d='M32 34V22M32 34l9 6' stroke='%23e9e4da' stroke-width='5' stroke-linecap='round'/%3E%3Crect x='26' y='6' width='12' height='7' rx='2' fill='%23e2a93b'/%3E%3C/svg%3E">
   <title>WoW Tracker v0.1.0 - Resets, Events &amp; Holidays | RadMage Labs</title>
   <meta name="description" content="World of Warcraft reset and event dashboard: daily and weekly reset countdowns for the Americas and Europe, what is scheduled now and next, holidays, the Darkmoon Faire and Timewalking, in your local time.">
+  <link rel="canonical" href="https://radmagelabs.com/wow/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="RadMage Labs">
+  <meta property="og:url" content="https://radmagelabs.com/wow/">
+  <meta property="og:title" content="WoW Tracker: Resets, Events &amp; Holidays">
+  <meta property="og:description" content="World of Warcraft daily and weekly resets for the Americas and Europe, what is on now and what starts next, in your local time. Unofficial fan tool.">
+  <meta property="og:image" content="https://radmagelabs.com/assets/og/wowtracker.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="WoW Tracker: the daily and weekly reset countdowns and the Trading Post for the Americas, the category filters, and Happening now cards for Hallow's End, Warlords of Draenor Timewalking and Lu'ashal, the week's predicted world boss">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"WoW Tracker","url":"https://radmagelabs.com/wow/","applicationCategory":"GameApplication","operatingSystem":"Any","isAccessibleForFree":true,"description":"World of Warcraft reset and event dashboard in your local time. Unofficial fan tool.","image":"https://radmagelabs.com/assets/og/wowtracker.png","screenshot":"https://radmagelabs.com/assets/og/wowtracker.png","about":{"@type":"VideoGame","name":"World of Warcraft"},"author":{"@type":"Person","name":"RadMageIRL","url":"https://radmagelabs.com/"},"sameAs":"https://github.com/RadMageIRL/wowtracker"}</script>
   <link rel="stylesheet" href="style.css?v=0.1.0">
 </head>
 <body>
@@ -75,6 +87,7 @@
       <p class="explain">Inside its scheduled window. Times come from published schedules, not from the game, so a realm can open late or close early during maintenance.</p>
       <div class="cards" id="now-list"></div>
       <p class="empty" id="now-empty" hidden>Nothing you follow is in its scheduled window right now.</p>
+      <p class="gap" id="now-gap" hidden></p>
     </section>
 
     <section aria-labelledby="coming-title">
@@ -84,6 +97,7 @@
       </div>
       <ol class="rows" id="next-list"></ol>
       <p class="empty" id="next-empty" hidden></p>
+      <p class="gap" id="next-gap" hidden></p>
     </section>
 
     <section class="week panel" aria-labelledby="week-title">
@@ -111,6 +125,7 @@
       <div id="news-body" hidden>
         <p class="news-note" id="news-note"></p>
         <ul class="news-list" id="news-list"></ul>
+        <button type="button" class="link-btn news-shop" id="news-shop" aria-pressed="false" hidden>Show shop posts</button>
       </div>
     </section>
   </main>

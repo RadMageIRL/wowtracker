@@ -75,11 +75,18 @@ export function validate(src) {
     }
   }
 
-  const categories = new Set();
+  // Each category says, per region, how far ahead its schedules are known, and why they stop there.
+  const categories = new Set(), knownUntil = new Map();
   for (const c of src.categories || []) {
     if (!ID.test(c.id || '') || categories.has(c.id)) err('categories', `bad or repeated id ${c.id}`);
     categories.add(c.id);
     if (!c.name) err(`category ${c.id}`, 'name is required');
+    if (!(typeof c.gap === 'string' && c.gap.length > 20)) err(`category ${c.id}`, 'gap (why schedules stop at knownUntil) is required');
+    for (const r of regions) {
+      const k = c.knownUntil && c.knownUntil[r];
+      if (!ISO_INSTANT.test(k || '')) err(`category ${c.id}`, `knownUntil.${r} needs a date, time and offset`);
+      else knownUntil.set(`${c.id} ${r}`, Date.parse(k));
+    }
   }
 
   const checkSchedule = (where, s, event) => {
@@ -114,6 +121,7 @@ export function validate(src) {
       if (!TIME.test(s.time || '')) err(where, 'time must be HH:MM');
       if (!validZone(s.zone)) err(where, `unknown time zone ${s.zone}`);
       if (!(Number.isInteger(s.durationMin) && s.durationMin > 0 && s.durationMin <= 28 * 1440)) err(where, 'durationMin must be 1 minute to 28 days');
+      if (s.until !== undefined && !ISO_INSTANT.test(s.until)) err(where, 'until needs a date, time and offset');
     } else err(where, `unknown schedule type ${s.type}`);
   };
 
@@ -129,6 +137,11 @@ export function validate(src) {
     else for (const [r, s] of Object.entries(e.schedules)) {
       if (!regions.has(r)) err(where, `unknown region ${r}`);
       checkSchedule(`${where} ${r}`, s, e);
+      // Nothing may start where its category says schedules are no longer known.
+      const k = knownUntil.get(`${e.category} ${r}`);
+      if (k === undefined || !s) continue;
+      if (s.type === 'dates') { for (const w of s.windows || []) if (Date.parse(w.start) >= k) err(`${where} ${r}`, `window starts after its category's knownUntil: ${w.start}`); }
+      else if (!s.until || Date.parse(s.until) > k) err(`${where} ${r}`, "a repeating schedule needs an until at or before its category's knownUntil");
     }
     if (e.link && !httpsUrl(e.link.url)) err(where, 'link must be https');
     checkSources(where, e);

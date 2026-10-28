@@ -21,7 +21,7 @@
   function defaults(categoryIds, zone) {
     return {
       region: guessRegion(zone), filter: 'all', categories: categoryIds.slice(), starred: [], hidden: [],
-      aheadHours: 168, compact: false, timeMode: 'local', theme: 'dark', newsOpen: false,
+      aheadHours: 168, compact: false, timeMode: 'local', theme: 'dark', newsOpen: false, newsShop: false,
     };
   }
 
@@ -45,6 +45,7 @@
       timeMode: pick(raw.timeMode, TIME_MODES, d.timeMode),
       theme: pick(raw.theme, THEMES, d.theme),
       newsOpen: raw.newsOpen === true,
+      newsShop: raw.newsShop === true,
     };
   }
 

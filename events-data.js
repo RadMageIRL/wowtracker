@@ -190,35 +190,70 @@
     {
      "id": "holiday",
      "name": "Holidays",
-     "short": "Holiday"
+     "short": "Holiday",
+     "knownUntil": {
+      "us": "2027-04-01T00:00:00Z",
+      "eu": "2027-04-01T00:00:00Z"
+     },
+     "gap": "dates after March 31, 2027 are not in the game data checked so far"
     },
     {
      "id": "darkmoon",
-     "name": "Darkmoon Faire"
+     "name": "Darkmoon Faire",
+     "knownUntil": {
+      "us": "2027-04-01T00:00:00Z",
+      "eu": "2027-04-01T00:00:00Z"
+     },
+     "gap": "dates after March 31, 2027 are not in the game data checked so far"
     },
     {
      "id": "timewalking",
-     "name": "Timewalking"
+     "name": "Timewalking",
+     "knownUntil": {
+      "us": "2026-12-01T15:00:00Z",
+      "eu": "2026-12-02T04:00:00Z"
+     },
+     "gap": "the live game data and the 12.1.7 test data disagree from December 1, 2026"
     },
     {
      "id": "bonus",
      "name": "Bonus events",
-     "short": "Bonus event"
+     "short": "Bonus event",
+     "knownUntil": {
+      "us": "2026-12-01T15:00:00Z",
+      "eu": "2026-12-02T04:00:00Z"
+     },
+     "gap": "the live game data and the 12.1.7 test data disagree from December 1, 2026"
     },
     {
      "id": "world-boss",
      "name": "World bosses",
-     "short": "World boss"
+     "short": "World boss",
+     "knownUntil": {
+      "us": "2026-12-01T15:00:00Z",
+      "eu": "2026-12-02T04:00:00Z"
+     },
+     "gap": "the predicted order is only carried to the December 1, 2026 reset, before patch 12.1.7"
     },
     {
      "id": "outdoor",
      "name": "Outdoor events",
-     "short": "Outdoor"
+     "short": "Outdoor",
+     "knownUntil": {
+      "us": "2026-12-01T15:00:00Z",
+      "eu": "2026-12-02T04:00:00Z"
+     },
+     "gap": "Aqir Invasions are only carried to the December 1, 2026 reset; they may end with patch 12.1.7"
     },
     {
      "id": "minor",
      "name": "Small events",
-     "short": "Small event"
+     "short": "Small event",
+     "knownUntil": {
+      "us": "2027-04-01T00:00:00Z",
+      "eu": "2027-04-01T00:00:00Z"
+     },
+     "gap": "dates after March 31, 2027 are not in the game data checked so far"
     }
    ],
    "events": [
@@ -1009,7 +1044,8 @@
        "weekday": 0,
        "time": "00:00",
        "zone": "America/Los_Angeles",
-       "durationMin": 10080
+       "durationMin": 10080,
+       "until": "2027-04-01T00:00:00Z"
       },
       "eu": {
        "type": "monthlyNth",
@@ -1020,7 +1056,8 @@
        "durationMin": 10080,
        "status": "predicted",
        "part": "time",
-       "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
+       "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so.",
+       "until": "2027-04-01T00:00:00Z"
       }
      },
      "link": {

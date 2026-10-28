@@ -1,13 +1,17 @@
 # WoW Tracker v0.1.0
 
-My World of Warcraft (Retail) dashboard for resets and scheduled events, in your local time.
+My World of Warcraft (Retail) dashboard for resets and scheduled events, in your local time. It is one plain HTML page: no install, no account, no ads, no server. Every time is worked out in your browser from schedule data kept in this repository.
+
+Use it online at **[radmagelabs.com/wow](https://radmagelabs.com/wow/)** (also at [radmageirl.github.io/wowtracker](https://radmageirl.github.io/wowtracker/)), or download it and open it from your own computer.
+
+![WoW Tracker in the dark theme: the daily and weekly reset countdowns and the Trading Post for the Americas, the category filters, and Happening now cards for Hallow's End, Warlords of Draenor Timewalking and Lu'ashal, the week's predicted world boss](screenshots/wowtracker.png)
 
 - **Resets:** daily and weekly reset countdowns for the Americas and Europe, plus the monthly Trading Post change.
 - **Happening now:** what is inside its scheduled window right now.
 - **Coming up:** what starts in the next hour, few hours or days, with Today and Tomorrow headings.
 - **Weekly overview:** this reset week and the next, including the week's world boss.
 - **Event calendar:** holidays, the Darkmoon Faire, Timewalking and bonus weeks by month.
-- **Latest news:** headlines from Blizzard News, collapsed until you open it.
+- **Latest news:** headlines from Blizzard News, collapsed until you open it. Shop, sale and pre-purchase posts (by Blizzard's own categories) are left out unless you ask for them.
 - Stars, hiding with a Hidden list to bring things back, category filters, compact mode, Dark / Light / System themes, and local, UTC or both. Everything is saved in your browser only.
 
 ## How sure the times are
@@ -17,7 +21,7 @@ I tie every event to its source and the date I last checked it, and the page sho
 - **Confirmed:** from Blizzard, or from the game's own calendar data for the live build. No label.
 - **Predicted:** a pattern Blizzard has not published. Always labeled **Predicted**. The world boss rotation and the Aqir Invasion clock are predicted.
 - **Predicted time:** the dates are confirmed but the start time is not. On European realms, holiday and Darkmoon Faire start times are read the way the game's calendar data writes its European weekly rows (Central European time); Blizzard has not said so.
-- Things without a verified schedule are not shown as times. They are listed under the calendar.
+- **Not known yet:** where a schedule runs out, the page says so instead of showing an empty week. Timewalking, bonus events, world bosses and Aqir Invasions are known to the December 1, 2026 reset; holidays and the Darkmoon Faire to March 31, 2027. Things without a verified schedule at all are listed under the calendar.
 
 Times are scheduled times, not live game state. Nothing on the page is read from the game, and a realm can open early or late around maintenance.
 
@@ -42,9 +46,13 @@ node tests/run.mjs              # unit tests, data rules and house checks
 node tests/smoke.mjs            # browser tests on dist/ (needs Chrome)
 ```
 
-Opening index.html straight from disk works too; news then links to Blizzard News, because Blizzard's news list can only be read through a server.
+Opening index.html straight from disk works too; news then links to Blizzard News, because Blizzard's news list can only be read through a server. On radmagelabs.com the page asks its own site for news.json, which passes Blizzard's list through.
 
 I keep the schedule data in [data/events.source.json](data/events.source.json), with the verbatim source quote behind every time. `node tools/build-data.mjs` checks it against the data rules and writes events-data.js.
+
+## Feedback
+
+Found a wrong time or a missing event? Open an issue at [github.com/RadMageIRL/wowtracker/issues](https://github.com/RadMageIRL/wowtracker/issues). If you saw an event start in game, the realm region and the time you saw help most.
 
 ## Privacy
 
@@ -52,6 +60,6 @@ No accounts, ads, analytics or tracking. Settings stay in your browser. The page
 
 ## License
 
-MIT for the code. Event names and game content belong to Blizzard Entertainment.
+MIT for the code (see [LICENSE](LICENSE)). Event names and game content belong to Blizzard Entertainment.
 
 Unofficial fan tool, not affiliated with or endorsed by Blizzard Entertainment. World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.

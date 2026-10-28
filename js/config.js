@@ -4,14 +4,13 @@
   'use strict';
 
   const Config = {
-    /** The address Share passes along. null: the address the page was opened at. */
-    shareUrl: null,
+    /** The address Share passes along (the canonical one). null: the address the page was opened at. */
+    shareUrl: 'https://radmagelabs.com/wow/',
     links: {
       labs: 'https://radmagelabs.com/',
-      /** The GitHub profile until the project has a public repository of its own. */
-      github: 'https://github.com/RadMageIRL',
-      /** Where feedback goes (for example the repository's Issues page). Not set until there is one. */
-      feedback: null,
+      github: 'https://github.com/RadMageIRL/wowtracker',
+      /** Where feedback goes: the repository's Issues page. */
+      feedback: 'https://github.com/RadMageIRL/wowtracker/issues',
       coffee: 'https://buymeacoffee.com/radmageirl',
     },
   };

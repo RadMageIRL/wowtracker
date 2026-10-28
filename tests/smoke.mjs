@@ -241,7 +241,7 @@ check('with no events the resets still count down and every list says it is empt
   assert.match(await text(page, '[data-reset="weekly"]'), /in 6d 13h/);
   assert.equal(await page.eval(`document.getElementById('now-empty').hidden`), false);
   assert.equal(await page.eval(`document.getElementById('next-empty').hidden`), false);
-  assert.match(await text(page, '#calendar'), /Nothing you follow is on the calendar/);
+  assert.match(await text(page, '#calendar'), /^October 2026Nothing you follow this month\.November 2026Nothing you follow this month\.December 2026Not known yet from/);
   assert.deepEqual(page.problems, []);
   await page.close();
 });
@@ -264,6 +264,18 @@ check('news stays closed and asks nothing until opened; then eight Blizzard head
   const links = await page.eval(`[...document.querySelectorAll('#news-list a')].map((a) => [a.href, a.target, a.rel])`);
   for (const [href, target, rel] of links) { assert.match(href, /^https:\/\/news\.blizzard\.com\/en-us\//); assert.equal(target, '_blank'); assert.match(rel, /noopener/); }
   assert.equal(await page.eval(`document.querySelectorAll('#news-list b, #news-list script').length`), 0);
+  // Shop posts are left out by default; the button brings them back, and the choice is saved.
+  assert.ok((await texts(page, '#news-list .meta')).every((t) => !/^(Shop Now|Sale|ON SALE) ·/.test(t)));
+  assert.ok((await texts(page, '#news-list a')).includes('Hotfixes: a mount sale price shown wrong in the shop is fixed'));
+  assert.equal(await text(page, '#news-shop'), 'Show 5 shop posts');
+  await click(page, '#news-shop');
+  assert.ok((await texts(page, '#news-list .meta')).some((t) => /^Shop Now ·/.test(t)));
+  assert.equal(await text(page, '#news-shop'), 'Hide shop posts');
+  await page.reload();
+  await page.waitFor(`document.querySelectorAll('#news-list li').length === 8`);
+  assert.equal(await text(page, '#news-shop'), 'Hide shop posts', 'the choice to show shop posts is saved');
+  await click(page, '#news-shop');
+  assert.equal(await text(page, '#news-shop'), 'Show 5 shop posts');
   await page.reload();
   await page.waitFor(`document.querySelectorAll('#news-list li').length === 8`);
   assert.equal(await page.eval(`document.getElementById('news-toggle').getAttribute('aria-expanded')`), 'true', 'open state is saved');
@@ -311,13 +323,59 @@ check('the clock check corrects a device clock that is three minutes slow', asyn
 
 // ---- Footer ----
 
-check('the footer shows RadMage Labs, GitHub, Share and Buy me a coffee from config, and no Feedback until one is set', async () => {
+check('the footer links go where config.js says, and Share passes the canonical address', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z') });
-  assert.deepEqual(await texts(page, '#footer-links a, #footer-links button'), ['RadMage Labs', 'GitHub', 'Share', 'Buy me a coffee']);
+  assert.deepEqual(await texts(page, '#footer-links a, #footer-links button'), ['RadMage Labs', 'GitHub', 'Share', 'Feedback', 'Buy me a coffee']);
+  assert.deepEqual(await page.eval(`[...document.querySelectorAll('#footer-links a')].map((a) => a.href)`),
+    ['https://radmagelabs.com/', 'https://github.com/RadMageIRL/wowtracker', 'https://github.com/RadMageIRL/wowtracker/issues', 'https://buymeacoffee.com/radmageirl']);
   const ext = await page.eval(`[...document.querySelectorAll('#footer-links a[target]')].map((a) => a.rel)`);
-  assert.ok(ext.every((r) => /noopener/.test(r)));
+  assert.ok(ext.length === 3 && ext.every((r) => /noopener/.test(r)));
+  assert.equal(await page.eval(`document.getElementById('labs-link').href`), 'https://radmagelabs.com/');
+  // navigator.share is replaced so the test sees exactly what would be shared.
+  await page.eval(`window.__shared = null; navigator.share = (d) => { window.__shared = d; return Promise.resolve(); }; navigator.canShare = () => true;`);
   await click(page, '#share-btn');
-  await page.waitFor(`/Link copied|Copy this link/.test(document.getElementById('toast').textContent)`);
+  await page.waitFor('window.__shared !== null');
+  assert.equal(await page.eval('window.__shared.url'), 'https://radmagelabs.com/wow/');
+  await page.close();
+});
+
+check('the favicon is an inline SVG that the browser draws, with no request', async () => {
+  const page = await open({ at: utc('2026-10-28T01:30:00Z') });
+  const size = await page.eval(`new Promise((ok) => { const i = new Image(); i.onload = () => ok([i.naturalWidth, i.naturalHeight]); i.onerror = () => ok('error'); i.src = document.querySelector('link[rel=icon]').href; })`);
+  assert.ok(Array.isArray(size) && size[0] > 0 && size[0] === size[1], JSON.stringify(size)); // drawn, square
+  assert.ok(!page.requests.some((u) => /favicon/.test(u)), 'no favicon request');
+  await page.close();
+});
+
+// ---- Where schedules are not known yet ----
+
+check('from December 1 the weekly categories say "Not known yet" in the week, the calendar and Coming up, never "nothing"', async () => {
+  const page = await open({ at: utc('2026-11-28T18:00:00Z') });
+  const next = await text(page, '#week-grid .week-col:nth-child(2)');
+  assert.match(next, /Not known yet from Tue, Dec 1, 9:00 AM: Timewalking, Bonus events, World bosses, Outdoor events\./);
+  assert.doesNotMatch(await text(page, '#week-grid .week-col:nth-child(1)'), /Not known yet/);
+  assert.equal(await page.eval(`document.getElementById('next-gap').hidden`), false, 'a 7-day Coming up crosses Dec 1');
+  const months = await page.eval(`[...document.querySelectorAll('#calendar .month')].map((m) => [m.querySelector('h3').textContent, Boolean(m.querySelector('.gap'))])`);
+  assert.deepEqual(months, [['November 2026', false], ['December 2026', true], ['January 2027', true], ['February 2027', true], ['March 2027', true]]);
+  assert.match(await text(page, '#calendar'), /Nothing after Mar 31, 2027 is in the data yet\./);
+  assert.match(await page.eval(`document.querySelector('#calendar .gap-cats').title`), /12\.1\.7/);
+  await page.close();
+});
+
+check('following only bonus events in December says nothing is known yet, not that nothing is scheduled', async () => {
+  const page = await open({ at: utc('2026-12-05T18:00:00Z'), prefs: { categories: ['bonus'] } });
+  assert.equal(await text(page, '#now-empty'), 'Nothing known is in its scheduled window right now.');
+  assert.match(await text(page, '#now-gap'), /^Not known yet from Tue, Dec 1, 9:00 AM: Bonus events\.$/);
+  assert.match(await text(page, '#next-empty'), /^Nothing known starts in the next 7 days\./);
+  assert.match(await text(page, '#week-grid'), /Nothing known yet\./);
+  assert.doesNotMatch(await text(page, '#week-grid'), /Nothing you follow is scheduled/);
+  await page.close();
+});
+
+check('before any gap, nothing says "Not known yet": on 2026-10-28 with a 1-day span', async () => {
+  const page = await open({ at: utc('2026-10-28T01:30:00Z'), prefs: { aheadHours: 24 } });
+  assert.equal(await page.eval(`document.getElementById('next-gap').hidden && document.getElementById('now-gap').hidden`), true);
+  assert.doesNotMatch(await text(page, '#week-grid'), /Not known yet/);
   await page.close();
 });
 

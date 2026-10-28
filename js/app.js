@@ -24,6 +24,8 @@
   /** How far ahead "Next event" looks. The calendar runs to the end of the dataset. */
   const HORIZON_MS = 120 * S.DAY;
   const COVERS_UNTIL = Date.parse(DATA.meta.coversUntil + 'T23:59:59Z');
+  // Where the calendar's closing line takes over from the month-by-month notes.
+  const DATA_END = Date.parse(DATA.meta.coversUntil + 'T00:00:00Z');
 
   const deviceZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   let prefs = Store.sanitizePrefs(Store.read(storage, 'prefs'), EVENTS.map((e) => e.id), CATEGORIES.map((c) => c.id), deviceZone());
@@ -138,6 +140,44 @@
     const last = end - 1;
     const z = formats().zone;
     return S.dayKey(start, z) === S.dayKey(last, z) ? at(start, 'wdate') : `${at(start, 'date')} - ${at(last, 'date')}`;
+  }
+
+  // ---- Where schedules stop being known: never shown as "nothing happens" ----
+
+  /** The categories the viewer follows: the chosen ones, or with Starred, those of the starred events. */
+  function followedCategories() {
+    const cats = new Set(prefs.categories);
+    if (prefs.filter !== 'starred') return cats;
+    const hidden = new Set(prefs.hidden);
+    return new Set(EVENTS.filter((e) => prefs.starred.includes(e.id) && !hidden.has(e.id) && cats.has(e.category)).map((e) => e.category));
+  }
+
+  /** Followed categories whose schedules stop being known before toMs, grouped by when: [{ until, cats }]. */
+  function gaps(toMs) {
+    const followed = followedCategories(), by = new Map();
+    for (const c of CATEGORIES) {
+      const until = c.knownUntil ? Date.parse(c.knownUntil[region()]) : Infinity;
+      if (!followed.has(c.id) || !(until < toMs)) continue;
+      if (!by.has(until)) by.set(until, []);
+      by.get(until).push(c);
+    }
+    return [...by.entries()].sort((a, b) => a[0] - b[0]).map(([until, cats]) => ({ until, cats }));
+  }
+
+  /** A quiet line: "Not known yet from Tue, Dec 1, 9:00 AM: Timewalking, Bonus events." Null when everything is known. */
+  function gapNote(toMs) {
+    const g = gaps(toMs);
+    if (!g.length) return null;
+    return h('p', { class: 'gap' }, g.flatMap((x, i) => [i ? ' ' : '', `Not known yet from ${at(x.until, 'full')}: `,
+      h('span', { class: 'gap-cats', title: x.cats.map((c) => `${c.name}: ${c.gap}.`).join(' '), text: x.cats.map((c) => c.name).join(', ') }), '.']));
+  }
+
+  /** Puts gapNote's line into a page element, or hides the element. */
+  function showGap(id, toMs) {
+    const note = gapNote(toMs), el = $(id);
+    el.hidden = !note;
+    el.replaceChildren(...(note ? [...note.childNodes] : []));
+    return Boolean(note);
   }
 
   // ---- Summary: time, resets, next event ----
@@ -275,10 +315,11 @@
         predictedBadge(statusFor(i.event)),
         h('span', { class: 'span', text: when + (live ? ' · on now' : '') }));
     });
-    if (!li.length) li.push(h('li', { class: 'none', text: 'Nothing you follow is scheduled.' }));
+    const note = gapNote(to);
+    if (!li.length) li.push(h('li', { class: 'none', text: note ? 'Nothing known yet.' : 'Nothing you follow is scheduled.' }));
     return h('div', { class: 'week-col' },
       h('h3', {}, title, ' ', h('span', { class: 'dates', text: `${at(from, 'wdate')} to ${at(to, 'wdate')}` })),
-      h('ul', { class: 'week-list' }, li));
+      h('ul', { class: 'week-list' }, li), note);
   }
 
   function weekGrid(list, now) {
@@ -301,22 +342,30 @@
       for (const w of S.windows(s, now, until)) items.push({ event: e, start: w.start, end: w.end, name: w.name });
     }
     items.sort((a, b) => a.start - b.start || a.event.name.localeCompare(b.event.name));
-    const months = new Map();
+    // Every month from this one to the end of the data, so a month with nothing known still shows.
+    const months = [];
+    for (let w = S.wallClock(z, now), y = w.y, mo = w.mo; ; mo === 12 ? (y++, mo = 1) : mo++) {
+      const start = S.wallToUtc(z, y, mo, 1, 0, 0), end = S.wallToUtc(z, mo === 12 ? y + 1 : y, mo === 12 ? 1 : mo + 1, 1, 0, 0);
+      if (start > until) break;
+      months.push({ key: `${y}-${String(mo).padStart(2, '0')}`, label: at(Math.max(start, now), 'month'), end, items: [] });
+    }
     for (const i of items) {
       const k = S.dayKey(Math.max(i.start, now), z).slice(0, 7);
-      if (!months.has(k)) months.set(k, { label: at(Math.max(i.start, now), 'month'), items: [] });
-      months.get(k).items.push(i);
+      const m = months.find((x) => x.key === k);
+      if (m) m.items.push(i);
     }
-    return [...months.values()].map((m) => h('div', { class: 'month' },
+    return months.map((m) => h('div', { class: 'month' },
       h('h3', { text: m.label }),
-      h('ol', { class: 'agenda' }, m.items.map((i) => {
+      gapNote(Math.min(m.end, DATA_END)),
+      m.items.length ? null : h('p', { class: 'month-none', text: gaps(Math.min(m.end, DATA_END)).length ? 'Nothing else known yet.' : 'Nothing you follow this month.' }),
+      m.items.length ? h('ol', { class: 'agenda' }, m.items.map((i) => {
         const live = i.start <= now && now < i.end;
         return h('li', { class: live ? 'is-now' : null, 'data-cat': i.event.category, 'data-id': i.event.id },
           h('span', { class: 'dates', text: span(i.start, i.end) }),
           h('span', { class: 'what' },
             h('span', { class: 'name', text: nameOf(i) }), badges(i.event),
             h('span', { class: 'sub', text: live ? `on now, ends ${at(i.end, 'full')}` : `starts ${at(i.start, 'full')}` })));
-      }))));
+      })) : null));
   }
 
   // ---- Render: a full rebuild only when what is listed changes; countdown text every second ----
@@ -343,7 +392,9 @@
       $('summary').replaceChildren(...summaryItems(now, nextItem));
       $('region-line').replaceChildren(...regionLine());
       $('now-list').replaceChildren(...nowItems.map((i) => card(i, now)));
+      const nowGap = showGap('now-gap', now + 1);
       $('now-empty').hidden = nowItems.length > 0;
+      $('now-empty').textContent = nowGap ? 'Nothing known is in its scheduled window right now.' : 'Nothing you follow is in its scheduled window right now.';
       const starred = new Set(prefs.starred);
       const top = prefs.filter === 'starred' ? [] : nextItems.filter((i) => starred.has(i.event.id));
       const rest = prefs.filter === 'starred' ? nextItems : nextItems.filter((i) => !starred.has(i.event.id));
@@ -353,15 +404,18 @@
       $('next-list').replaceChildren(...rows);
       const empty = $('next-empty');
       empty.hidden = nextItems.length > 0;
+      const nextGap = showGap('next-gap', now + prefs.aheadHours * S.HOUR);
       if (!nextItems.length) {
-        empty.textContent = `Nothing you follow starts in the next ${aheadText(prefs.aheadHours)}.`
-          + (nextItem ? ` Next: ${nextItem.event.name}, ${at(nextItem.start, 'full')}.` : '');
+        empty.textContent = `Nothing ${nextGap ? 'known' : 'you follow'} starts in the next ${aheadText(prefs.aheadHours)}.`
+          + (nextItem ? ` Next: ${nameOf(nextItem)}, ${at(nextItem.start, 'full')}.` : '');
       }
       $('coming-hint').textContent = `next ${aheadText(prefs.aheadHours)}, ${zoneName() === 'UTC' ? 'in UTC' : `your time (${zoneName()})`}`;
       $('week-grid').replaceChildren(...weekGrid(list, now));
       $('week-hint').textContent = `${REGION.get(region()).name} reset weeks`;
       const months = calendarMonths(list, now);
-      $('calendar').replaceChildren(...(months.length ? months : [h('p', { class: 'empty', text: 'Nothing you follow is on the calendar.' })]));
+      const anyItem = months.some((m) => m.querySelector('.agenda'));
+      $('calendar').replaceChildren(...(anyItem || gaps(COVERS_UNTIL).length ? months : [h('p', { class: 'empty', text: 'Nothing you follow is on the calendar.' })]),
+        h('p', { class: 'gap', text: `Nothing after ${isoDay(DATA.meta.coversUntil)} is in the data yet.` }));
       $('calendar-hint').textContent = `through ${isoDay(DATA.meta.coversUntil)}`;
       if (focusKey) { const el = document.querySelector(`[data-fkey="${CSS.escape(focusKey)}"]`); if (el) el.focus(); }
     }
@@ -441,6 +495,7 @@
     else if (t.id === 'about-btn') $('about').showModal();
     else if (t.id === 'hidden-btn') { renderHidden(); $('hidden-dialog').showModal(); }
     else if (t.id === 'news-toggle') { prefs.newsOpen = !prefs.newsOpen; savePrefs(); renderNews(); if (prefs.newsOpen) loadNews(); }
+    else if (t.id === 'news-shop') { prefs.newsShop = !prefs.newsShop; savePrefs(); renderNews(); }
     else if (t.id === 'share-btn') share();
     else if (a('data-close') !== null) t.closest('dialog').close();
   });
@@ -507,9 +562,14 @@
         failed: ['Headlines cannot load here. Read them on ', home, '.'],
       }[newsState.status];
       $('news-note').replaceChildren(...note);
-      $('news-list').replaceChildren(...newsState.items.map((i) => h('li', {},
+      $('news-list').replaceChildren(...News.visible(newsState.items, prefs.newsShop).map((i) => h('li', {},
         h('a', { href: i.link, target: '_blank', rel: 'noopener noreferrer', text: i.title }),
         h('span', { class: 'meta' }, i.category ? `${i.category} · ` : '', i.dateMs ? h('time', { datetime: new Date(i.dateMs).toISOString(), text: formats().newsDay.format(i.dateMs) }) : ''))));
+      // Store posts are left out by default; the button says how many and brings them back.
+      const shop = newsState.items.slice(0, News.KEEP_ITEMS).filter(News.isShop).length;
+      $('news-shop').hidden = !shop && !prefs.newsShop;
+      $('news-shop').textContent = prefs.newsShop ? 'Hide shop posts' : `Show ${shop} shop ${shop === 1 ? 'post' : 'posts'}`;
+      $('news-shop').setAttribute('aria-pressed', String(prefs.newsShop));
     } catch (e) { /* the news section never breaks the page */ }
   }
 

@@ -144,6 +144,11 @@ export function engineTests(test) {
     assert.deepEqual(S.windows(every, t + 20 * MIN, t + 3 * HOUR).map((w) => iso(w.start)), ['2026-10-28T11:00:00Z', '2026-10-28T12:00:00Z']);
   });
 
+  test('a first-Sunday rule respects until: no window starts at or after it', () => {
+    const bounded = Object.assign({}, dmf, { until: '2027-01-03T08:01:00Z' });
+    assert.deepEqual(S.windows(bounded, utc('2026-10-28T00:00:00Z'), utc('2027-06-01T00:00:00Z')).map((x) => iso(x.start)), ['2026-11-01T07:01:00Z', '2026-12-06T08:01:00Z']);
+  });
+
   test('"every" respects from and until', () => {
     const bounded = Object.assign({}, every, { from: '2026-10-28T10:00:00Z', until: '2026-10-28T12:00:00Z' });
     assert.deepEqual(S.windows(bounded, utc('2026-10-28T00:00:00Z'), utc('2026-10-29T00:00:00Z')).map((w) => iso(w.start)), ['2026-10-28T10:00:00Z', '2026-10-28T11:00:00Z']);

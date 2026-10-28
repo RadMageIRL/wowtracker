@@ -12,7 +12,7 @@ import { ROOT, buildData } from './build-data.mjs';
 
 /** The files the site is made of, relative to the repo root. Nothing else is published. */
 export const SITE_FILES = [
-  'index.html', 'style.css', 'events-data.js',
+  'index.html', 'style.css', 'events-data.js', '.nojekyll',
   'js/config.js', 'js/theme-boot.js', 'js/schedule.js', 'js/store.js', 'js/news.js', 'js/clock.js', 'js/app.js',
 ];
 

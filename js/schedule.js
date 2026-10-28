@@ -117,7 +117,7 @@
    * Every window of a schedule that overlaps [fromMs, toMs), in start order: [{ start, end }].
    *   dates:      { windows: [{ start, end }] } with ISO 8601 instants (offset required)
    *   every:      { periodMin, offsetMin, durationMin } counted from the Unix epoch, optional from/until
-   *   monthlyNth: { n, weekday, time, zone, durationMin } (n = 1 for the first weekday of the month)
+   *   monthlyNth: { n, weekday, time, zone, durationMin } (n = 1 for the first weekday of the month), optional until
    */
   function windows(schedule, fromMs, toMs) {
     const out = [];
@@ -137,6 +137,7 @@
       }
     } else if (schedule.type === 'monthlyNth') {
       const [h, mi] = hm(schedule.time), w = schedule.durationMin * MIN;
+      const stop = schedule.until ? Math.min(toMs, Date.parse(schedule.until)) : toMs;
       const c = wallClock(schedule.zone, fromMs - w - DAY);
       for (let k = 0; ; k++) {
         const y = c.y + Math.floor((c.mo - 1 + k) / 12), mo = ((c.mo - 1 + k) % 12) + 1;
@@ -144,7 +145,7 @@
         const d = 1 + ((schedule.weekday - firstWd + 7) % 7) + (schedule.n - 1) * 7;
         if (d > daysInMonth(y, mo)) continue;
         const start = wallToUtc(schedule.zone, y, mo, d, h, mi);
-        if (start >= toMs) break;
+        if (start >= stop) break;
         if (start + w > fromMs) out.push({ start, end: start + w });
       }
     } else {

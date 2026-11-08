@@ -851,7 +851,8 @@ check('on a desktop at most three notices show, soonest first, the rest behind "
   assert.ok(!first.includes("Thorm'belan C (Predicted)"), `the 15:05 start is not among the first three: ${first}`);
   assert.equal(await text(page, '#reminders-expand'), '+2 more reminders');
   const folded = await page.eval(`document.getElementById('reminders-tray').getBoundingClientRect().height`);
-  assert.ok(folded < 260, `${folded} px with three notices and the bar`);
+  // Relative to the window, not a pixel count: a notice can take two lines with other fonts (262 px on CI's Linux, 242 on Windows).
+  assert.ok(folded <= (await page.eval('innerHeight')) / 3, `${folded} px with three notices and the bar`);
   await click(page, '#reminders-expand');
   const all = await shownReminders(page);
   assert.equal(all.length, 5);

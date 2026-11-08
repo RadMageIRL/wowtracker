@@ -147,7 +147,10 @@ main > * { min-width: 0; }
 
 /* Controls */
 
-.controls { padding: 12px 14px; display: grid; gap: 10px; }
+.controls { padding: 12px 14px; }
+.filters-body { display: grid; gap: 10px; }
+/* On phones the filters fold behind one button that says what is set; wider screens never show it. */
+.filters-toggle { display: none; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
   display: inline-flex; align-items: center; gap: 6px;
@@ -287,18 +290,26 @@ main > * { min-width: 0; }
 .compact .agenda li { padding: 3px 10px; }
 .compact .agenda .sub { display: none; }
 
-/* News */
+/* News: under the resets, the three newest headlines unless the reader asks for all. One line each
+   on wide screens, at most two on phones. Nothing here animates. */
 
-.news { padding: 12px 16px; }
-.news .section-head { margin-bottom: 0; }
-#news-body { margin-top: 8px; }
-.news-note { margin: 0 0 8px; color: var(--text-faint); font-size: 12.5px; }
-.news-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
-.news-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; }
-.news-list a { color: var(--text); text-decoration: none; overflow-wrap: anywhere; min-width: 0; }
+.news { padding: 9px 16px 6px; }
+.news-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 10px; }
+.news-head h2 { margin: 0; font: 600 16px/1.2 var(--serif); letter-spacing: 0.02em; }
+.news-tools { margin-left: auto; display: flex; gap: 14px; }
+#news-body { margin-top: 4px; }
+.news-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.news-list li { display: grid; grid-template-columns: 50px minmax(0, 1fr) auto; align-items: baseline; gap: 10px; font-size: 14px; line-height: 1.45; min-height: 1.45em; }
+.news-list time, .news-list .no-date { color: var(--text-faint); font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.news-list a { display: block; min-width: 0; color: var(--text); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .news-list a:hover { text-decoration: underline; }
-.news-list .meta { color: var(--text-faint); font-size: 12.5px; white-space: nowrap; }
-.news-shop { margin-top: 6px; font-size: 12.5px; }
+.news-list .cat { color: var(--text-faint); font-size: 12px; white-space: nowrap; }
+.news-list .ph { background: linear-gradient(var(--line), var(--line)) 60px 50% / 55% 6px no-repeat; }
+/* As tall as its button from the start, so the shop button appearing later moves nothing. */
+.news-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; margin: 0; min-height: 30px; }
+.news-note { color: var(--text-faint); font-size: 12px; }
+.news-note a { color: var(--text-dim); }
+.news-shop { font-size: 12.5px; }
 
 /* Footer, dialogs, toast */
 
@@ -353,4 +364,19 @@ dialog a { color: var(--text); }
   .row .actions { justify-content: flex-start; }
   .compact .row { grid-template-columns: minmax(0, 1fr); }
   .agenda li { grid-template-columns: 1fr; }
+  .controls { padding: 6px 12px; }
+  .filters-toggle {
+    display: flex; align-items: center; gap: 8px; width: 100%; min-height: 36px; padding: 0;
+    border: 0; background: none; color: var(--text); font-size: 14px; text-align: left; cursor: pointer;
+  }
+  .filters-label { font-weight: 600; }
+  .filters-summary { min-width: 0; color: var(--text-faint); font-size: 12.5px; overflow-wrap: anywhere; }
+  .filters-act { margin-left: auto; color: var(--text-dim); font-size: 13px; text-decoration: underline; }
+  .controls:not(.is-open) .filters-body { display: none; }
+  .controls.is-open .filters-body { margin: 4px 0 6px; }
+  .news { padding: 8px 12px 4px; }
+  .news-list li { grid-template-columns: 44px minmax(0, 1fr); gap: 8px; }
+  .news-list a { white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+  .news-list .cat { display: none; }
+  .news-list .ph { background-position: 52px 50%; }
 }

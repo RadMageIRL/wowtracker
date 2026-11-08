@@ -36,6 +36,7 @@ const servers = [];
 async function site(dir, opts) { const s = await serve(dir, 0, opts); servers.push(s.server); return `http://127.0.0.1:${s.port}/`; }
 const BASE = await site(DIR, { sendDate: false, news: { body: FEED } });
 const NO_NEWS = await site(DIR, { sendDate: false, news: 'off' });
+const SLOW_NEWS = await site(DIR, { sendDate: false, news: { body: FEED, delayMs: 2500 } });
 const EMPTY_BASE = await site(EMPTY, { sendDate: false, news: 'off' });
 const MISSING_BASE = await site(MISSING, { sendDate: false, news: 'off' });
 const DATED = await site(DIR, { sendDate: true, news: 'off' });
@@ -242,7 +243,9 @@ check('with no events the resets still count down and every list says it is empt
   assert.equal(await page.eval(`document.getElementById('now-empty').hidden`), false);
   assert.equal(await page.eval(`document.getElementById('next-empty').hidden`), false);
   assert.match(await text(page, '#calendar'), /^October 2026Nothing you follow this month\.November 2026Nothing you follow this month\.December 2026Not known yet from/);
-  assert.deepEqual(page.problems, []);
+  // This server has no news.json (like github.io); the 404 is the only thing allowed, and news says so.
+  await page.waitFor(`/cannot load/.test(document.getElementById('news-note').textContent)`);
+  assert.deepEqual(page.problems.filter((p) => !/^HTTP 404 \S+\/news\.json$/.test(p)), []);
   await page.close();
 });
 
@@ -255,35 +258,75 @@ check('without the data file the page says the schedule did not load, with no sc
 
 // ---- News ----
 
-check('news stays closed and asks nothing until opened; then eight Blizzard headlines show as plain text', async () => {
+const newsTitles = (page) => page.eval(`[...document.querySelectorAll('#news-list li a')].map((a) => a.firstChild.textContent)`);
+const newsAsked = (page) => page.requests.filter((u) => u.includes('news.json')).length;
+
+check('news opens under the resets once the page has loaded: three headlines, Show all and Collapse are saved, shop posts go by category only', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z') });
-  assert.equal(page.requests.filter((u) => u.includes('news.json')).length, 0);
-  await click(page, '#news-toggle');
-  await page.waitFor(`document.querySelectorAll('#news-list li').length === 8`);
-  assert.equal(await text(page, '#news-list li a'), 'Hotfixes: October 27, 2026');
+  const tops = await page.eval(`['.summary', '#news', '#filters', '#now-list'].map((s) => Math.round(document.querySelector(s).getBoundingClientRect().top))`);
+  assert.deepEqual([...tops].sort((a, b) => a - b), tops, `resets, news, filters, Happening now in that order (${tops})`);
+  await page.waitFor(`document.querySelectorAll('#news-list li a').length === 3`);
+  const [asked, loaded] = await page.eval(`[(performance.getEntriesByType('resource').find((e) => e.name.endsWith('/news.json')) || { startTime: -1 }).startTime, performance.getEntriesByType('navigation')[0].domContentLoadedEventEnd]`);
+  assert.ok(asked > loaded, `news.json was asked for at ${Math.round(asked)} ms, after the page loaded at ${Math.round(loaded)} ms`);
+  const three = await newsTitles(page);
+  assert.equal(three[0], 'Hotfixes: October 27, 2026');
+  assert.ok(three.some((t) => /WoW: Forever/.test(t)), 'WoW: Forever posts are not filtered out');
   const links = await page.eval(`[...document.querySelectorAll('#news-list a')].map((a) => [a.href, a.target, a.rel])`);
   for (const [href, target, rel] of links) { assert.match(href, /^https:\/\/news\.blizzard\.com\/en-us\//); assert.equal(target, '_blank'); assert.match(rel, /noopener/); }
   assert.equal(await page.eval(`document.querySelectorAll('#news-list b, #news-list script').length`), 0);
-  // Shop posts are left out by default; the button brings them back, and the choice is saved.
-  assert.ok((await texts(page, '#news-list .meta')).every((t) => !/^(Shop Now|Sale|ON SALE) ·/.test(t)));
-  assert.ok((await texts(page, '#news-list a')).includes('Hotfixes: a mount sale price shown wrong in the shop is fixed'));
+  // Show all brings the rest; shop posts stay out (by Blizzard's category) until asked for. Both are saved.
+  assert.equal(await text(page, '#news-all'), 'Show all 8');
+  await click(page, '#news-all');
+  assert.equal((await newsTitles(page)).length, 8);
+  assert.equal(await page.eval(`document.getElementById('news-all').getAttribute('aria-expanded')`), 'true');
+  await page.reload(); // before any other choice is saved, so Show all has to be saved by itself
+  await page.waitFor(`document.querySelectorAll('#news-list li a').length === 8`);
+  assert.equal(await text(page, '#news-all'), 'Show fewer', 'Show all is saved');
+  assert.ok((await texts(page, '#news-list .cat')).every((c) => !/^(shop now|sale|on sale|pre-purchase)$/i.test(c)));
+  assert.ok((await newsTitles(page)).includes('Hotfixes: a mount sale price shown wrong in the shop is fixed'), 'a game post that mentions a sale stays');
   assert.equal(await text(page, '#news-shop'), 'Show 5 shop posts');
   await click(page, '#news-shop');
-  assert.ok((await texts(page, '#news-list .meta')).some((t) => /^Shop Now ·/.test(t)));
-  assert.equal(await text(page, '#news-shop'), 'Hide shop posts');
+  assert.ok((await texts(page, '#news-list .cat')).includes('Shop Now'));
   await page.reload();
-  await page.waitFor(`document.querySelectorAll('#news-list li').length === 8`);
-  assert.equal(await text(page, '#news-shop'), 'Hide shop posts', 'the choice to show shop posts is saved');
+  await page.waitFor(`document.querySelectorAll('#news-list li a').length === 8`);
+  assert.equal(await text(page, '#news-shop'), 'Hide shop posts', 'the shop choice is saved');
+  assert.equal(await text(page, '#news-all'), 'Show fewer', 'Show all is saved');
   await click(page, '#news-shop');
-  assert.equal(await text(page, '#news-shop'), 'Show 5 shop posts');
+  await click(page, '#news-all');
+  assert.equal((await newsTitles(page)).length, 3);
+  // Collapse is saved, and a collapsed panel asks for nothing (the saved copy is cleared, so it would have to).
+  await click(page, '#news-toggle');
+  assert.equal(await page.eval(`document.getElementById('news-body').hidden`), true);
+  assert.equal(await text(page, '#news-toggle'), 'Show news');
+  assert.equal(await page.eval(`document.getElementById('news-toggle').getAttribute('aria-expanded')`), 'false');
+  await page.eval(`localStorage.removeItem('wowtracker:v1:news')`);
+  const before = newsAsked(page);
   await page.reload();
-  await page.waitFor(`document.querySelectorAll('#news-list li').length === 8`);
-  assert.equal(await page.eval(`document.getElementById('news-toggle').getAttribute('aria-expanded')`), 'true', 'open state is saved');
+  await sleep(2500);
+  assert.equal(newsAsked(page), before, 'a collapsed panel asks nothing on load');
+  assert.equal(await page.eval(`document.getElementById('news-body').hidden`), true, 'collapsed is saved');
+  await click(page, '#news-toggle');
+  await page.waitFor(`document.querySelectorAll('#news-list li a').length === 3`);
+  assert.equal(newsAsked(page), before + 1);
   await page.close();
 });
 
+check('a slow news answer never holds up the countdowns or moves Happening now, and v0.1 settings come back with news open', async () => {
+  for (const [width, mobile, slack] of [[1280, false, 2], [390, true, 70]]) {
+    const page = await open({ at: utc('2026-10-28T01:30:00Z'), url: SLOW_NEWS, width, height: 844, mobile, prefs: { region: 'us', newsOpen: false, newsShop: false } });
+    assert.ok((await text(page, '#clock-now')).length > 0 && (await cardNames(page)).length >= 3, 'the dashboard is drawn while news is still on its way');
+    assert.equal(await page.eval(`document.querySelectorAll('#news-list li.ph').length`), 3, 'three lines hold the space');
+    const first = await page.eval(`Math.round(document.getElementById('now-title').getBoundingClientRect().top + scrollY)`);
+    await page.waitFor(`document.querySelectorAll('#news-list li a').length === 3`, 8000);
+    const after = await page.eval(`Math.round(document.getElementById('now-title').getBoundingClientRect().top + scrollY)`);
+    assert.ok(Math.abs(after - first) <= slack, `at ${width} px Happening now moved ${after - first} px when the headlines arrived`);
+    if (mobile) assert.ok(after <= 760, `at 390 x 844 Happening now starts at ${after} px with news open`);
+    await page.close();
+  }
+});
+
 check('when news.json is missing the section links to Blizzard News and the timers carry on', async () => {
-  const page = await open({ at: utc('2026-10-28T01:30:00Z'), url: NO_NEWS, prefs: { newsOpen: true } });
+  const page = await open({ at: utc('2026-10-28T01:30:00Z'), url: NO_NEWS });
   await page.waitFor(`/cannot load/.test(document.getElementById('news-note').textContent)`);
   assert.equal(await page.eval(`document.querySelector('#news-note a').href`), 'https://news.blizzard.com/en-us/feed/world-of-warcraft');
   assert.ok((await cardNames(page)).length >= 3);
@@ -293,7 +336,6 @@ check('when news.json is missing the section links to Blizzard News and the time
 check('opened from a file: the page works, news links out, nothing errors', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z'), url: pathToFileURL(join(DIR, 'index.html')).href, prefs: null });
   assert.ok((await cardNames(page)).length >= 3);
-  await click(page, '#news-toggle');
   await page.waitFor(`/cannot load/.test(document.getElementById('news-note').textContent)`);
   assert.deepEqual(page.problems, []);
   await page.close();
@@ -383,8 +425,9 @@ check('before any gap, nothing says "Not known yet": on 2026-10-28 with a 1-day 
 
 for (const [w, mobile] of [[390, true], [360, true], [768, false]]) {
   check(`at ${w} px nothing scrolls sideways and every control can be reached`, async () => {
-    const page = await open({ at: utc('2026-10-28T01:30:00Z'), width: w, height: 800, mobile, prefs: { newsOpen: true } });
-    await page.waitFor(`document.querySelectorAll('#news-list li').length > 0`);
+    const page = await open({ at: utc('2026-10-28T01:30:00Z'), width: w, height: 800, mobile });
+    await page.waitFor(`document.querySelectorAll('#news-list li a').length > 0`);
+    await click(page, '#filters-toggle'); // on phones the filters are folded; open them so every control is measured
     const wide = await page.eval(`[...document.querySelectorAll('body *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && (r.right > ${w} + 1 || r.left < -1); }).map((e) => e.tagName + '.' + e.className).slice(0, 5)`);
     assert.deepEqual(wide, []);
     assert.equal(await page.eval('document.documentElement.scrollWidth <= document.documentElement.clientWidth'), true, 'no horizontal scroll');
@@ -394,6 +437,22 @@ for (const [w, mobile] of [[390, true], [360, true], [768, false]]) {
     await page.close();
   });
 }
+
+check('on phones the filters fold behind one button that says what is set; wide screens show them as before', async () => {
+  const page = await open({ at: utc('2026-10-28T01:30:00Z'), width: 390, height: 844, mobile: true, prefs: { filter: 'starred', aheadHours: 24, timeMode: 'utc', hidden: ['moonkin-festival'] } });
+  const shown = (p, sel) => p.eval(`document.querySelector(${JSON.stringify(sel)}).offsetParent !== null`);
+  assert.equal(await shown(page, '#category-chips'), false, 'folded on a phone');
+  assert.equal(await text(page, '#filters-summary'), 'Starred · all categories · 24 hours · UTC · 1 hidden');
+  await click(page, '#filters-toggle');
+  assert.equal(await shown(page, '#category-chips'), true);
+  assert.equal(await page.eval(`document.getElementById('filters-toggle').getAttribute('aria-expanded')`), 'true');
+  assert.equal(await text(page, '#filters-act'), 'Hide');
+  await page.close();
+  const wide = await open({ at: utc('2026-10-28T01:30:00Z'), width: 1280 });
+  assert.equal(await shown(wide, '#filters-toggle'), false, 'no fold on a wide screen');
+  assert.equal(await shown(wide, '#category-chips'), true);
+  await wide.close();
+});
 
 check('keyboard: Tab starts at the skip link, reaches the region buttons, and Escape closes About', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z') });

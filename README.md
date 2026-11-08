@@ -11,7 +11,7 @@ Use it online at **[radmagelabs.com/wow](https://radmagelabs.com/wow/)** (also a
 - **Coming up:** what starts in the next hour, few hours or days, with Today and Tomorrow headings.
 - **Weekly overview:** this reset week and the next, including the week's world boss.
 - **Event calendar:** holidays, the Darkmoon Faire, Timewalking and bonus weeks by month.
-- **Latest news:** headlines from Blizzard News, collapsed until you open it. Shop, sale and pre-purchase posts (by Blizzard's own categories) are left out unless you ask for them.
+- **Latest news:** the three newest headlines from Blizzard News, right under the resets, with Show all and Collapse (both remembered). Shop, sale and pre-purchase posts (by Blizzard's own categories) are left out unless you ask for them.
 - Stars, hiding with a Hidden list to bring things back, category filters, compact mode, Dark / Light / System themes, and local, UTC or both. Everything is saved in your browser only.
 
 ## How sure the times are
@@ -56,7 +56,7 @@ Found a wrong time or a missing event? Open an issue at [github.com/RadMageIRL/w
 
 ## Privacy
 
-No accounts, ads, analytics or tracking. Settings stay in your browser. The page asks its own site for the time (to correct a wrong device clock) and, when you open Latest news, for Blizzard's news list.
+No accounts, ads, analytics or tracking. Settings stay in your browser. The page asks its own site for the time (to correct a wrong device clock) and, unless you collapse Latest news, for Blizzard's news list. That request goes to this site, which passes Blizzard's list through, so Blizzard sees the site and not you.
 
 ## License
 

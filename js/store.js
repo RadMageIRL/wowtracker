@@ -21,7 +21,7 @@
   function defaults(categoryIds, zone) {
     return {
       region: guessRegion(zone), filter: 'all', categories: categoryIds.slice(), starred: [], hidden: [],
-      aheadHours: 168, compact: false, timeMode: 'local', theme: 'dark', newsOpen: false, newsShop: false,
+      aheadHours: 168, compact: false, timeMode: 'local', theme: 'dark', newsCollapsed: false, newsAll: false, newsShop: false,
     };
   }
 
@@ -44,7 +44,10 @@
       compact: raw.compact === true,
       timeMode: pick(raw.timeMode, TIME_MODES, d.timeMode),
       theme: pick(raw.theme, THEMES, d.theme),
-      newsOpen: raw.newsOpen === true,
+      // News is open unless the reader collapsed it. v0.1 saved newsOpen: false for everyone who never
+      // opened news, so that old field is ignored and v0.1 settings come back with news open.
+      newsCollapsed: raw.newsCollapsed === true,
+      newsAll: raw.newsAll === true,
       newsShop: raw.newsShop === true,
     };
   }

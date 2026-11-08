@@ -36,6 +36,8 @@ export function serve(dir, port = 0, { sendDate = true, news = 'proxy' } = {}) {
       let path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
       if (path.endsWith('/news.json')) {
         if (news === 'off') { res.writeHead(404, { 'Content-Type': 'text/plain' }).end('Not found'); return; }
+        // Tests can make the answer slow, to check that news never holds up or moves the dashboard.
+        if (typeof news === 'object' && news.delayMs) await new Promise((ok) => setTimeout(ok, news.delayMs));
         const body = typeof news === 'object' ? Buffer.from(news.body) : (await newsBody()).body;
         res.writeHead(typeof news === 'object' && news.status ? news.status : 200, { 'Content-Type': 'application/json', 'Content-Length': body.length, 'Cache-Control': 'no-cache' });
         res.end(req.method === 'HEAD' ? undefined : body);

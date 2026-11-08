@@ -13,9 +13,11 @@
   const BLIZZARD_NEWS = 'https://news.blizzard.com/en-us/feed/world-of-warcraft';
   /** Blizzard's list behind news.json (used by tools/serve.mjs). */
   const UPSTREAM = 'https://news.blizzard.com/en-us/api/feed/world-of-warcraft';
-  /** Headlines shown, and how many are kept so filtering still leaves enough to show. */
+  /** Headlines shown with Show all, and how many are kept so filtering still leaves enough to show. */
   const MAX_ITEMS = 8;
   const KEEP_ITEMS = 20;
+  /** Headlines shown until the reader asks for all of them. */
+  const PREVIEW = 3;
   /**
    * Blizzard's own labels for store posts. Only these exact categories count as shop posts, never
    * words in a title, so a game update that mentions a sale or a mount is never hidden. "New Mount"
@@ -96,9 +98,15 @@
   /** True for a post Blizzard files under one of its store categories. */
   const isShop = (item) => SHOP_CATEGORIES.includes(String(item && item.category || '').trim().toLowerCase());
 
-  /** The headlines to show: shop posts left out unless asked for, newest first, at most MAX_ITEMS. */
+  /** Every headline that can be shown: shop posts left out unless asked for, newest first, at most MAX_ITEMS. */
   function visible(items, showShop) {
     return (items || []).filter((i) => showShop || !isShop(i)).slice(0, MAX_ITEMS);
+  }
+
+  /** The headlines on screen: the newest PREVIEW of those, or all of them when the reader asked. */
+  function shown(items, showShop, all) {
+    const list = visible(items, showShop);
+    return all ? list : list.slice(0, PREVIEW);
   }
 
   /** A copy read back from storage, kept only if it still looks like what parseNews returns. */
@@ -109,7 +117,7 @@
     return items.length ? { fetchedAt: raw.fetchedAt, items: newestFirst(items, KEEP_ITEMS) } : null;
   }
 
-  const News = { NEWS_PATH, NEWS_HOST, BLIZZARD_NEWS, UPSTREAM, MAX_ITEMS, KEEP_ITEMS, SHOP_CATEGORIES, REFRESH_MS, TIMEOUT_MS, plainText, cleanLink, parseNews, isShop, visible, isFresh, sanitizeCache };
+  const News = { NEWS_PATH, NEWS_HOST, BLIZZARD_NEWS, UPSTREAM, MAX_ITEMS, KEEP_ITEMS, PREVIEW, SHOP_CATEGORIES, REFRESH_MS, TIMEOUT_MS, plainText, cleanLink, parseNews, isShop, visible, shown, isFresh, sanitizeCache };
   if (typeof module === 'object' && module.exports) module.exports = News;
   else root.WoWNews = News;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

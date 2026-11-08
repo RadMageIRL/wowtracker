@@ -49,7 +49,26 @@
       <p class="region-line" id="region-line"></p>
     </section>
 
-    <section class="controls panel" aria-label="Filters">
+    <section class="news panel" id="news" aria-labelledby="news-title">
+      <div class="news-head">
+        <h2 id="news-title">Latest news</h2>
+        <span class="news-tools">
+          <button type="button" class="link-btn" id="news-all" aria-controls="news-list" aria-expanded="false" hidden>Show all</button>
+          <button type="button" class="link-btn" id="news-toggle" aria-controls="news-body" aria-expanded="true">Collapse</button>
+        </span>
+      </div>
+      <div id="news-body">
+        <ul class="news-list" id="news-list"></ul>
+        <p class="news-foot">
+          <span class="news-note" id="news-note"></span>
+          <button type="button" class="link-btn news-shop" id="news-shop" aria-pressed="false" hidden>Show shop posts</button>
+        </p>
+      </div>
+    </section>
+
+    <section class="controls panel" id="filters" aria-label="Filters">
+      <button type="button" class="filters-toggle" id="filters-toggle" aria-expanded="false" aria-controls="filters-body"><span class="filters-label">Filters</span> <span class="filters-summary" id="filters-summary"></span> <span class="filters-act" id="filters-act">Show</span></button>
+      <div class="filters-body" id="filters-body">
       <div class="chips" id="category-chips" role="group" aria-label="Categories"></div>
       <div class="control-row">
         <div class="seg" role="group" aria-label="Show">
@@ -76,6 +95,7 @@
         </label>
         <button type="button" class="btn small" id="compact-btn" aria-pressed="false">Compact</button>
         <button type="button" class="btn small" id="hidden-btn" aria-haspopup="dialog">Hidden (0)</button>
+      </div>
       </div>
     </section>
 
@@ -116,18 +136,6 @@
       <div class="calendar" id="calendar"></div>
       <p class="untracked" id="untracked"></p>
     </section>
-
-    <section class="news panel" aria-labelledby="news-title">
-      <div class="section-head">
-        <h2 id="news-title">Latest news</h2>
-        <button type="button" class="link-btn" id="news-toggle" aria-expanded="false" aria-controls="news-body">Show</button>
-      </div>
-      <div id="news-body" hidden>
-        <p class="news-note" id="news-note"></p>
-        <ul class="news-list" id="news-list"></ul>
-        <button type="button" class="link-btn news-shop" id="news-shop" aria-pressed="false" hidden>Show shop posts</button>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">
@@ -152,7 +160,7 @@
     <h3>Schedule data</h3>
     <p id="about-data"></p>
     <h3>Privacy</h3>
-    <p id="about-privacy">Settings, stars and hidden events are saved in this browser only. Two things leave it: the clock check asks this site's own address for the time, and opening Latest news asks this site for Blizzard's news list.</p>
+    <p id="about-privacy">Settings, stars and hidden events are saved in this browser only. Two things leave it: the clock check asks this site's own address for the time, and Latest news asks this site for Blizzard's news list (not while you have it collapsed). Blizzard sees this site's request, not yours.</p>
     <p class="legal">Unofficial fan tool, not affiliated with or endorsed by Blizzard Entertainment. World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.</p>
   </dialog>
 

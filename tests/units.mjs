@@ -35,7 +35,8 @@ export function unitTests(test) {
       assert.equal(p.theme, 'dark');
       assert.deepEqual(p.categories, CATS);
       assert.equal(p.compact, false);
-      assert.equal(p.newsOpen, false);
+      assert.equal(p.newsCollapsed, false, 'news is open by default');
+      assert.equal(p.newsAll, false, 'three headlines by default');
     }
   });
 
@@ -55,10 +56,19 @@ export function unitTests(test) {
   });
 
   test('a saved region, filter, span, time mode, theme and news choices come back as saved', () => {
-    const p = Store.sanitizePrefs({ region: 'eu', filter: 'starred', aheadHours: 8, timeMode: 'utc', theme: 'system', compact: true, newsOpen: true, newsShop: true }, EVENTS, CATS, 'America/Chicago');
-    assert.deepEqual([p.region, p.filter, p.aheadHours, p.timeMode, p.theme, p.compact, p.newsOpen, p.newsShop], ['eu', 'starred', 8, 'utc', 'system', true, true, true]);
+    const p = Store.sanitizePrefs({ region: 'eu', filter: 'starred', aheadHours: 8, timeMode: 'utc', theme: 'system', compact: true, newsCollapsed: true, newsAll: true, newsShop: true }, EVENTS, CATS, 'America/Chicago');
+    assert.deepEqual([p.region, p.filter, p.aheadHours, p.timeMode, p.theme, p.compact, p.newsCollapsed, p.newsAll, p.newsShop], ['eu', 'starred', 8, 'utc', 'system', true, true, true, true]);
     assert.equal(Store.sanitizePrefs({}, EVENTS, CATS, 'UTC').newsShop, false, 'shop posts are hidden by default');
     assert.equal(Store.sanitizePrefs({ newsShop: 'yes' }, EVENTS, CATS, 'UTC').newsShop, false);
+    assert.equal(Store.sanitizePrefs({ newsCollapsed: 'yes', newsAll: 1 }, EVENTS, CATS, 'UTC').newsCollapsed, false);
+  });
+
+  test('v0.1 settings come back with news open: its saved newsOpen (false unless opened) is ignored', () => {
+    for (const newsOpen of [false, true]) {
+      const p = Store.sanitizePrefs({ region: 'eu', starred: ['hallows-end'], newsOpen, newsShop: true }, EVENTS, CATS, 'UTC');
+      assert.deepEqual([p.region, p.starred, p.newsCollapsed, p.newsAll, p.newsShop], ['eu', ['hallows-end'], false, false, true]);
+      assert.equal('newsOpen' in p, false);
+    }
   });
 
   test('settings round-trip through storage under the wowtracker:v1: prefix; blocked storage never throws', () => {
@@ -85,6 +95,18 @@ export function unitTests(test) {
     assert.equal(items[0].category, 'News');
     assert.equal(News.visible(items, false).length, 8);
     assert.equal(News.visible(items, true).length, 8);
+  });
+
+  test('news shows the three newest headlines after the shop filter, or all eight when asked; WoW: Forever posts stay', () => {
+    const items = News.parseNews(FEED);
+    const three = News.shown(items, false, false);
+    assert.equal(News.PREVIEW, 3);
+    assert.deepEqual(three, News.visible(items, false).slice(0, 3));
+    assert.ok(three.every((i) => !News.isShop(i)), 'the preview never holds a shop post');
+    assert.ok(three.some((i) => /WoW: Forever/.test(i.title)), 'a WoW: Forever post is a headline like any other');
+    assert.equal(News.shown(items, false, true).length, 8);
+    assert.deepEqual(News.shown(items, true, false), News.visible(items, true).slice(0, 3));
+    assert.deepEqual(News.shown(null, false, true), []);
   });
 
   test('shop posts are only Blizzard\'s Shop Now, Sale, On Sale and Pre-purchase categories, in any case or spacing', () => {

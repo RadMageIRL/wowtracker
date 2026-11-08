@@ -439,6 +439,13 @@
     $('time-mode').value = prefs.timeMode;
     $('compact-btn').setAttribute('aria-pressed', String(prefs.compact));
     $('hidden-btn').textContent = `Hidden (${prefs.hidden.length})`;
+    // What the folded filters (phones) are set to, so they need not be opened to be read.
+    const option = (id) => { const s = $(id); return s.options[s.selectedIndex] ? s.options[s.selectedIndex].textContent : ''; };
+    $('filters-summary').textContent = [
+      prefs.filter === 'starred' ? 'Starred' : null,
+      prefs.categories.length === CATEGORIES.length ? 'all categories' : `${prefs.categories.length} of ${CATEGORIES.length} categories`,
+      option('ahead'), option('time-mode'), prefs.compact ? 'compact' : null, prefs.hidden.length ? `${prefs.hidden.length} hidden` : null,
+    ].filter(Boolean).join(' · ');
     document.body.classList.toggle('compact', prefs.compact);
     const label = { dark: 'Dark', light: 'Light', system: 'System' }[prefs.theme];
     $('theme-btn').textContent = label;
@@ -494,7 +501,13 @@
     else if (t.id === 'theme-btn') { prefs.theme = { dark: 'light', light: 'system', system: 'dark' }[prefs.theme]; changed(); }
     else if (t.id === 'about-btn') $('about').showModal();
     else if (t.id === 'hidden-btn') { renderHidden(); $('hidden-dialog').showModal(); }
-    else if (t.id === 'news-toggle') { prefs.newsOpen = !prefs.newsOpen; savePrefs(); renderNews(); if (prefs.newsOpen) loadNews(); }
+    else if (t.id === 'filters-toggle') {
+      const open = !$('filters').classList.contains('is-open');
+      $('filters').classList.toggle('is-open', open);
+      t.setAttribute('aria-expanded', String(open));
+      $('filters-act').textContent = open ? 'Hide' : 'Show';
+    } else if (t.id === 'news-toggle') { prefs.newsCollapsed = !prefs.newsCollapsed; savePrefs(); renderNews(); if (!prefs.newsCollapsed) loadNews(); }
+    else if (t.id === 'news-all') { prefs.newsAll = !prefs.newsAll; savePrefs(); renderNews(); }
     else if (t.id === 'news-shop') { prefs.newsShop = !prefs.newsShop; savePrefs(); renderNews(); }
     else if (t.id === 'share-btn') share();
     else if (a('data-close') !== null) t.closest('dialog').close();
@@ -510,6 +523,7 @@
     if (ev.key !== Store.PREFIX + 'prefs') return;
     prefs = Store.sanitizePrefs(Store.read(storage, 'prefs'), EVENTS.map((e) => e.id), CATEGORIES.map((c) => c.id), deviceZone());
     syncControls(); render(true); renderNews();
+    if (!prefs.newsCollapsed && !newsState.items.length) loadNews();
   });
 
   function renderHidden() {
@@ -545,26 +559,38 @@
 
   // ---- News (isolated: nothing here can stop the timers) ----
 
+  // Open by default, under the resets. Saved headlines show at once; a newer copy is asked for only
+  // after the dashboard has drawn, and never while news is collapsed. The list is rebuilt only when
+  // the headlines or a news setting change, never on the one-second tick.
   let newsState = { items: [], fetchedAt: null, status: 'idle' };
   function renderNews() {
     try {
-      const open = prefs.newsOpen;
-      $('news-toggle').textContent = open ? 'Hide' : 'Show';
-      $('news-toggle').setAttribute('aria-expanded', String(open));
+      const open = !prefs.newsCollapsed, toggle = $('news-toggle'), more = $('news-all');
+      toggle.textContent = open ? 'Collapse' : 'Show news';
+      toggle.setAttribute('aria-expanded', String(open));
+      $('news').classList.toggle('is-collapsed', !open);
       $('news-body').hidden = !open;
-      if (!open) return;
+      if (!open) { more.hidden = true; return; }
       const when = newsState.fetchedAt ? new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(newsState.fetchedAt) : '';
       const home = h('a', { href: News.BLIZZARD_NEWS, target: '_blank', rel: 'noopener noreferrer', text: 'Blizzard News' });
       const note = {
         idle: [], loading: ['Loading headlines...'],
-        ok: [`From `, home, `, updated ${when}.`],
+        ok: ['From ', home, `, updated ${when}.`],
         stale: [`Blizzard did not answer; these are the headlines saved ${when}. `, home],
         failed: ['Headlines cannot load here. Read them on ', home, '.'],
       }[newsState.status];
       $('news-note').replaceChildren(...note);
-      $('news-list').replaceChildren(...News.visible(newsState.items, prefs.newsShop).map((i) => h('li', {},
-        h('a', { href: i.link, target: '_blank', rel: 'noopener noreferrer', text: i.title }),
-        h('span', { class: 'meta' }, i.category ? `${i.category} · ` : '', i.dateMs ? h('time', { datetime: new Date(i.dateMs).toISOString(), text: formats().newsDay.format(i.dateMs) }) : ''))));
+      const all = News.visible(newsState.items, prefs.newsShop);
+      const rows = News.shown(newsState.items, prefs.newsShop, prefs.newsAll).map((i) => h('li', {},
+        i.dateMs ? h('time', { datetime: new Date(i.dateMs).toISOString(), text: formats().newsDay.format(i.dateMs) }) : h('span', { class: 'no-date' }),
+        h('a', { href: i.link, target: '_blank', rel: 'noopener noreferrer' }, i.title, h('span', { class: 'sr-only', text: ' (opens a new tab)' })),
+        i.category ? h('span', { class: 'cat', text: i.category }) : null));
+      // While the first copy loads, three empty lines hold the space so nothing below jumps.
+      if (!rows.length && newsState.status === 'loading') for (let n = 0; n < News.PREVIEW; n++) rows.push(h('li', { class: 'ph', 'aria-hidden': 'true' }));
+      $('news-list').replaceChildren(...rows);
+      more.hidden = all.length <= News.PREVIEW;
+      more.textContent = prefs.newsAll ? 'Show fewer' : `Show all ${all.length}`;
+      more.setAttribute('aria-expanded', String(prefs.newsAll));
       // Store posts are left out by default; the button says how many and brings them back.
       const shop = newsState.items.slice(0, News.KEEP_ITEMS).filter(News.isShop).length;
       $('news-shop').hidden = !shop && !prefs.newsShop;
@@ -573,9 +599,28 @@
     } catch (e) { /* the news section never breaks the page */ }
   }
 
+  /** The saved copy, shown before anything is asked for (it may be old; loadNews decides). */
+  function seedNews() {
+    try {
+      const cache = News.sanitizeCache(Store.read(storage, 'news'));
+      if (cache) newsState = { items: cache.items, fetchedAt: cache.fetchedAt, status: 'ok' };
+      // With nothing saved, the first paint already holds the space the headlines will take.
+      else if (/^https?:$/.test(location.protocol)) newsState.status = 'loading';
+    } catch (e) { /* no saved copy */ }
+  }
+
   let newsBusy = false, newsTried = -Infinity;
+  /** The first load waits until the browser is idle after drawing the dashboard. */
+  function scheduleNews() {
+    if (prefs.newsCollapsed) return;
+    newsTried = Date.now();
+    const go = () => loadNews();
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(go, { timeout: 1500 });
+    else setTimeout(go, 200);
+  }
+
   async function loadNews() {
-    if (newsBusy) return;
+    if (newsBusy || prefs.newsCollapsed) return;
     newsBusy = true;
     newsTried = Date.now();
     try {
@@ -639,17 +684,18 @@
     if (resumed) checkClock(resumed === 'clock-jump' ? 5000 : 60000);
     lastWall = wall; lastSteady = steady;
     render(Boolean(resumed));
-    if (prefs.newsOpen && Date.now() - newsTried > News.REFRESH_MS) loadNews();
+    if (!prefs.newsCollapsed && Date.now() - newsTried > News.REFRESH_MS) loadNews();
     timer = setTimeout(tick, 1000 - (nowMs() % 1000) + 5);
   }
   document.addEventListener('visibilitychange', () => { clearTimeout(timer); tick(); });
 
   syncControls();
   renderMeta();
-  render(true);
-  tick();
+  seedNews();
   renderNews();
-  if (prefs.newsOpen) loadNews();
+  render(true);
+  scheduleNews(); // before the first tick, so the tick does not ask for news ahead of the dashboard
+  tick();
   checkClock(0);
   setInterval(() => checkClock(60000), 6 * 3600000);
 })();

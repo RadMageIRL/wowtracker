@@ -1,4 +1,4 @@
-# WoW Tracker v0.1.0
+# WoW Tracker v0.1.1
 
 My World of Warcraft (Retail) dashboard for resets and scheduled events, in your local time. It is one plain HTML page: no install, no account, no ads, no server. Every time is worked out in your browser from schedule data kept in this repository.
 

@@ -27,3 +27,4 @@ After release, without a new version number:
 Schedule data:
 
 - r1 (2026-10-27), first dataset: patch 12.1.5, game build 12.1.5.70575.
+- r2 (2026-11-08), schedule change: bonus weeks through December (Pet Battle and Battleground from December 1, Delves from December 15, Midnight Dungeon from December 22), where the live game data and the 12.1.7 test data agree; in the Americas the Battleground week's start time is labeled Predicted time, because the two disagree by an hour. Curse Surges every 30 minutes with the location of each slot, and the Aqir Invasion zone of each week, both Predicted. Game build 12.1.5.70783 (calendar tables unchanged). Timewalking from December 1 is still not known.

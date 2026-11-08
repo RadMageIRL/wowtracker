@@ -114,9 +114,22 @@
   // ---- Event windows ----
 
   /**
+   * The name a rotation gives the window starting at startMs. names: { list, everyMin, offsetMin, shift }:
+   * the name moves on every everyMin minutes, counted from offsetMin minutes after the Unix epoch, and
+   * shift says which name holds the step that starts there. A Curse Surge location every 30 minutes
+   * and the Aqir Invasion zone every week are both this.
+   */
+  function rotationName(names, startMs) {
+    const len = names.list.length;
+    const step = Math.floor((startMs / MIN - names.offsetMin) / names.everyMin) + names.shift;
+    return names.list[((step % len) + len) % len];
+  }
+
+  /**
    * Every window of a schedule that overlaps [fromMs, toMs), in start order: [{ start, end }].
    *   dates:      { windows: [{ start, end }] } with ISO 8601 instants (offset required)
-   *   every:      { periodMin, offsetMin, durationMin } counted from the Unix epoch, optional from/until
+   *   every:      { periodMin, offsetMin, durationMin } counted from the Unix epoch, optional from/until,
+   *               optional names (a rotation, see rotationName) that names each window
    *   monthlyNth: { n, weekday, time, zone, durationMin } (n = 1 for the first weekday of the month), optional until
    */
   function windows(schedule, fromMs, toMs) {
@@ -133,7 +146,7 @@
       const fromBound = schedule.from ? Date.parse(schedule.from) : -Infinity;
       // The first window still open at lo: start + w > lo.
       for (let s = o + (Math.floor((lo - w - o) / p) + 1) * p; s < hi; s += p) {
-        if (s >= fromBound) out.push({ start: s, end: s + w });
+        if (s >= fromBound) out.push(schedule.names ? { start: s, end: s + w, name: rotationName(schedule.names, s) } : { start: s, end: s + w });
       }
     } else if (schedule.type === 'monthlyNth') {
       const [h, mi] = hm(schedule.time), w = schedule.durationMin * MIN;
@@ -240,7 +253,7 @@
     MIN, HOUR, DAY, WEEK, WEEKDAYS,
     wallClock, offsetMin, wallToUtc, addDays,
     resetInstants, nextReset, previousReset,
-    windows, currentWindow, scheduleFor, happening, upcoming, nextOf,
+    rotationName, windows, currentWindow, scheduleFor, happening, upcoming, nextOf,
     duration, dayKey, dayDiff, dayLabel,
   };
   if (typeof module === 'object' && module.exports) module.exports = Schedule;

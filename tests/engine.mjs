@@ -187,6 +187,24 @@ export function engineTests(test) {
     assert.equal(S.scheduleFor(C, 'us'), null);
   });
 
+  // ---- Rotations: a name for each window of a repeating schedule ----
+
+  test('a rotation names each window in turn from its offset, wraps both ways, and leaves schedules without one unnamed', () => {
+    const names = { list: ['A', 'B', 'C'], everyMin: 30, offsetMin: 0, shift: 0 };
+    const s = { type: 'every', periodMin: 30, offsetMin: 0, durationMin: 10, names };
+    const ws = S.windows(s, 0, 4 * 30 * MIN);
+    assert.deepEqual(ws.map((w) => [w.start / MIN, w.end / MIN, w.name]), [[0, 10, 'A'], [30, 40, 'B'], [60, 70, 'C'], [90, 100, 'A']]);
+    assert.equal(S.rotationName(names, -30 * MIN), 'C', 'before the offset it counts backwards');
+    assert.equal(S.rotationName(names, -90 * MIN), 'A');
+    assert.equal(S.rotationName({ ...names, shift: 2 }, 0), 'C');
+    // A slower rotation over a faster schedule: the name holds for every window of its step.
+    const weekly = { type: 'every', periodMin: 60, offsetMin: 0, durationMin: 10, names: { list: ['X', 'Y'], everyMin: 180, offsetMin: 120, shift: 0 } };
+    assert.deepEqual(S.windows(weekly, 0, 6 * HOUR).map((w) => w.name), ['Y', 'Y', 'X', 'X', 'X', 'Y']);
+    assert.deepEqual(S.windows({ ...s, names: undefined }, 0, 31 * MIN).map((w) => 'name' in w), [false, false]);
+    assert.equal(S.currentWindow(s, 35 * MIN).name, 'B');
+    assert.equal(S.upcoming([{ id: 'r', name: 'R', schedules: { us: s } }], 'us', 0, 60 * MIN)[0].name, 'B', 'upcoming carries the name');
+  });
+
   // ---- Display helpers ----
 
   test('durations read as seconds, minutes, hours or days and never go negative', () => {

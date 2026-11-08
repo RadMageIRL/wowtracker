@@ -1,10 +1,10 @@
 {
   "meta": {
-    "datasetRevision": 1,
+    "datasetRevision": 2,
     "game": "World of Warcraft (Retail)",
     "patch": "12.1.5",
-    "clientBuild": "12.1.5.70575",
-    "reviewedOn": "2026-10-27",
+    "clientBuild": "12.1.5.70783",
+    "reviewedOn": "2026-11-08",
     "coversUntil": "2027-03-31"
   },
   "regions": [
@@ -249,10 +249,10 @@
       "name": "Bonus events",
       "short": "Bonus event",
       "knownUntil": {
-        "us": "2026-12-01T15:00:00Z",
-        "eu": "2026-12-02T04:00:00Z"
+        "us": "2027-01-05T15:00:00Z",
+        "eu": "2027-01-06T04:00:00Z"
       },
-      "gap": "the live game data and the 12.1.7 test data disagree from December 1, 2026"
+      "gap": "from January 5, 2027 the live game data and the 12.1.7 test data list different bonus events"
     },
     {
       "id": "world-boss",
@@ -272,7 +272,7 @@
         "us": "2026-12-01T15:00:00Z",
         "eu": "2026-12-02T04:00:00Z"
       },
-      "gap": "Aqir Invasions are only carried to the December 1, 2026 reset; they may end with patch 12.1.7"
+      "gap": "Aqir Invasions and Curse Surges are only carried to the December 1, 2026 reset: Aqir Invasions are reported to end with patch 12.1.7, and the Curse Surge rotation was only checked on 12.1.5"
     },
     {
       "id": "minor",
@@ -324,11 +324,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 324, Region 0, Duration 337 h, Date 529840768",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -345,7 +345,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "day-of-the-dead",
@@ -385,11 +385,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 409, Region 1999, Duration 48 h, Date 530594432",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -406,7 +406,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "wow-anniversary",
@@ -446,11 +446,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 1808, Region 0, Duration 504 h, Date 446970496",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -467,7 +467,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "pilgrims-bounty",
@@ -507,11 +507,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 404, Region 0, Duration 167 h, Date 447052416",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -521,7 +521,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "feast-of-winter-veil",
@@ -562,11 +562,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 141, Region 0, Duration 432 h, Date 531872384",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -583,7 +583,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "lunar-festival",
@@ -623,11 +623,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 327, Region 0, Duration 336 h, Date 454064768",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -637,7 +637,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "love-is-in-the-air",
@@ -677,11 +677,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 423, Region 0, Duration 336 h, Date 454163072",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -691,7 +691,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "noblegarden",
@@ -731,11 +731,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 181, Region 0, Duration 168 h, Date 455555712",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -745,7 +745,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "moonkin-festival",
@@ -782,11 +782,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 694, Region 0, Duration 24 h, Date 530774016",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -796,7 +796,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "wanderers-festival",
@@ -833,11 +833,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 1052, Region 0, Duration 24 h, Date 531740672",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -847,7 +847,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "fireworks-celebration",
@@ -888,11 +888,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 658, Region 0, Duration 12 h, Date 532135040",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -902,7 +902,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "call-of-the-scarab",
@@ -939,11 +939,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 638, Region 0, Duration 72 h, Date 520435712",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -953,7 +953,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "hatching-of-the-hippogryphs",
@@ -991,11 +991,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 634, Region 0, Duration 24 h, Date 521517056",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -1005,7 +1005,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "kalimdor-cup",
@@ -1042,11 +1042,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 1395, Region 0, Duration 336 h, Date 454408192",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -1056,7 +1056,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "ungoro-madness",
@@ -1093,11 +1093,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 644, Region 0, Duration 72 h, Date 522467328",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -1107,7 +1107,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "trial-of-style",
@@ -1147,11 +1147,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 691, Region 0, Duration 168 h, Date 522517120",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -1161,7 +1161,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "darkmoon-faire",
@@ -1208,11 +1208,11 @@
           "retrieved": "2026-10-27"
         },
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 479, Region 0, Duration 48/168 h, Date 445675520",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://web.archive.org/web/20190707083938/https://us.battle.net/forums/en/wow/topic/20769667734",
@@ -1222,7 +1222,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "timewalking",
@@ -1271,11 +1271,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 1056, Region 961, Duration 167 h, Date 446085632; ID 1063, Region 4, Duration 167 h, Date 446101824; ID 1263, Region 961, Duration 167 h, Date 446970304; ID 1265, Region 4, Duration 167 h, Date 446986560",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://warcraft.wiki.gg/wiki/Bonus_Event",
@@ -1285,7 +1285,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "delves-bonus",
@@ -1300,6 +1300,10 @@
             {
               "start": "2026-10-20T15:00:00Z",
               "end": "2026-10-27T14:00:00Z"
+            },
+            {
+              "start": "2026-12-15T15:00:00Z",
+              "end": "2026-12-22T14:00:00Z"
             }
           ]
         },
@@ -1309,6 +1313,10 @@
             {
               "start": "2026-10-21T04:00:00Z",
               "end": "2026-10-28T03:00:00Z"
+            },
+            {
+              "start": "2026-12-16T04:00:00Z",
+              "end": "2026-12-23T03:00:00Z"
             }
           ]
         }
@@ -1319,11 +1327,18 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
-          "quote": "ID 1559, Region 961, Duration 167 h, Date 445970944; ID 1560, Region 4, Duration 167 h, Date 445987200",
-          "retrieved": "2026-10-27"
+          "quote": "ID 1559, Region 961, Duration 167 h, Date 445970944, Date 447986112; ID 1560, Region 4, Duration 167 h, Date 445987200, Date 448002368",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://wago.tools/db2/Holidays?build=12.1.7.70740",
+          "publisher": "Test realm calendar data (12.1.7.70740), the same rows",
+          "kind": "client",
+          "quote": "ID 1559, Region 961, Duration 167 h, Date 447986112; ID 1560, Region 4, Duration 167 h, Date 448002368",
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://warcraft.wiki.gg/wiki/Bonus_Event",
@@ -1333,7 +1348,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "midnight-dungeon-event",
@@ -1348,6 +1363,10 @@
             {
               "start": "2026-11-03T15:00:00Z",
               "end": "2026-11-10T14:00:00Z"
+            },
+            {
+              "start": "2026-12-22T15:00:00Z",
+              "end": "2026-12-29T14:00:00Z"
             }
           ]
         },
@@ -1357,6 +1376,10 @@
             {
               "start": "2026-11-04T04:00:00Z",
               "end": "2026-11-11T03:00:00Z"
+            },
+            {
+              "start": "2026-12-23T04:00:00Z",
+              "end": "2026-12-30T03:00:00Z"
             }
           ]
         }
@@ -1368,11 +1391,18 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
-          "quote": "ID 1802, Region 961, Duration 167 h, Date 446740928; ID 1803, Region 4, Duration 167 h, Date 446757184",
-          "retrieved": "2026-10-27"
+          "quote": "ID 1802, Region 961, Duration 167 h, Date 446740928, Date 448100800; ID 1803, Region 4, Duration 167 h, Date 446757184, Date 448117056",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://wago.tools/db2/Holidays?build=12.1.7.70740",
+          "publisher": "Test realm calendar data (12.1.7.70740), the same rows",
+          "kind": "client",
+          "quote": "ID 1802, Region 961, Duration 167 h, Date 448100800; ID 1803, Region 4, Duration 167 h, Date 448117056",
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://warcraft.wiki.gg/wiki/Bonus_Event",
@@ -1382,7 +1412,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "arena-skirmish-bonus",
@@ -1416,11 +1446,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 561, Region 961, Duration 167 h, Date 446855616; ID 610, Region 4, Duration 167 h, Date 446871872",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://warcraft.wiki.gg/wiki/Bonus_Event",
@@ -1430,7 +1460,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "world-quest-bonus",
@@ -1464,11 +1494,11 @@
       },
       "sources": [
         {
-          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70575",
-          "publisher": "Game calendar data (12.1.5.70575)",
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
           "kind": "client",
           "quote": "ID 592, Region 961, Duration 167 h, Date 447084992; ID 613, Region 4, Duration 167 h, Date 447101248",
-          "retrieved": "2026-10-27"
+          "retrieved": "2026-11-08"
         },
         {
           "url": "https://warcraft.wiki.gg/wiki/Bonus_Event",
@@ -1478,7 +1508,120 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
+    },
+    {
+      "id": "pet-battle-bonus",
+      "name": "Pet Battle Bonus Event",
+      "category": "bonus",
+      "zone": "Pet battles",
+      "status": "confirmed",
+      "schedules": {
+        "us": {
+          "type": "dates",
+          "windows": [
+            {
+              "start": "2026-12-01T15:00:00Z",
+              "end": "2026-12-08T14:00:00Z"
+            }
+          ]
+        },
+        "eu": {
+          "type": "dates",
+          "windows": [
+            {
+              "start": "2026-12-02T04:00:00Z",
+              "end": "2026-12-09T03:00:00Z"
+            }
+          ]
+        }
+      },
+      "link": {
+        "url": "https://warcraft.wiki.gg/wiki/Bonus_Event",
+        "label": "Wiki"
+      },
+      "sources": [
+        {
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
+          "kind": "client",
+          "quote": "ID 565, Region 961, Duration 167 h, Date 447756736; ID 599, Region 4, Duration 167 h, Date 447772992",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://wago.tools/db2/Holidays?build=12.1.7.70740",
+          "publisher": "Test realm calendar data (12.1.7.70740), the same rows",
+          "kind": "client",
+          "quote": "ID 565, Region 961, Duration 167 h, Date 447756736; ID 599, Region 4, Duration 167 h, Date 447772992",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://warcraft.wiki.gg/wiki/Bonus_Event",
+          "publisher": "Warcraft Wiki",
+          "kind": "wiki",
+          "quote": "The schedule for current and future Bonus Events can be viewed through the in-game [[calendar]].",
+          "retrieved": "2026-10-27"
+        }
+      ],
+      "lastVerified": "2026-11-08"
+    },
+    {
+      "id": "battleground-bonus",
+      "name": "Battleground Bonus Event",
+      "category": "bonus",
+      "zone": "Random battlegrounds",
+      "status": "confirmed",
+      "schedules": {
+        "us": {
+          "type": "dates",
+          "status": "predicted",
+          "part": "time",
+          "basis": "The live game data starts it at 08:00 Pacific (16:00 UTC), an hour after the weekly reset; the 12.1.7 test realm data starts it at the reset (07:00 Pacific, 15:00 UTC). Shown at the live time until one of them is seen in game.",
+          "windows": [
+            {
+              "start": "2026-12-01T16:00:00Z",
+              "end": "2026-12-08T15:00:00Z"
+            }
+          ]
+        },
+        "eu": {
+          "type": "dates",
+          "windows": [
+            {
+              "start": "2026-12-02T04:00:00Z",
+              "end": "2026-12-09T03:00:00Z"
+            }
+          ]
+        }
+      },
+      "link": {
+        "url": "https://warcraft.wiki.gg/wiki/Bonus_Event",
+        "label": "Wiki"
+      },
+      "sources": [
+        {
+          "url": "https://wago.tools/db2/Holidays?build=12.1.5.70783",
+          "publisher": "Game calendar data (12.1.5.70783)",
+          "kind": "client",
+          "quote": "ID 563, Region 961, Duration 167 h, Date 447756800; ID 602, Region 4, Duration 167 h, Date 447772992",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://wago.tools/db2/Holidays?build=12.1.7.70740",
+          "publisher": "Test realm calendar data (12.1.7.70740), the same rows",
+          "kind": "client",
+          "quote": "ID 563, Region 961, Duration 167 h, Date 447756736; ID 602, Region 4, Duration 167 h, Date 447772992",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://warcraft.wiki.gg/wiki/Bonus_Event",
+          "publisher": "Warcraft Wiki",
+          "kind": "wiki",
+          "quote": "The schedule for current and future Bonus Events can be viewed through the in-game [[calendar]].",
+          "retrieved": "2026-10-27"
+        }
+      ],
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "world-boss-luashal",
@@ -1544,7 +1687,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "world-boss-cragpine",
@@ -1608,9 +1751,16 @@
           "kind": "guide",
           "quote": "Predaxas is now live, which means all four of Season 1’s rotating outdoor bosses have officially made it onto the board.",
           "retrieved": "2026-10-27"
+        },
+        {
+          "url": "https://www.wowhead.com/today-in-wow",
+          "publisher": "Wowhead Today in WoW (2026-11-08, both regions)",
+          "kind": "guide",
+          "quote": "Midnight World Boss Cragpine",
+          "retrieved": "2026-11-08"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "world-boss-thormbelan",
@@ -1676,7 +1826,7 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "world-boss-predaxas",
@@ -1742,15 +1892,15 @@
           "retrieved": "2026-10-27"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
     },
     {
       "id": "aqir-invasion",
       "name": "Aqir Invasion",
       "category": "outdoor",
-      "zone": "Eversong Woods or Zul'Aman (the zone alternates weekly)",
+      "zone": "Zul'Aman or Eversong Woods, a different one each week",
       "status": "predicted",
-      "basis": "Blizzard says ten minutes every hour; the start at the top of the hour comes from Icy Veins' guide, not from Blizzard.",
+      "basis": "Blizzard says ten minutes every hour; the start at the top of the hour comes from Icy Veins' guide, and the zone of each week from dated player reports and Wowhead (Zul'Aman and Eversong Woods in turn from each region's weekly reset), not from Blizzard.",
       "note": "Ten minutes of public events, then a boss fight.",
       "schedules": {
         "us": {
@@ -1759,7 +1909,16 @@
           "offsetMin": 0,
           "durationMin": 10,
           "from": "2026-10-13T15:00:00Z",
-          "until": "2026-12-01T15:00:00Z"
+          "until": "2026-12-01T15:00:00Z",
+          "names": {
+            "list": [
+              "Aqir Invasion: Zul'Aman",
+              "Aqir Invasion: Eversong Woods"
+            ],
+            "everyMin": 10080,
+            "offsetMin": 8100,
+            "shift": 0
+          }
         },
         "eu": {
           "type": "every",
@@ -1767,7 +1926,16 @@
           "offsetMin": 0,
           "durationMin": 10,
           "from": "2026-10-14T04:00:00Z",
-          "until": "2026-12-02T04:00:00Z"
+          "until": "2026-12-02T04:00:00Z",
+          "names": {
+            "list": [
+              "Aqir Invasion: Zul'Aman",
+              "Aqir Invasion: Eversong Woods"
+            ],
+            "everyMin": 10080,
+            "offsetMin": 8880,
+            "shift": 0
+          }
         }
       },
       "link": {
@@ -1788,23 +1956,148 @@
           "kind": "guide",
           "quote": "When a zone is afflicted by an Aqir Invasion, an invasion will start every hour at the top",
           "retrieved": "2026-10-27"
+        },
+        {
+          "url": "https://eu.forums.blizzard.com/en/wow/t/636469",
+          "publisher": "Blizzard forums, Europe (players, 2026-11-04)",
+          "kind": "guide",
+          "quote": "Yes now when its in Eversong forrest i get rep all the time also but before the reset when it was in zul aman last night",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://us.forums.blizzard.com/en/wow/t/2394094",
+          "publisher": "Blizzard forums, Americas (players, 2026-10-31)",
+          "kind": "guide",
+          "quote": "invasions in Zul'aman are starting 1 minute late",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://www.wowhead.com/today-in-wow",
+          "publisher": "Wowhead Today in WoW (2026-11-08, both regions)",
+          "kind": "guide",
+          "quote": "Aqir Invasions Eversong Woods",
+          "retrieved": "2026-11-08"
         }
       ],
-      "lastVerified": "2026-10-27"
+      "lastVerified": "2026-11-08"
+    },
+    {
+      "id": "curse-surge",
+      "name": "Curse Surge",
+      "aliases": [
+        "Cursed Surges",
+        "Coiled Isle"
+      ],
+      "category": "outdoor",
+      "zone": "The Coiled Isle, five locations in turn",
+      "status": "predicted",
+      "basis": "Blizzard says Curse Surges rotate every 30 minutes. The slots at :00 and :30 UTC and the order of the five locations come from Wowhead, Today in WoW and addon authors, not from Blizzard: 37 slots seen from October 28 to November 8, 2026 fit one rotation in each region, Europe two places ahead of the Americas.",
+      "note": "A quick scenario: objectives, then a boss. The fight takes 5 to 10 minutes from the start of the slot (sources differ), so be there when it starts.",
+      "schedules": {
+        "us": {
+          "type": "every",
+          "periodMin": 30,
+          "offsetMin": 0,
+          "durationMin": 30,
+          "from": "2026-10-28T01:00:00Z",
+          "until": "2026-12-01T15:00:00Z",
+          "names": {
+            "list": [
+              "Curse Surge: Mlurkkr Massacre",
+              "Curse Surge: Siege at the Whispering Marsh",
+              "Curse Surge: The Malformed Leviathan",
+              "Curse Surge: The Broodmother's Nest",
+              "Curse Surge: The Looming Mutagenitor"
+            ],
+            "everyMin": 30,
+            "offsetMin": 0,
+            "shift": 3
+          }
+        },
+        "eu": {
+          "type": "every",
+          "periodMin": 30,
+          "offsetMin": 0,
+          "durationMin": 30,
+          "from": "2026-10-28T01:00:00Z",
+          "until": "2026-12-02T04:00:00Z",
+          "names": {
+            "list": [
+              "Curse Surge: Mlurkkr Massacre",
+              "Curse Surge: Siege at the Whispering Marsh",
+              "Curse Surge: The Malformed Leviathan",
+              "Curse Surge: The Broodmother's Nest",
+              "Curse Surge: The Looming Mutagenitor"
+            ],
+            "everyMin": 30,
+            "offsetMin": 0,
+            "shift": 0
+          }
+        }
+      },
+      "link": {
+        "url": "https://www.icy-veins.com/wow/the-coiled-isle-guide",
+        "label": "Guide"
+      },
+      "sources": [
+        {
+          "url": "https://us.forums.blizzard.com/en/wow/t/2336376",
+          "publisher": "Blizzard hotfixes (2026-09-15)",
+          "kind": "official",
+          "quote": "Curse Surges now rotate every 30 minutes (was 45 minutes).",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://www.wowhead.com/today-in-wow",
+          "publisher": "Wowhead Today in WoW (2026-11-08, Americas, Central time)",
+          "kind": "guide",
+          "quote": "Cursed Surges 2:00 PM The Broodmother's Nest 2:30 PM The Looming Mutagenitor 3:00 PM Mlurkkr Massacre",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://www.wowhead.com/today-in-wow",
+          "publisher": "Wowhead Today in WoW (2026-11-08, Europe, Central time)",
+          "kind": "guide",
+          "quote": "Cursed Surges 2:00 PM Mlurkkr Massacre 2:30 PM Siege at the Whispering Marsh 3:00 PM The Malformed Leviathan",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://www.todayinwow.com/activity/curse-surge-48",
+          "publisher": "Today in WoW (Americas, past slots of 2026-11-02, UTC)",
+          "kind": "guide",
+          "quote": "Siege at the Whispering Marsh Mon, Nov 2, 6:00 PM Mon, Nov 2, 6:30 PM",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://github.com/OsulivanAB/SpectrumFederation/blob/HEAD/SpectrumFederation_CursedSurgeTracker/Constants.lua",
+          "publisher": "SpectrumFederation addon (Cursed Surge Tracker)",
+          "kind": "guide",
+          "quote": "-- A new location starts every 1,800 seconds (30 minutes).",
+          "retrieved": "2026-11-08"
+        },
+        {
+          "url": "https://www.icy-veins.com/wow/the-coiled-isle-guide",
+          "publisher": "Icy Veins",
+          "kind": "guide",
+          "quote": "These are quick scenario events that spawn in 5 locations in the Coiled Isle",
+          "retrieved": "2026-11-08"
+        }
+      ],
+      "lastVerified": "2026-11-08"
     }
   ],
   "untracked": [
     {
-      "name": "Weekly bonus events from December 1, 2026",
-      "reason": "the live game data and the 12.1.7 test realm data list different events"
+      "name": "Timewalking from December 1, 2026",
+      "reason": "the live game data and the 12.1.7 test realm data name a different expansion each week"
+    },
+    {
+      "name": "Weekly bonus events from January 5, 2027",
+      "reason": "the live game data and the 12.1.7 test realm data list different events from then"
     },
     {
       "name": "Turbulent Timeways",
       "reason": "it begins with patch 12.1.7, which has no release date yet"
-    },
-    {
-      "name": "Curse Surges",
-      "reason": "every 30 minutes per Blizzard, with no published duration"
     },
     {
       "name": "Stormarion Assault",

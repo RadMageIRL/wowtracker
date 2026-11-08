@@ -1,6 +1,6 @@
 {
- "note": "Rows of the game client Holidays table (live build 12.1.5.70575) used by data r1, decoded by an independent Python script with hand-written US and EU daylight-saving rules. Source: https://wago.tools/db2/Holidays/csv?build=12.1.5.70575",
- "build": "12.1.5.70575",
+ "note": "Rows of the game client Holidays table (live build 12.1.5.70783; its Holidays table is byte-identical to 12.1.5.70575, which data r1 used) for every holiday the data cites, decoded by an independent Python script with hand-written US and EU daylight-saving rules. Source: https://wago.tools/db2/Holidays/csv?build=12.1.5.70783",
+ "build": "12.1.5.70783",
  "rows": [
   {
    "holidayId": 479,
@@ -29,6 +29,58 @@
    "packed": 445675520,
    "startUtc": "2026-10-02T07:00:00Z",
    "endUtc": "2026-10-11T07:00:00Z"
+  },
+  {
+   "holidayId": 563,
+   "name": "Battleground Bonus Event",
+   "region": "us",
+   "regionMask": 961,
+   "wall": "2026-10-13 08:00",
+   "durationsH": [
+    167
+   ],
+   "packed": 445856256,
+   "startUtc": "2026-10-13T15:00:00Z",
+   "endUtc": "2026-10-20T14:00:00Z"
+  },
+  {
+   "holidayId": 565,
+   "name": "Pet Battle Bonus Event",
+   "region": "us",
+   "regionMask": 961,
+   "wall": "2026-10-13 08:00",
+   "durationsH": [
+    167
+   ],
+   "packed": 445856256,
+   "startUtc": "2026-10-13T15:00:00Z",
+   "endUtc": "2026-10-20T14:00:00Z"
+  },
+  {
+   "holidayId": 599,
+   "name": "Pet Battle Bonus Event",
+   "region": "eu",
+   "regionMask": 4,
+   "wall": "2026-10-14 06:00",
+   "durationsH": [
+    167
+   ],
+   "packed": 445872512,
+   "startUtc": "2026-10-14T04:00:00Z",
+   "endUtc": "2026-10-21T03:00:00Z"
+  },
+  {
+   "holidayId": 602,
+   "name": "Battleground Bonus Event",
+   "region": "eu",
+   "regionMask": 4,
+   "wall": "2026-10-14 06:00",
+   "durationsH": [
+    167
+   ],
+   "packed": 445872512,
+   "startUtc": "2026-10-14T04:00:00Z",
+   "endUtc": "2026-10-21T03:00:00Z"
   },
   {
    "holidayId": 324,
@@ -343,6 +395,58 @@
    "packed": 447101248,
    "startUtc": "2026-11-25T04:00:00Z",
    "endUtc": "2026-12-02T03:00:00Z"
+  },
+  {
+   "holidayId": 565,
+   "name": "Pet Battle Bonus Event",
+   "region": "us",
+   "regionMask": 961,
+   "wall": "2026-12-01 07:00",
+   "durationsH": [
+    167
+   ],
+   "packed": 447756736,
+   "startUtc": "2026-12-01T15:00:00Z",
+   "endUtc": "2026-12-08T14:00:00Z"
+  },
+  {
+   "holidayId": 563,
+   "name": "Battleground Bonus Event",
+   "region": "us",
+   "regionMask": 961,
+   "wall": "2026-12-01 08:00",
+   "durationsH": [
+    167
+   ],
+   "packed": 447756800,
+   "startUtc": "2026-12-01T16:00:00Z",
+   "endUtc": "2026-12-08T15:00:00Z"
+  },
+  {
+   "holidayId": 599,
+   "name": "Pet Battle Bonus Event",
+   "region": "eu",
+   "regionMask": 4,
+   "wall": "2026-12-02 05:00",
+   "durationsH": [
+    167
+   ],
+   "packed": 447772992,
+   "startUtc": "2026-12-02T04:00:00Z",
+   "endUtc": "2026-12-09T03:00:00Z"
+  },
+  {
+   "holidayId": 602,
+   "name": "Battleground Bonus Event",
+   "region": "eu",
+   "regionMask": 4,
+   "wall": "2026-12-02 05:00",
+   "durationsH": [
+    167
+   ],
+   "packed": 447772992,
+   "startUtc": "2026-12-02T04:00:00Z",
+   "endUtc": "2026-12-09T03:00:00Z"
   },
   {
    "holidayId": 479,

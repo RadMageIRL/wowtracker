@@ -93,7 +93,8 @@
   let query = '';
   const SEARCH_INDEX = new Map(EVENTS.map((e) => {
     const c = CATEGORY.get(e.category);
-    const windowNames = Object.values(e.schedules || {}).flatMap((s) => (s && s.windows ? s.windows.map((w) => w.name).filter(Boolean) : []));
+    // Window names (a Timewalking expansion) and rotation names (a Curse Surge location) find the event too.
+    const windowNames = Object.values(e.schedules || {}).flatMap((s) => (!s ? [] : s.windows ? s.windows.map((w) => w.name).filter(Boolean) : s.names ? s.names.list : []));
     return [e.id, Search.index([e.name, ...(e.aliases || []), ...windowNames, e.zone, c.name, c.short || ''])];
   }));
   const found = (e) => Search.matches(SEARCH_INDEX.get(e.id), query);
@@ -401,7 +402,9 @@
 
   function render(force) {
     const now = nowMs(), list = shown();
-    const nowItems = S.happening(list, region(), now);
+    // Soonest to end first, but something that repeats every hour or so after the rest, as in the week:
+    // a Curse Surge is always on, and would otherwise always sit on top.
+    const nowItems = S.happening(list, region(), now).sort((a, b) => Number(isFrequent(a.event)) - Number(isFrequent(b.event)));
     const nextItems = capRepeats(S.upcoming(list, region(), now, prefs.aheadHours * S.HOUR));
     const nextItem = nextImportant(list, now);
     const key = structureKey(now, list, nowItems, nextItems, nextItem);
@@ -632,6 +635,15 @@
   }
   const repeatTextFor = (s) => (s.periodMin === 60 ? 'every hour' : s.periodMin % 60 === 0 ? `every ${s.periodMin / 60} hours` : `every ${s.periodMin} minutes`);
 
+  /** A rotation in order from the window shown: "The Broodmother's Nest, The Looming Mutagenitor, ..., then again; a new one every 30 minutes". */
+  function rotationText(e, s, w) {
+    if (!s || !s.names) return null;
+    const short = (n) => (n.startsWith(`${e.name}: `) ? n.slice(e.name.length + 2) : n);
+    const list = s.names.list, from = Math.max(0, list.indexOf(w && w.name));
+    const order = list.slice(from).concat(list.slice(0, from)).map(short);
+    return `${order.join(', ')}, then again; the next one every ${lengthText(s.names.everyMin * S.MIN)}.`;
+  }
+
   /** The window to describe: the one clicked if it still exists, else the current one, else the next. */
   function occurrence(s, at, now) {
     if (!s) return null;
@@ -686,9 +698,12 @@
         row('When', whenLine(w, now) || (s ? 'Nothing more of it is in the data for this region.' : 'It does not run in this region.')),
         row('How long', durationText(s, w)),
         row('Region', REGION.get(r).name, ` (${REGION.get(r).realms})`),
-        ow && other ? row(other.name, ow.start > now ? `Starts ${at(ow.start, 'full')}` : `On now, ends ${at(ow.end, 'full')}`,
+        // A rotation is at another place in the other region at the same time: name it.
+        ow && other ? row(other.name, ow.name && ow.name !== name ? `${ow.name.startsWith(`${e.name}: `) ? ow.name.slice(e.name.length + 2) : ow.name}: ` : '',
+          ow.start > now ? `Starts ${at(ow.start, 'full')}` : `On now, ends ${at(ow.end, 'full')}`,
           os.status === 'predicted' ? (os.part === 'time' ? ' (Predicted time)' : ' (Predicted)') : e.status === 'predicted' ? ' (Predicted)' : '') : [],
         row('Where', e.zone),
+        row('In turn', rotationText(e, s, w)),
         row('About', e.note || null),
         row('Later', later.length ? h('ul', { class: 'details-later' }, later.map((x) => h('li', {}, x.name && x.name !== name ? `${x.name}: ` : '',
           x.end - x.start < S.DAY ? at(x.start, 'full') : [span(x.start, x.end), ` (starts ${at(x.start, 'full')})`]))) : null),
@@ -799,7 +814,7 @@
     $('export-predicted-label').textContent = `Include predicted events (${pred}, titled "(Predicted)")`;
     $('export-notes').replaceChildren(...[
       p.timeOnly ? h('li', { text: `${p.timeOnly} ${p.timeOnly === 1 ? 'event has' : 'events have'} a predicted start time in this region and ${p.timeOnly === 1 ? 'says' : 'say'} "(Predicted time)" in the title.` }) : null,
-      p.hourly.length ? h('li', { text: `Left out: ${p.hourly.join(', ')} (repeats every hour or so). Add a single one from its details.` }) : null,
+      p.hourly.length ? h('li', { text: `Left out: ${p.hourly.join(', ')} (${p.hourly.length === 1 ? 'repeats' : 'repeat'} every hour or more often). Add a single one from its details.` }) : null,
     ].filter(Boolean));
     const go = $('export-go');
     go.disabled = !p.entries.length;
@@ -954,7 +969,7 @@
     const starred = EVENTS.filter((e) => prefs.starred.includes(e.id) && !prefs.hidden.includes(e.id));
     const hourly = starred.filter((e) => { const s = S.scheduleFor(e, region()); return s && REM_ENGINE.isFrequent(s); }).length;
     $('rem-starred').textContent = starred.length
-      ? `${starred.length} starred ${starred.length === 1 ? 'event' : 'events'} in ${REGION.get(region()).name}${hourly ? `, ${hourly} of them hourly${rem.hourly ? '' : ' (left out unless you tick hourly events)'}` : ''}.`
+      ? `${starred.length} starred ${starred.length === 1 ? 'event' : 'events'} in ${REGION.get(region()).name}${hourly ? `, ${hourly} of them every hour or more often${rem.hourly ? '' : ' (left out unless you tick those)'}` : ''}.`
       : 'No starred events yet. Star an event (the star by its name) to be reminded of it.';
   }
 
@@ -1033,6 +1048,9 @@
     if (!force && key === clKey) return;
     clKey = key;
     const focusKey = document.activeElement && document.activeElement.getAttribute('data-fkey');
+    // A name being typed survives a rebuild (a reset, another tab): its text and cursor are put back.
+    const typing = document.activeElement && document.activeElement.matches('#checklist .cl-rename')
+      ? { value: document.activeElement.value, from: document.activeElement.selectionStart, to: document.activeElement.selectionEnd } : null;
     const pr = CL.progress(checklist, per), any = checklist.tasks.length > 0;
     if (!any) clEditing = false;
     $('checklist-count').textContent = countText(pr);
@@ -1045,7 +1063,13 @@
     $('cl-edit').setAttribute('aria-pressed', String(clEditing));
     $('checklist-note').textContent = `Ticks are yours: the game is not read, so finishing something in game does not tick it here. They clear at the ${REGION.get(region()).name} daily and weekly resets; each region keeps its own.`;
     $('checklist-groups').replaceChildren(...(any ? CL.KINDS.map((k) => taskGroup(k, per, pr)) : [h('p', { class: 'cl-empty', text: 'No tasks yet. Add your own below, or start from Suggestions.' })]));
-    if (focusKey) { const el = document.querySelector(`#checklist [data-fkey="${CSS.escape(focusKey)}"]`); if (el) el.focus(); }
+    if (focusKey) {
+      const el = document.querySelector(`#checklist [data-fkey="${CSS.escape(focusKey)}"]`);
+      if (el) {
+        if (typing && el.matches('.cl-rename')) { el.value = typing.value; el.setSelectionRange(typing.from, typing.to); }
+        el.focus();
+      }
+    }
   }
 
   function addTask() {
@@ -1233,9 +1257,11 @@
     if (!L.labs) $('labs-link').removeAttribute('href');
     $('revision').textContent = `Schedule data r${m.datasetRevision} · patch ${m.patch} · reviewed ${isoDay(m.reviewedOn)}`;
     const predicted = EVENTS.filter((e) => e.status === 'predicted').length;
-    const timeOnly = EVENTS.filter((e) => e.status === 'confirmed' && Object.values(e.schedules).some((s) => s.status === 'predicted')).length;
+    // Confirmed events whose start time is predicted in one region (Europe's holidays, one Americas bonus week).
+    const timeIn = (r) => EVENTS.filter((e) => e.status === 'confirmed' && e.schedules[r] && e.schedules[r].status === 'predicted').length;
+    const eu = timeIn('eu'), us = timeIn('us');
     $('about-data').textContent = `Schedule data r${m.datasetRevision}, reviewed ${isoDay(m.reviewedOn)} for patch ${m.patch} (game build ${m.clientBuild}), covering dates through ${isoDay(m.coversUntil)}. `
-      + `${EVENTS.length} events: ${EVENTS.length - predicted} confirmed and ${predicted} predicted. For ${timeOnly} of the confirmed ones the start time on European realms is predicted. Each one names its source and the date it was last checked.`;
+      + `${EVENTS.length} events: ${EVENTS.length - predicted} confirmed and ${predicted} predicted. For ${eu} of the confirmed ones the start time on European realms is predicted${us ? `, and for ${us} the start time on the Americas' realms` : ''}. Each one names its source and the date it was last checked.`;
     $('untracked').textContent = DATA.untracked.length
       ? 'Not shown as times, because no verified schedule exists: ' + DATA.untracked.map((u) => `${u.name} (${u.reason})`).join('; ') + '.'
       : '';

@@ -81,8 +81,10 @@ check('desktop load in Chicago: resets, Happening now, Coming up and the next ev
   assert.match(await text(page, '[data-reset="daily"]'), /^Daily resetin 13h (29|30)mWed 10:00 AM$/);
   assert.match(await text(page, '[data-reset="weekly"]'), /^Weekly resetin 6d 13hTue, Nov 3, 9:00 AM$/);
   assert.match(await text(page, '[data-reset="monthly"]'), /Trading Post\s*Predicted.*Sun, Nov 1, 9:00 AM/);
-  assert.deepEqual(await cardNames(page), ["Hallow's End", 'Warlords of Draenor Timewalking', "Lu'ashal"]);
-  assert.deepEqual((await rowNames(page)).slice(0, 4), ['Aqir Invasion', 'Aqir Invasion', 'Aqir Invasion', 'Darkmoon Faire']);
+  // The Curse Surge slots are the ones Wowhead listed for the Americas at this hour (01:30, 02:00, 02:30, 03:00 UTC).
+  assert.deepEqual(await cardNames(page), ["Hallow's End", 'Warlords of Draenor Timewalking', "Lu'ashal", "Curse Surge: The Broodmother's Nest"]); // repeating events after the rest
+  assert.deepEqual((await rowNames(page)).slice(0, 7), ["Aqir Invasion: Zul'Aman", 'Curse Surge: The Looming Mutagenitor', 'Curse Surge: Mlurkkr Massacre',
+    "Aqir Invasion: Zul'Aman", 'Curse Surge: Siege at the Whispering Marsh', "Aqir Invasion: Zul'Aman", 'Darkmoon Faire']);
   assert.match(await text(page, '#summary .next'), /^Next eventDarkmoon Faire\s*in 4d 5h · Sun, Nov 1, 1:00 AM$/);
   assert.match(await text(page, '#region-line'), /^Americas · US, Latin American and Oceanic realms\. Daily reset 15:00 UTC, weekly reset Tuesday 15:00 UTC/);
   assert.deepEqual(page.problems, []);
@@ -95,7 +97,7 @@ check('Europe: its own resets, its own week (Predaxas until 04:00 UTC) and "Pred
   assert.equal(await page.eval(`document.querySelector('[data-region="eu"]').getAttribute('aria-pressed')`), 'true');
   assert.match(await text(page, '[data-reset="daily"]'), /in 2h (29|30)mTue 11:00 PM$/);
   assert.match(await text(page, '[data-reset="weekly"]'), /in 2h (29|30)mTue, Oct 27, 11:00 PM$/);
-  assert.deepEqual(await cardNames(page), ['Delves Bonus Event', 'Predaxas', "Hallow's End"]); // soonest to end first
+  assert.deepEqual(await cardNames(page), ['Delves Bonus Event', 'Predaxas', "Hallow's End", 'Curse Surge: Mlurkkr Massacre']); // soonest to end first, repeating events last; Europe two places ahead
   const he = await text(page, '#now-list [data-id="hallows-end"] .badges');
   assert.match(he, /Predicted time/);
   assert.match(await text(page, '#region-line'), /^Europe · European realms\. Daily reset 04:00 UTC, weekly reset Wednesday 04:00 UTC/);
@@ -149,37 +151,43 @@ check('across the EU change the European reset moves from 06:00 to 05:00 in Berl
   await after.close();
 });
 
-check('Coming up puts starts after local midnight under day headings and repeats an hourly event only three times', async () => {
+check('Coming up puts starts after local midnight under day headings and repeats an hourly or half-hourly event only three times', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z') });
   assert.deepEqual(await texts(page, '#next-list .day-sep'), ['Sunday, Nov 1', 'Tuesday, Nov 3']);
-  assert.equal((await rowNames(page)).filter((n) => n === 'Aqir Invasion').length, 3);
+  assert.equal((await rowNames(page)).filter((n) => n.startsWith('Aqir Invasion')).length, 3);
+  assert.equal((await rowNames(page)).filter((n) => n.startsWith('Curse Surge')).length, 3);
   await page.close();
   const late = await open({ at: utc('2026-10-28T04:30:00Z'), prefs: { aheadHours: 4 } }); // 11:30 PM in Chicago
   assert.deepEqual(await texts(late, '#next-list .day-sep'), ['Tomorrow']);
   await late.close();
 });
 
-check('an event moves from Coming up into Happening now when its window opens', async () => {
+check('an event moves from Coming up into Happening now when its window opens, and the Curse Surge moves to its next place', async () => {
   const page = await open({ at: utc('2026-10-28T01:59:58Z'), prefs: { aheadHours: 1 } });
-  assert.ok(!(await cardNames(page)).includes('Aqir Invasion'));
-  await page.waitFor(`[...document.querySelectorAll('#now-list h3')].some((h) => h.textContent === 'Aqir Invasion')`, 6000);
+  assert.ok(!(await cardNames(page)).some((n) => n.startsWith('Aqir Invasion')));
+  assert.ok((await cardNames(page)).includes("Curse Surge: The Broodmother's Nest"));
+  await page.waitFor(`[...document.querySelectorAll('#now-list h3')].some((h) => h.textContent === "Aqir Invasion: Zul'Aman")`, 6000);
   assert.match(await text(page, '#now-list [data-id="aqir-invasion"] .big'), /^Ends in (9m|10m)/);
+  const cards = await cardNames(page);
+  assert.ok(cards.includes('Curse Surge: The Looming Mutagenitor') && !cards.includes("Curse Surge: The Broodmother's Nest"), cards.join());
+  assert.match(await text(page, '#now-list [data-id="curse-surge"] .big'), /^Ends in (29m|30m)/);
   await page.close();
 });
 
-check('nothing is shown as live after the data stops: on 2026-12-02 no world boss, Aqir or bonus week is listed', async () => {
+check('nothing is shown as live after the data stops: on 2026-12-02 no world boss, Aqir Invasion, Curse Surge or Timewalking, only the December bonus weeks', async () => {
   const page = await open({ at: utc('2026-12-02T18:05:00Z') });
   const now = await page.eval(`[...document.querySelectorAll('#now-list [data-id]')].map((e) => e.getAttribute('data-id'))`);
-  assert.deepEqual(now.sort(), ['wow-anniversary']);
+  assert.deepEqual(now.sort(), ['battleground-bonus', 'pet-battle-bonus', 'wow-anniversary']);
   await page.close();
 });
 
 // ---- Labels ----
 
-check('Predicted labels sit on the predicted events only, and every confirmed Americas event has none', async () => {
+check('Predicted labels sit on the predicted events only; in the Americas the one confirmed event with a predicted start time says so', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z') });
-  const rows = await page.eval(`[...document.querySelectorAll('#calendar .agenda li')].map((li) => [li.getAttribute('data-id'), Boolean(li.querySelector('.badge.predicted'))])`);
-  for (const [id, predicted] of rows) assert.equal(predicted, id.startsWith('world-boss-') || id === 'aqir-invasion', id);
+  const rows = await page.eval(`[...document.querySelectorAll('#calendar .agenda li')].map((li) => [li.getAttribute('data-id'), (li.querySelector('.badge.predicted') || {}).textContent || ''])`);
+  for (const [id, badge] of rows) assert.equal(badge, id.startsWith('world-boss-') ? 'Predicted' : id === 'battleground-bonus' ? 'Predicted time' : '', id);
+  assert.ok(rows.some(([id]) => id === 'battleground-bonus'));
   assert.ok(rows.length > 30, `${rows.length} calendar rows`);
   await page.close();
 });
@@ -214,7 +222,7 @@ check('stars, hide and restore, categories, Starred, compact, times and theme ar
 
 check('a starred event becomes the summary\'s "Next starred event", even an hourly one', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z'), prefs: { starred: ['aqir-invasion'] } });
-  assert.match(await text(page, '#summary .next'), /^Next starred eventAqir Invasion\s*Predicted/);
+  assert.match(await text(page, '#summary .next'), /^Next starred eventAqir Invasion: Zul'Aman\s*Predicted/);
   await page.close();
 });
 
@@ -484,6 +492,31 @@ check('on a phone the details fit the screen without sideways scrolling, and Clo
   await page.close();
 });
 
+check('Curse Surges: the Details name the place of each slot and the order, labeled Predicted; search finds a place; a reminder names the place', async () => {
+  const page = await open({ at: utc('2026-11-08T20:10:00Z'), prefs: { starred: ['curse-surge'] }, reminders: { on: true, lead: 30, notify: false, hourly: true } });
+  assert.ok((await cardNames(page)).includes("Curse Surge: The Broodmother's Nest"), 'the 20:00 UTC slot, as Wowhead showed it');
+  await click(page, '#now-list [data-details="curse-surge"]');
+  const d = await text(page, '#details-body');
+  assert.match(d, /^Curse Surge: The Broodmother's Nest/);
+  assert.match(d, /Predicted/);
+  assert.match(d, /In turnThe Broodmother's Nest, The Looming Mutagenitor, Mlurkkr Massacre, Siege at the Whispering Marsh, The Malformed Leviathan, then again; the next one every 30 minutes\./);
+  assert.match(d, /How long30 minutes, every 30 minutes/);
+  assert.match(d, /EuropeMlurkkr Massacre: On now, ends Sun, Nov 8, 2:30 PM \(Predicted\)/, "Europe is at another place at the same time");
+  assert.match(d, /LaterCurse Surge: The Looming Mutagenitor: /);
+  assert.match(d, /Blizzard says Curse Surges rotate every 30 minutes/);
+  await page.eval(`document.getElementById('details').close()`);
+  await page.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 5000);
+  assert.match((await trayText(page))[0], /^Curse Surge: The Looming Mutagenitor \(Predicted\) starts in 19m \d\ds · 2:30 PM$/);
+  await click(page, '#filters-toggle');
+  await page.eval(`(() => { const i = document.getElementById('search'); i.value = 'mutagenitor'; i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await page.waitFor(`document.getElementById('search-status').textContent.startsWith('1 event matches')`, 3000);
+  assert.deepEqual(await cardNames(page), ["Curse Surge: The Broodmother's Nest"]);
+  await click(page, '[data-region="eu"]');
+  assert.ok((await cardNames(page)).includes('Curse Surge: Mlurkkr Massacre'), 'Europe is two places ahead');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
 // ---- Calendar export ----
 
 /** Runs action and returns the text of the one file the browser saves meanwhile. */
@@ -507,14 +540,14 @@ check('Export to calendar saves what the filters show, on now and coming up, as 
   await click(page, '#export-btn');
   assert.equal(await page.eval(`document.getElementById('export-dialog').open`), true);
   assert.equal(await text(page, '#export-scope'), 'Americas, with your filters: all categories · 7 days · Local · 1 hidden. Hidden events are left out.');
-  assert.match(await text(page, '#export-notes'), /Left out: Aqir Invasion \(repeats every hour or so\)/);
+  assert.match(await text(page, '#export-notes'), /Left out: Aqir Invasion, Curse Surge \(repeat every hour or more often\)/);
   const before = page.requests.length;
   const file = await saved(page, () => click(page, '#export-go'));
   assert.equal(page.requests.filter((u, i) => i >= before && !u.startsWith('blob:')).length, 0, 'the export asks nothing of the network');
   assert.equal(file.name, 'wowtracker-americas-2026-10-28.ics');
   // The windows the engine gives for the same filters: overlapping now .. now + 7 days, not hidden, not hourly.
   const DATA = require(join(DIR, 'events-data.js'));
-  const expected = DATA.events.filter((e) => e.id !== 'day-of-the-dead' && e.id !== 'aqir-invasion')
+  const expected = DATA.events.filter((e) => e.id !== 'day-of-the-dead' && !['aqir-invasion', 'curse-surge'].includes(e.id))
     .flatMap((e) => (e.schedules.us ? Engine.windows(e.schedules.us, at, at + 7 * 86400000).map((w) => `${Ics.stamp(w.start)} ${Ics.stamp(w.end)} ${w.name || e.name}${e.status === 'predicted' ? ' (Predicted)' : ''}`) : []))
     .sort();
   const got = icsEvents(file.text).map((x) => `${x.DTSTART} ${x.DTEND} ${x.SUMMARY}`).sort();
@@ -659,7 +692,7 @@ check('a shown reminder goes when its event is hidden, unstarred or the region c
   await click(aqir, '#reminders-btn');
   await click(aqir, '#rem-hourly');
   await aqir.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 5000);
-  assert.match((await trayText(aqir))[0], /^Aqir Invasion \(Predicted\) starts in/);
+  assert.match((await trayText(aqir))[0], /^Aqir Invasion: Eversong Woods \(Predicted\) starts in/);
   await aqir.close();
 });
 
@@ -923,6 +956,20 @@ check('an open checklist is not rebuilt on the one-second tick, and an idle page
   await page.close();
 });
 
+check('a task name being typed in Edit survives the rebuild at the reset: text, cursor and focus stay, and Enter then saves it', async () => {
+  const page = await open({ at: utc('2026-11-11T14:59:56Z'), prefs: { checklistOpen: true }, checklist: TASKS });
+  await click(page, '#cl-edit');
+  const before = await text(page, '#checklist [data-kind="daily"] h3');
+  await page.eval(`(() => { const i = document.querySelector('#checklist [data-rename="wq"]'); i.focus(); i.value = 'World quests and Abundance'; i.setSelectionRange(13, 13); })()`);
+  await page.waitFor(`document.querySelector('#checklist [data-kind="daily"] h3').textContent !== ${JSON.stringify(before)}`, 8000);
+  assert.match(await text(page, '#checklist [data-kind="daily"] h3'), /clears Thu 9:00 AM$/, 'rebuilt at the reset');
+  assert.deepEqual(await page.eval(`(() => { const a = document.activeElement; return [a.getAttribute('data-rename'), a.value, a.selectionStart, a.selectionEnd]; })()`), ['wq', 'World quests and Abundance', 13, 13]);
+  assert.equal((await savedChecklist(page)).tasks[0].name, 'World quests', 'not saved yet');
+  await page.eval(`document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))`);
+  assert.equal((await savedChecklist(page)).tasks[0].name, 'World quests and Abundance');
+  await page.close();
+});
+
 // ---- Settings backup ----
 
 const setBackup = (page, value) => page.eval(`(() => { const t = document.getElementById('backup-in'); t.value = ${JSON.stringify(value)}; t.dispatchEvent(new Event('input', { bubbles: true })); })()`);
@@ -1060,6 +1107,16 @@ check('the footer links go where config.js says, and Share passes the canonical 
   await page.close();
 });
 
+check('About states the data revision and build, and counts confirmed, predicted and predicted-start-time events by region', async () => {
+  const page = await open({ at: utc('2026-11-08T20:10:00Z') });
+  assert.equal(await text(page, '#about-data'), 'Schedule data r2, reviewed Nov 8, 2026 for patch 12.1.5 (game build 12.1.5.70783), covering dates through Mar 31, 2027. '
+    + "30 events: 24 confirmed and 6 predicted. For 17 of the confirmed ones the start time on European realms is predicted, and for 1 the start time on the Americas' realms. Each one names its source and the date it was last checked.");
+  assert.match(await text(page, '#revision'), /^Schedule data r2 · patch 12\.1\.5 · reviewed Nov 8, 2026$/);
+  assert.match(await text(page, '#untracked'), /^Not shown as times, because no verified schedule exists: Timewalking from December 1, 2026 \(.+\); Weekly bonus events from January 5, 2027 \(.+\); Turbulent Timeways/);
+  assert.doesNotMatch(await text(page, '#untracked'), /Curse Surge/);
+  await page.close();
+});
+
 check('the favicon is an inline SVG that the browser draws, with no request', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z') });
   const size = await page.eval(`new Promise((ok) => { const i = new Image(); i.onload = () => ok([i.naturalWidth, i.naturalHeight]); i.onerror = () => ok('error'); i.src = document.querySelector('link[rel=icon]').href; })`);
@@ -1073,7 +1130,8 @@ check('the favicon is an inline SVG that the browser draws, with no request', as
 check('from December 1 the weekly categories say "Not known yet" in the week, the calendar and Coming up, never "nothing"', async () => {
   const page = await open({ at: utc('2026-11-28T18:00:00Z') });
   const next = await text(page, '#week-grid .week-col:nth-child(2)');
-  assert.match(next, /Not known yet from Tue, Dec 1, 9:00 AM: Timewalking, Bonus events, World bosses, Outdoor events\./);
+  assert.match(next, /Not known yet from Tue, Dec 1, 9:00 AM: Timewalking, World bosses, Outdoor events\./);
+  assert.match(next, /Pet Battle Bonus Event.*Battleground Bonus EventPredicted time/, 'the bonus weeks of December are known');
   assert.doesNotMatch(await text(page, '#week-grid .week-col:nth-child(1)'), /Not known yet/);
   assert.equal(await page.eval(`document.getElementById('next-gap').hidden`), false, 'a 7-day Coming up crosses Dec 1');
   const months = await page.eval(`[...document.querySelectorAll('#calendar .month')].map((m) => [m.querySelector('h3').textContent, Boolean(m.querySelector('.gap'))])`);
@@ -1083,10 +1141,14 @@ check('from December 1 the weekly categories say "Not known yet" in the week, th
   await page.close();
 });
 
-check('following only bonus events in December says nothing is known yet, not that nothing is scheduled', async () => {
-  const page = await open({ at: utc('2026-12-05T18:00:00Z'), prefs: { categories: ['bonus'] } });
+check('following only Timewalking in December, or only bonus events in January, says nothing is known yet, not that nothing is scheduled', async () => {
+  const jan = await open({ at: utc('2027-01-08T18:00:00Z'), prefs: { categories: ['bonus'] } });
+  assert.equal(await text(jan, '#now-empty'), 'Nothing known is in its scheduled window right now.');
+  assert.match(await text(jan, '#now-gap'), /^Not known yet from Tue, Jan 5, 9:00 AM: Bonus events\.$/);
+  await jan.close();
+  const page = await open({ at: utc('2026-12-05T18:00:00Z'), prefs: { categories: ['timewalking'] } });
   assert.equal(await text(page, '#now-empty'), 'Nothing known is in its scheduled window right now.');
-  assert.match(await text(page, '#now-gap'), /^Not known yet from Tue, Dec 1, 9:00 AM: Bonus events\.$/);
+  assert.match(await text(page, '#now-gap'), /^Not known yet from Tue, Dec 1, 9:00 AM: Timewalking\.$/);
   assert.match(await text(page, '#next-empty'), /^Nothing known starts in the next 7 days\./);
   assert.match(await text(page, '#week-grid'), /Nothing known yet\./);
   assert.doesNotMatch(await text(page, '#week-grid'), /Nothing you follow is scheduled/);

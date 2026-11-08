@@ -34,16 +34,17 @@ export async function dataTests(test) {
     assert.ok(r.ok, r.errors.join('\n'));
   });
 
-  test('the dataset holds 27 events: 22 confirmed (8 holidays, 8 small events, the Faire, 5 weekly events) and 5 predicted', () => {
+  test('the dataset (r2) holds 30 events: 24 confirmed (8 holidays, 8 small events, the Faire, 7 weekly events) and 6 predicted', () => {
     const by = (k) => DATA.events.filter((e) => e.category === k).length;
-    assert.equal(DATA.events.length, 27);
-    assert.deepEqual([by('holiday'), by('minor'), by('darkmoon'), by('timewalking'), by('bonus'), by('world-boss'), by('outdoor')], [8, 8, 1, 1, 4, 4, 1]);
-    assert.deepEqual(DATA.events.filter((e) => e.status === 'predicted').map((e) => e.category).sort(), ['outdoor', 'world-boss', 'world-boss', 'world-boss', 'world-boss']);
+    assert.equal(DATA.meta.datasetRevision, 2);
+    assert.equal(DATA.events.length, 30);
+    assert.deepEqual([by('holiday'), by('minor'), by('darkmoon'), by('timewalking'), by('bonus'), by('world-boss'), by('outdoor')], [8, 8, 1, 1, 6, 4, 2]);
+    assert.deepEqual(DATA.events.filter((e) => e.status === 'predicted').map((e) => e.id).sort(), ['aqir-invasion', 'curse-surge', 'world-boss-cragpine', 'world-boss-luashal', 'world-boss-predaxas', 'world-boss-thormbelan']);
   });
 
   test('search aliases are short plain words, each once, and reach the page; a bad one is refused', () => {
     const withAliases = DATA.events.filter((e) => e.aliases);
-    assert.equal(withAliases.length, 12);
+    assert.equal(withAliases.length, 13);
     assert.deepEqual(DATA.events.find((e) => e.id === 'darkmoon-faire').aliases, ['DMF']);
     const bad = (aliases) => { const src = copy(SOURCE); src.events.find((e) => e.id === 'hallows-end').aliases = aliases; return validate(src).join('\n'); };
     assert.equal(bad(['Halloween']), '');
@@ -80,7 +81,7 @@ export async function dataTests(test) {
         }
       }
     }
-    assert.equal(checked, 44); // 16 holidays and small events, 2 Timewalking weeks and 4 bonus weeks, in two regions
+    assert.equal(checked, 52); // 16 holidays and small events, 2 Timewalking weeks and 8 bonus weeks, in two regions
   });
 
   test('the zone database agrees with the hand-written daylight-saving rules on every client row', () => {
@@ -113,17 +114,43 @@ export async function dataTests(test) {
     }
   });
 
-  test('every weekly bonus and Timewalking week starts at its region\'s weekly reset, and none starts on or after December 1', () => {
+  test('every weekly bonus and Timewalking week starts at its region\'s weekly reset (one labeled exception); Timewalking stops before December 1, bonus weeks before January 5', () => {
+    const late = [];
     for (const e of DATA.events.filter((x) => ['bonus', 'timewalking'].includes(x.category))) {
       for (const [r, s] of Object.entries(e.schedules)) {
         for (const w of s.windows) {
           const t = utc(w.start);
-          assert.equal(S.previousReset(DATA.resets[r].weekly.rule, t), t, `${e.id} ${r} ${w.start}`);
-          assert.ok(w.start < '2026-12-01', `${e.id} ${w.start}`);
+          if (S.previousReset(DATA.resets[r].weekly.rule, t) !== t) late.push(`${e.id} ${r} ${w.start}`);
+          assert.ok(w.start < (e.category === 'timewalking' ? '2026-12-01' : '2027-01-05'), `${e.id} ${w.start}`);
         }
       }
     }
-    assert.ok(DATA.untracked.some((u) => /December 1/.test(u.name)));
+    // The live game data starts this one at 08:00 Pacific, an hour after the reset, so its start time is labeled.
+    assert.deepEqual(late, ['battleground-bonus us 2026-12-01T16:00:00Z']);
+    const bg = EV.get('battleground-bonus');
+    assert.deepEqual([bg.status, bg.schedules.us.status, bg.schedules.us.part, bg.schedules.eu.status], ['confirmed', 'predicted', 'time', undefined]);
+    assert.match(bg.schedules.us.basis, /16:00 UTC.*15:00 UTC/);
+    assert.ok(DATA.untracked.some((u) => /^Timewalking from December 1, 2026$/.test(u.name)));
+    assert.ok(DATA.untracked.some((u) => /^Weekly bonus events from January 5, 2027$/.test(u.name)));
+    assert.ok(!DATA.untracked.some((u) => /Curse Surge/.test(u.name)), 'Curse Surges are tracked now');
+  });
+
+  test('December bonus weeks, Americas from the Tuesday reset: Pet Battle and Battleground Dec 1, none Dec 8, Delves Dec 15, Midnight Dungeon Dec 22, none Dec 29', () => {
+    const bonus = DATA.events.filter((e) => e.category === 'bonus');
+    const week = (r, iso) => S.happening(bonus, r, utc(iso)).map((i) => i.event.id).sort();
+    assert.deepEqual(week('us', '2026-12-01T16:00:00Z'), ['battleground-bonus', 'pet-battle-bonus']);
+    assert.deepEqual(week('us', '2026-12-01T15:30:00Z'), ['pet-battle-bonus'], 'the Battleground week starts an hour late in the live data');
+    assert.deepEqual(week('us', '2026-12-08T14:59:59Z'), ['battleground-bonus'], 'and ends an hour late');
+    assert.deepEqual(week('us', '2026-12-10T12:00:00Z'), []);
+    assert.deepEqual(week('us', '2026-12-15T15:00:00Z'), ['delves-bonus']);
+    assert.deepEqual(week('us', '2026-12-22T14:59:59Z'), [], 'a 167-hour week ends an hour before the next reset');
+    assert.deepEqual(week('us', '2026-12-22T15:00:00Z'), ['midnight-dungeon-event']);
+    assert.deepEqual(week('us', '2026-12-31T12:00:00Z'), []);
+    // Europe, from the Wednesday reset, the same events.
+    assert.deepEqual(week('eu', '2026-12-02T04:00:00Z'), ['battleground-bonus', 'pet-battle-bonus']);
+    assert.deepEqual(week('eu', '2026-12-16T04:00:00Z'), ['delves-bonus']);
+    assert.deepEqual(week('eu', '2026-12-23T04:00:00Z'), ['midnight-dungeon-event']);
+    assert.deepEqual(week('eu', '2027-01-06T05:00:00Z'), []);
   });
 
   test('Timewalking names the expansion of each week, from the game\'s own description of that week', () => {
@@ -180,20 +207,98 @@ export async function dataTests(test) {
     }
   });
 
-  test('the world boss order matches every dated sighting (Icy Veins weekly posts, player posts, the Wowhead panel on 2026-10-28)', () => {
+  test('the world boss order matches every dated sighting (Icy Veins weekly posts, player posts, the Wowhead panel on 2026-10-28 and 2026-11-08)', () => {
     const seen = [
       ['us', '2026-03-18T01:36:00Z', "Lu'ashal"], ['us', '2026-03-24T23:17:00Z', 'Cragpine'], ['us', '2026-03-31T22:40:00Z', "Thorm'belan"],
       ['us', '2026-04-14T20:00:00Z', "Lu'ashal"], ['us', '2026-04-23T12:00:00Z', 'Cragpine'], ['us', '2026-04-28T20:00:00Z', "Thorm'belan"],
       ['us', '2026-08-12T01:41:00Z', 'Cragpine'], ['us', '2026-10-12T02:17:00Z', 'Cragpine'],
       ['us', '2026-10-28T01:20:00Z', "Lu'ashal"], ['eu', '2026-10-28T01:20:00Z', 'Predaxas'],
+      ['us', '2026-11-08T16:00:00Z', 'Cragpine'], ['eu', '2026-11-08T15:58:00Z', 'Cragpine'], ['us', '2026-11-08T20:25:00Z', 'Cragpine'], ['eu', '2026-11-08T20:35:00Z', 'Cragpine'],
     ];
     for (const [r, at, name] of seen) assert.deepEqual(bossAt(r, utc(at)), [name], `${r} ${at}`);
   });
 
-  test('world bosses and Aqir Invasions stop at the December 1 reset, where the data was last checked against a patch', () => {
+  test('world bosses, Aqir Invasions and Curse Surges stop at the December 1 reset, where the data was last checked against a patch', () => {
     assert.deepEqual(bossAt('us', utc('2026-12-01T15:00:00Z')), []);
     assert.deepEqual(bossAt('us', utc('2026-12-01T14:59:59Z')).length, 1);
     assert.equal(S.currentWindow(EV.get('aqir-invasion').schedules.us, utc('2026-12-01T16:05:00Z')), null);
+    const cs = EV.get('curse-surge');
+    assert.ok(S.currentWindow(cs.schedules.us, utc('2026-12-01T14:59:59Z')));
+    assert.equal(S.currentWindow(cs.schedules.us, utc('2026-12-01T15:00:00Z')), null);
+    assert.ok(S.currentWindow(cs.schedules.eu, utc('2026-12-02T03:59:59Z')));
+    assert.equal(S.currentWindow(cs.schedules.eu, utc('2026-12-02T04:00:00Z')), null);
+  });
+
+  // ---- Curse Surges and the Aqir zone, against dated sightings ----
+
+  // Every slot seen (UTC): Wowhead 2026-10-28 and 2026-11-08 (morning: EU tab read first), Today in WoW past rows 2026-11-02.
+  const SURGE_SEEN = {
+    us: [['2026-10-28T01:00:00Z', 'The Malformed Leviathan'], ['2026-10-28T01:30:00Z', "The Broodmother's Nest"], ['2026-10-28T02:00:00Z', 'The Looming Mutagenitor'],
+      ['2026-10-28T02:30:00Z', 'Mlurkkr Massacre'], ['2026-10-28T03:00:00Z', 'Siege at the Whispering Marsh'],
+      ['2026-11-02T16:30:00Z', "The Broodmother's Nest"], ['2026-11-02T17:00:00Z', 'The Looming Mutagenitor'], ['2026-11-02T17:30:00Z', 'Mlurkkr Massacre'],
+      ['2026-11-02T18:00:00Z', 'Siege at the Whispering Marsh'], ['2026-11-02T18:30:00Z', 'The Malformed Leviathan'], ['2026-11-02T19:00:00Z', "The Broodmother's Nest"],
+      ['2026-11-02T19:30:00Z', 'The Looming Mutagenitor'],
+      ['2026-11-08T15:30:00Z', 'The Looming Mutagenitor'], ['2026-11-08T16:00:00Z', 'Mlurkkr Massacre'], ['2026-11-08T16:30:00Z', 'Siege at the Whispering Marsh'],
+      ['2026-11-08T17:00:00Z', 'The Malformed Leviathan'], ['2026-11-08T17:30:00Z', "The Broodmother's Nest"],
+      ['2026-11-08T20:00:00Z', "The Broodmother's Nest"], ['2026-11-08T20:30:00Z', 'The Looming Mutagenitor'], ['2026-11-08T21:00:00Z', 'Mlurkkr Massacre'],
+      ['2026-11-08T21:30:00Z', 'Siege at the Whispering Marsh'], ['2026-11-08T22:00:00Z', 'The Malformed Leviathan']],
+    eu: [['2026-10-28T01:00:00Z', 'The Looming Mutagenitor'], ['2026-10-28T01:30:00Z', 'Mlurkkr Massacre'], ['2026-10-28T02:00:00Z', 'Siege at the Whispering Marsh'],
+      ['2026-10-28T02:30:00Z', 'The Malformed Leviathan'], ['2026-10-28T03:00:00Z', "The Broodmother's Nest"],
+      ['2026-11-08T15:30:00Z', 'Siege at the Whispering Marsh'], ['2026-11-08T16:00:00Z', 'The Malformed Leviathan'], ['2026-11-08T16:30:00Z', "The Broodmother's Nest"],
+      ['2026-11-08T17:00:00Z', 'The Looming Mutagenitor'], ['2026-11-08T17:30:00Z', 'Mlurkkr Massacre'],
+      ['2026-11-08T20:00:00Z', 'Mlurkkr Massacre'], ['2026-11-08T20:30:00Z', 'Siege at the Whispering Marsh'], ['2026-11-08T21:00:00Z', 'The Malformed Leviathan'],
+      ['2026-11-08T21:30:00Z', "The Broodmother's Nest"], ['2026-11-08T22:00:00Z', 'The Looming Mutagenitor']],
+  };
+  const surgeAt = (r, ms) => { const w = S.currentWindow(EV.get('curse-surge').schedules[r], ms); return w ? w.name.replace('Curse Surge: ', '') : null; };
+
+  test('Curse Surges: every one of the 37 slots seen in both regions is the location the rotation gives, across the US clock change and both weekly maintenances', () => {
+    let n = 0;
+    for (const [r, seen] of Object.entries(SURGE_SEEN)) {
+      for (const [at, place] of seen) {
+        assert.equal(surgeAt(r, utc(at)), place, `${r} ${at}`);
+        assert.equal(surgeAt(r, utc(at) + 29 * 60000 + 59999), place, `${r} ${at} lasts the slot`);
+        n++;
+      }
+    }
+    assert.equal(n, 37);
+  });
+
+  test('Curse Surges: a new slot at :00 and :30 UTC, half-open; five places in turn; Europe two places ahead of the Americas at the same moment', () => {
+    const cs = EV.get('curse-surge');
+    const ws = S.windows(cs.schedules.us, utc('2026-11-08T20:00:00Z'), utc('2026-11-08T22:30:00Z'));
+    assert.deepEqual(ws.map((w) => iso(w.start)), ['2026-11-08T20:00:00Z', '2026-11-08T20:30:00Z', '2026-11-08T21:00:00Z', '2026-11-08T21:30:00Z', '2026-11-08T22:00:00Z']);
+    assert.ok(ws.every((w) => w.end - w.start === 30 * 60000));
+    assert.equal(new Set(ws.map((w) => w.name)).size, 5, 'all five places in 150 minutes');
+    assert.equal(S.windows(cs.schedules.us, utc('2026-11-08T22:30:00Z'), utc('2026-11-08T22:30:00Z') + 1)[0].name, ws[0].name, 'then the first again');
+    assert.equal(surgeAt('us', utc('2026-11-08T20:29:59.999Z')), "The Broodmother's Nest");
+    assert.equal(surgeAt('us', utc('2026-11-08T20:30:00Z')), 'The Looming Mutagenitor');
+    const list = cs.schedules.us.names.list;
+    for (let t = utc('2026-11-01T00:00:00Z'); t < utc('2026-11-15T00:00:00Z'); t += 30 * 60000) {
+      const us = list.indexOf(`Curse Surge: ${surgeAt('us', t)}`), eu = list.indexOf(`Curse Surge: ${surgeAt('eu', t)}`);
+      assert.equal(eu, (us + 2) % 5, iso(t));
+    }
+    assert.equal(surgeAt('us', utc('2026-10-28T00:59:59Z')), null, 'nothing before the first slot seen');
+    assert.equal(S.scheduleFor(cs, 'us').status, undefined);
+    assert.equal(cs.status, 'predicted');
+  });
+
+  test('Aqir Invasions: Zul\'Aman and Eversong Woods in turn from each region\'s weekly reset, as players and Wowhead saw them', () => {
+    const a = EV.get('aqir-invasion');
+    const zone = (r, at) => S.windows(a.schedules[r], utc(at), utc(at) + 3600001)[0].name.replace('Aqir Invasion: ', '');
+    // Dated sightings: NA weeks of Oct 13 and Oct 27 Zul'Aman; EU Oct 21 Eversong, Oct 28 Zul'Aman, Nov 4 Eversong; Wowhead Nov 8 Eversong in both.
+    assert.equal(zone('us', '2026-10-17T12:00:00Z'), "Zul'Aman");
+    assert.equal(zone('us', '2026-10-31T01:00:00Z'), "Zul'Aman");
+    assert.equal(zone('eu', '2026-10-25T12:00:00Z'), 'Eversong Woods');
+    assert.equal(zone('eu', '2026-10-31T16:00:00Z'), "Zul'Aman");
+    assert.equal(zone('eu', '2026-11-04T14:00:00Z'), 'Eversong Woods');
+    assert.equal(zone('us', '2026-11-08T20:00:00Z'), 'Eversong Woods');
+    assert.equal(zone('eu', '2026-11-08T20:00:00Z'), 'Eversong Woods');
+    // The change is at each region's own weekly reset: the 14:00 UTC invasion on Tuesday Nov 10 is still Eversong in
+    // the Americas, the 15:00 one is Zul'Aman; Europe changes at 04:00 UTC on Wednesday.
+    assert.equal(zone('us', '2026-11-10T13:30:00Z'), 'Eversong Woods');
+    assert.equal(zone('us', '2026-11-10T14:30:00Z'), "Zul'Aman");
+    assert.equal(zone('eu', '2026-11-11T02:30:00Z'), 'Eversong Woods');
+    assert.equal(zone('eu', '2026-11-11T03:30:00Z'), "Zul'Aman");
   });
 
   test('Aqir Invasions: on the hour for ten minutes, only after 12.1.5 reached each region', () => {
@@ -207,10 +312,10 @@ export async function dataTests(test) {
 
   // ---- Overlap ----
 
-  test('on 2026-11-01 at 18:30 UTC (Americas) five scheduled events overlap and all of them are happening', () => {
+  test('on 2026-11-01 at 18:30 UTC (Americas) six scheduled events overlap and all of them are happening', () => {
     const t = utc('2026-11-01T18:30:00Z'); // after the 18:00 Aqir Invasion closed at 18:10
     assert.deepEqual(S.happening(DATA.events, 'us', t).map((i) => i.event.id).sort(),
-      ['darkmoon-faire', 'day-of-the-dead', 'hallows-end', 'timewalking', 'world-boss-luashal']);
+      ['curse-surge', 'darkmoon-faire', 'day-of-the-dead', 'hallows-end', 'timewalking', 'world-boss-luashal']);
   });
 
   // ---- The rules refuse bad data ----
@@ -262,6 +367,17 @@ export async function dataTests(test) {
   test("a dated window that starts after its category's knownUntil is refused", () => {
     refused((s) => { ev(s, 'timewalking').schedules.us.windows.push({ start: '2026-12-08T15:00:00Z', end: '2026-12-15T14:00:00Z', name: 'Unknown Timewalking' }); }, /after its category's knownUntil/);
   });
+  test('a rotation of names is refused unless it is predicted, on a repeating schedule, and only changes between windows', () => {
+    const names = (s) => ev(s, 'curse-surge').schedules.us.names;
+    refused((s) => { ev(s, 'curse-surge').status = 'confirmed'; }, /must be labeled predicted/);
+    refused((s) => { ev(s, 'hallows-end').schedules.us.names = copy(names(s)); }, /only a repeating/);
+    refused((s) => { names(s).list = ['Only one']; }, /2 to 12 different names/);
+    refused((s) => { names(s).list = ['A', 'A']; }, /2 to 12 different names/);
+    refused((s) => { names(s).everyMin = 45; }, /never changes inside a window/);
+    refused((s) => { names(s).offsetMin = 10; }, /fall on a window start/);
+    refused((s) => { names(s).shift = 5; }, /position in names.list/);
+    refused((s) => { ev(s, 'aqir-invasion').schedules.eu.names.offsetMin = 8890; }, /fall on a window start/);
+  });
   test("a repeating schedule with no until, or one past its category's knownUntil, is refused", () => {
     refused((s) => { delete ev(s, 'darkmoon-faire').schedules.us.until; }, /needs an until/);
     refused((s) => { ev(s, 'world-boss-luashal').schedules.eu.until = '2027-01-01T04:00:00Z'; }, /needs an until/);
@@ -273,9 +389,10 @@ export async function dataTests(test) {
 
   // ---- Coverage: where schedules stop being known ----
 
-  test('weekly categories are known to the December 1 reset in each region; holidays, small events and the Faire to the end of March 2027', () => {
+  test('Timewalking, world bosses and outdoor events are known to the December 1 reset, bonus weeks to January 5, holidays, small events and the Faire to the end of March 2027', () => {
     const k = Object.fromEntries(DATA.categories.map((c) => [c.id, c.knownUntil]));
-    for (const id of ['timewalking', 'bonus', 'world-boss', 'outdoor']) assert.deepEqual(k[id], { us: '2026-12-01T15:00:00Z', eu: '2026-12-02T04:00:00Z' }, id);
+    for (const id of ['timewalking', 'world-boss', 'outdoor']) assert.deepEqual(k[id], { us: '2026-12-01T15:00:00Z', eu: '2026-12-02T04:00:00Z' }, id);
+    assert.deepEqual(k.bonus, { us: '2027-01-05T15:00:00Z', eu: '2027-01-06T04:00:00Z' });
     for (const id of ['holiday', 'minor', 'darkmoon']) assert.deepEqual(k[id], { us: '2027-04-01T00:00:00Z', eu: '2027-04-01T00:00:00Z' }, id);
     // The weekly data stops exactly at a weekly reset in each region.
     assert.equal(S.previousReset(DATA.resets.us.weekly.rule, utc(k.bonus.us)), utc(k.bonus.us));

@@ -24,13 +24,13 @@
    */
   const TEMPLATES = [
     { id: 'vault-claim', kind: 'weekly', name: 'Claim the Great Vault' },
-    { id: 'vault-fill', kind: 'weekly', name: 'Great Vault: dungeons, raids, Delves or PvP' },
+    { id: 'vault-fill', kind: 'weekly', name: 'Great Vault: raid, dungeon and world rows' },
     { id: 'mythic-plus', kind: 'weekly', name: 'Mythic+ dungeons' },
     { id: 'raid', kind: 'weekly', name: 'Raid: this week\'s bosses' },
     { id: 'delves', kind: 'weekly', name: 'Bountiful Delves' },
     { id: 'world-boss', kind: 'weekly', name: 'This week\'s world boss' },
     { id: 'bonus-quest', kind: 'weekly', name: 'This week\'s bonus event quest' },
-    { id: 'prey', kind: 'weekly', name: 'Prey hunts' },
+    { id: 'prey', kind: 'weekly', name: 'Prey Hunts' },
     { id: 'profession-weekly', kind: 'weekly', name: 'Profession weekly quests' },
     { id: 'trading-post', kind: 'weekly', name: 'Trading Post: this month\'s activities' },
     { id: 'world-quests', kind: 'daily', name: 'World quests' },

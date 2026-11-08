@@ -89,8 +89,26 @@ export function validate(src) {
     }
   }
 
+  // A rotation names each window of an "every" schedule (a Curse Surge location, the Aqir zone of the week).
+  // It is always derived from observations, so only a predicted event or region may have one, and a name
+  // may only change between windows, never inside one.
+  const checkNames = (where, s, event) => {
+    const n = s.names;
+    if (!n || typeof n !== 'object' || Array.isArray(n)) { err(where, 'names must be { list, everyMin, offsetMin, shift }'); return; }
+    if (!Array.isArray(n.list) || n.list.length < 2 || n.list.length > 12 || !n.list.every((x) => typeof x === 'string' && x.trim()) || new Set(n.list).size !== n.list.length) err(where, 'names.list must be 2 to 12 different names');
+    if (!Number.isInteger(n.everyMin) || n.everyMin < 1) err(where, 'names.everyMin must be a whole number of minutes');
+    else {
+      if (n.everyMin % s.periodMin !== 0) err(where, 'names.everyMin must be a whole number of periods, so a name never changes inside a window');
+      if (!Number.isInteger(n.offsetMin) || n.offsetMin < 0 || n.offsetMin >= n.everyMin) err(where, 'names.offsetMin must be 0 or more and less than names.everyMin');
+      else if ((((n.offsetMin - s.offsetMin) % s.periodMin) + s.periodMin) % s.periodMin !== 0) err(where, 'names.offsetMin must fall on a window start');
+    }
+    if (!Number.isInteger(n.shift) || n.shift < 0 || !Array.isArray(n.list) || n.shift >= n.list.length) err(where, 'names.shift must be a position in names.list');
+    if (event.status !== 'predicted' && s.status !== 'predicted') err(where, 'a rotation of names is derived from observations, so it must be labeled predicted');
+  };
+
   const checkSchedule = (where, s, event) => {
     if (!s || typeof s !== 'object') { err(where, 'schedule missing'); return; }
+    if (s.names !== undefined && s.type !== 'every') err(where, 'only a repeating ("every") schedule can have a rotation of names');
     // A region can be less certain than the event as a whole (for example only its start time).
     if (s.status !== undefined) {
       if (!STATUSES.includes(s.status)) err(where, `status must be one of ${STATUSES.join(', ')}`);
@@ -115,6 +133,7 @@ export function validate(src) {
       if (s.offsetMin >= s.periodMin) err(where, 'offsetMin must be less than periodMin');
       if (!(s.durationMin > 0 && s.durationMin <= s.periodMin)) err(where, 'durationMin must be within the period');
       for (const k of ['from', 'until']) if (s[k] !== undefined && !ISO_INSTANT.test(s[k])) err(where, `${k} needs a date, time and offset`);
+      if (s.names !== undefined) checkNames(where, s, event);
     } else if (s.type === 'monthlyNth') {
       if (!(Number.isInteger(s.n) && s.n >= 1 && s.n <= 4)) err(where, 'n must be 1-4');
       if (!(Number.isInteger(s.weekday) && s.weekday >= 0 && s.weekday <= 6)) err(where, 'weekday must be 0-6');

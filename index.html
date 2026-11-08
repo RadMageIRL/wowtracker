@@ -83,6 +83,7 @@
           <button type="button" class="seg-btn" data-filter="all" aria-pressed="true">All</button>
           <button type="button" class="seg-btn" data-filter="starred" aria-pressed="false">Starred</button>
         </div>
+        <button type="button" class="btn small" id="reminders-btn" aria-haspopup="dialog" aria-pressed="false">Reminders: off</button>
         <label class="field">Coming up for
           <select id="ahead">
             <option value="1">1 hour</option>
@@ -181,6 +182,31 @@
     <button type="button" class="btn small" id="unhide-all" hidden>Show all</button>
   </dialog>
 
+  <dialog id="reminders-dialog" class="reminders" aria-labelledby="reminders-title">
+    <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
+    <h2 id="reminders-title">Reminders</h2>
+    <p>For starred events, and only while WoW Tracker is open in a tab (a background tab is fine). A closed tab or browser, or a computer asleep, gets no reminder, and one missed that way is not shown late. For those times, use Add to calendar in an event's details.</p>
+    <fieldset class="rem-fields">
+      <legend class="sr-only">Reminder settings</legend>
+      <label class="check"><input type="checkbox" id="rem-on"> Remind me before my starred events</label>
+      <label class="field">How long before
+        <select id="rem-lead">
+          <option value="5">5 minutes</option>
+          <option value="15">15 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="60">60 minutes</option>
+        </select>
+      </label>
+      <label class="check"><input type="checkbox" id="rem-hourly"> Also hourly events (Aqir Invasion), each hour</label>
+    </fieldset>
+    <p class="rem-starred" id="rem-starred"></p>
+    <h3>On this page</h3>
+    <p>A small notice in the corner, until you dismiss it or the event starts. No sound. Predicted times say so.</p>
+    <h3>Browser notifications (optional)</h3>
+    <label class="check"><input type="checkbox" id="rem-notify"> Also show a browser notification</label>
+    <p class="rem-status" id="rem-notify-status"></p>
+  </dialog>
+
   <dialog id="export-dialog" class="export" aria-labelledby="export-title">
     <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
     <h2 id="export-title">Export to calendar</h2>
@@ -201,6 +227,8 @@
     <div id="details-body"></div>
   </dialog>
 
+  <div class="reminders-tray" id="reminders-tray" role="status" aria-live="polite" hidden></div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="js/config.js?v=0.1.1"></script>
@@ -210,6 +238,7 @@
   <script src="js/news.js?v=0.1.1"></script>
   <script src="js/search.js?v=0.1.1"></script>
   <script src="js/ics.js?v=0.1.1"></script>
+  <script src="js/reminders.js?v=0.1.1"></script>
   <script src="js/clock.js?v=0.1.1"></script>
   <script src="js/app.js?v=0.1.1"></script>
 </body>

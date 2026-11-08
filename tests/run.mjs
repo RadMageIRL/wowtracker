@@ -11,6 +11,7 @@ import { unitTests } from './units.mjs';
 import { dataTests } from './data.mjs';
 import { searchTests } from './search.mjs';
 import { icsTests } from './ics.mjs';
+import { reminderTests } from './reminders.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
@@ -27,6 +28,7 @@ unitTests(test);
 await dataTests(test);
 searchTests(test);
 icsTests(test);
+reminderTests(test);
 
 // ---- The page ----
 
@@ -39,7 +41,7 @@ test('the version is the same in the title, header, About, README and every asse
   assert.ok(html.includes(`<h2 id="about-title">WoW Tracker v${VERSION}</h2>`));
   assert.match(file('README.md'), new RegExp(`^# WoW Tracker v${VERSION.replace(/\./g, '\\.')}\\n`));
   const assets = [...html.matchAll(/(?:src|href)="((?:js\/[^"]+\.js|style\.css)[^"]*)"/g)].map((m) => m[1]);
-  assert.equal(assets.length, 10);
+  assert.equal(assets.length, 11);
   for (const a of assets) assert.ok(a.endsWith(`?v=${VERSION}`), a);
 });
 

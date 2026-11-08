@@ -52,7 +52,7 @@ const checks = [];
 const check = (name, fn) => checks.push({ name, fn });
 
 /** A fresh tab: storage cleared (or seeded with prefs), a simulated clock and zone. */
-async function open({ at, tz = 'America/Chicago', width = 1280, height = 900, mobile = false, url = BASE, prefs = null, keepStorage = false, media = null } = {}) {
+async function open({ at, tz = 'America/Chicago', width = 1280, height = 900, mobile = false, url = BASE, prefs = null, keepStorage = false, media = null, reminders = null, before = null } = {}) {
   const page = await chrome.newPage();
   const origin = new URL(url).origin;
   if (!keepStorage && url.startsWith('http')) await page.send('Storage.clearDataForOrigin', { origin, storageTypes: 'all' });
@@ -60,7 +60,9 @@ async function open({ at, tz = 'America/Chicago', width = 1280, height = 900, mo
   await page.viewport(width, height, mobile);
   if (media) await page.emulateMedia(media);
   if (at) await page.startClockAt(at);
-  if (prefs) await page.beforeLoad(`if (!sessionStorage.getItem('seeded')) { localStorage.setItem('wowtracker:v1:prefs', ${JSON.stringify(JSON.stringify(prefs))}); sessionStorage.setItem('seeded', '1'); }`);
+  if (before) await page.beforeLoad(before);
+  const seed = { prefs, reminders };
+  if (prefs || reminders) await page.beforeLoad(`if (!sessionStorage.getItem('seeded')) { for (const [k, v] of Object.entries(${JSON.stringify(seed)})) if (v) localStorage.setItem('wowtracker:v1:' + k, JSON.stringify(v)); sessionStorage.setItem('seeded', '1'); }`);
   await page.goto(url);
   await page.waitFor("document.querySelector('#summary li') !== null || !document.getElementById('clock-notice').hidden");
   return page;
@@ -565,6 +567,133 @@ check('at the moment a bonus week ends it is not exported, and the next one is',
   assert.ok(!titles.includes('Midnight Dungeon Event'), 'ended at 14:00 UTC (half-open window)');
   assert.ok(titles.includes('Arena Skirmish Bonus Event') && titles.includes('Cragpine (Predicted)'), titles.join(', '));
   await page.close();
+});
+
+// ---- Reminders ----
+
+const REM_ON = { on: true, lead: 15, notify: false, hourly: false };
+const THORM = { starred: ['world-boss-thormbelan'] }; // Americas: 2026-11-10 15:00 UTC, Predicted
+const trayText = (page) => page.eval(`[...document.querySelectorAll('#reminders-tray .reminder')].map((r) => r.querySelector('p').textContent)`);
+/** Moves the page's clock to iso, as a sleep, a wake or a clock change would. */
+const jumpClock = (page, iso) => page.eval(`(() => { const base = Date.now, extra = ${Date.parse(iso)} - Date.now(); Date.now = () => base() + extra; })()`);
+/** A stand-in for the browser's notifications: records what is shown and asked, answers as told. */
+const FAKE_NOTIFICATIONS = (answer, broken = false) => `(() => {
+  window.__notes = []; window.__asked = 0; let perm = 'default';
+  window.Notification = class { constructor(t, o) { if (${broken}) throw new TypeError('Illegal constructor'); window.__notes.push({ t, o }); }
+    static get permission() { return perm; }
+    static requestPermission() { window.__asked++; perm = ${JSON.stringify(answer)}; return Promise.resolve(perm); } };
+})()`;
+
+check('reminders are off by default; the dialog turns them on, sets the lead and hourly events, and says they need the page open; all saved', async () => {
+  const page = await open({ at: utc('2026-10-28T01:30:00Z') });
+  assert.equal(await text(page, '#reminders-btn'), 'Reminders: off');
+  await click(page, '#reminders-btn');
+  assert.equal(await page.eval(`document.getElementById('reminders-dialog').open`), true);
+  assert.match(await text(page, '#reminders-dialog'), /only while WoW Tracker is open in a tab/);
+  assert.deepEqual(await page.eval(`[document.getElementById('rem-on').checked, document.getElementById('rem-lead').disabled]`), [false, true]);
+  await click(page, '#rem-on');
+  await page.eval(`(() => { const s = document.getElementById('rem-lead'); s.value = '5'; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await click(page, '#rem-hourly');
+  assert.equal(await text(page, '#reminders-btn'), 'Reminders: 5 min');
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  assert.equal(await text(page, '#reminders-btn'), 'Reminders: 5 min');
+  assert.deepEqual(await page.eval(`JSON.parse(localStorage.getItem('wowtracker:v1:reminders'))`), { on: true, lead: 5, notify: false, hourly: true });
+  await page.close();
+});
+
+check('a starred event\'s reminder shows on the page lead minutes before it starts, says Predicted, and is never shown twice: not after a reload, not in a second tab', async () => {
+  const at = utc('2026-11-10T14:44:56Z');
+  const one = await open({ at, prefs: THORM, reminders: REM_ON });
+  const two = await open({ at, keepStorage: true });
+  await sleep(6000); // both tabs pass 14:45:00, the reminder moment
+  const shown = [...await trayText(one), ...await trayText(two)];
+  assert.equal(shown.length, 1, `shown once across two tabs: ${JSON.stringify(shown)}`);
+  assert.match(shown[0], /^Thorm'belan \(Predicted\) starts in 14m \d\ds · 9:00 AM$/);
+  const tab = (await trayText(one)).length ? one : two;
+  assert.match(await tab.eval('document.title'), /^\(1\) WoW Tracker/);
+  await tab.reload();
+  await tab.waitFor("document.querySelector('#summary li') !== null");
+  await sleep(2500);
+  assert.deepEqual(await trayText(tab), [], 'not again after a reload');
+  await one.close(); await two.close();
+});
+
+check('nothing stale: a reminder whose event started during sleep or a clock jump, or before the page opened, is not shown; waking inside the reminder time shows it', async () => {
+  const late = await open({ at: utc('2026-11-10T14:44:58Z'), prefs: THORM, reminders: REM_ON });
+  await jumpClock(late, '2026-11-10T15:00:30Z'); // asleep across 14:45 and the 15:00 start
+  await sleep(3500);
+  assert.deepEqual(await trayText(late), []);
+  await late.close();
+  const after = await open({ at: utc('2026-11-10T15:00:10Z'), prefs: THORM, reminders: REM_ON });
+  await sleep(2500);
+  assert.deepEqual(await trayText(after), [], 'opened after the start');
+  await after.close();
+  const wake = await open({ at: utc('2026-11-10T14:00:00Z'), prefs: THORM, reminders: REM_ON });
+  await sleep(1500);
+  assert.deepEqual(await trayText(wake), []);
+  await jumpClock(wake, '2026-11-10T14:52:00Z'); // wakes inside the 15 minutes
+  await wake.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 5000);
+  await wake.close();
+});
+
+check('a shown reminder goes when its event is hidden, unstarred or the region changes; Dismiss removes it; hourly events only when asked', async () => {
+  const page = await open({ at: utc('2026-11-10T14:50:00Z'), prefs: THORM, reminders: REM_ON });
+  await page.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 5000);
+  await click(page, '[data-region="eu"]');
+  await page.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 0`, 3000);
+  await page.close();
+  for (const act of ['#next-list [data-hide="world-boss-thormbelan"]', '#next-list [data-star="world-boss-thormbelan"]', '#reminders-tray [data-dismiss]']) {
+    const p = await open({ at: utc('2026-11-10T14:50:00Z'), prefs: THORM, reminders: REM_ON });
+    await p.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 5000);
+    await click(p, act);
+    await p.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 0`, 3000);
+    assert.equal(await p.eval('document.title.startsWith("(")'), false, act);
+    await p.close();
+  }
+  const aqir = await open({ at: utc('2026-11-08T16:50:00Z'), prefs: { starred: ['aqir-invasion'] }, reminders: REM_ON });
+  await sleep(2500);
+  assert.deepEqual(await trayText(aqir), [], 'hourly events are left out unless asked for');
+  await click(aqir, '#reminders-btn');
+  await click(aqir, '#rem-hourly');
+  await aqir.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 5000);
+  assert.match((await trayText(aqir))[0], /^Aqir Invasion \(Predicted\) starts in/);
+  await aqir.close();
+});
+
+check('browser notifications only after the reader ticks the box and the browser allows them; silent, one per reminder; refused or unsupported keeps them on the page', async () => {
+  const granted = await open({ at: utc('2026-11-10T14:44:30Z'), prefs: THORM, reminders: REM_ON, before: FAKE_NOTIFICATIONS('granted') });
+  assert.equal(await granted.eval('window.__asked'), 0, 'never asked on load');
+  await click(granted, '#reminders-btn');
+  await click(granted, '#rem-notify');
+  await granted.waitFor(`window.__asked === 1 && document.getElementById('rem-notify').checked`);
+  await granted.waitFor(`window.__notes.length === 1`, 40000);
+  const note = await granted.eval('window.__notes[0]');
+  assert.match(note.t, /^Thorm'belan \(Predicted\) starts in /);
+  assert.match(note.o.body, /The time is a prediction, not published by Blizzard\./);
+  assert.equal(note.o.silent, true);
+  assert.equal(note.o.tag, `us|world-boss-thormbelan|${utc('2026-11-10T15:00:00Z')}|15`);
+  assert.equal((await trayText(granted)).length, 1, 'the page notice shows too');
+  await granted.close();
+  const denied = await open({ at: utc('2026-11-10T14:50:00Z'), prefs: THORM, reminders: REM_ON, before: FAKE_NOTIFICATIONS('denied') });
+  await click(denied, '#reminders-btn');
+  await click(denied, '#rem-notify');
+  await denied.waitFor(`window.__asked === 1`);
+  await sleep(300);
+  assert.equal(await denied.eval(`document.getElementById('rem-notify').checked`), false);
+  assert.match(await text(denied, '#rem-notify-status'), /blocked for this site/);
+  await denied.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 5000);
+  assert.equal(await denied.eval('window.__notes.length'), 0);
+  await denied.close();
+  const unticked = await open({ at: utc('2026-11-10T14:50:00Z'), prefs: THORM, reminders: REM_ON, before: FAKE_NOTIFICATIONS('granted') + `;window.Notification.requestPermission();` });
+  await unticked.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 5000);
+  assert.equal(await unticked.eval('window.__notes.length'), 0, 'allowed by the browser but not ticked: no notification');
+  await unticked.close();
+  const broken = await open({ at: utc('2026-11-10T14:44:57Z'), prefs: THORM, reminders: { ...REM_ON, notify: true }, before: FAKE_NOTIFICATIONS('granted', true) + `;window.Notification.requestPermission();` });
+  await broken.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 8000);
+  await click(broken, '#reminders-btn');
+  assert.match(await text(broken, '#rem-notify-status'), /does not let a page show notifications/);
+  await broken.close();
 });
 
 // ---- Security and requests ----

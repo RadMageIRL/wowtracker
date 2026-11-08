@@ -353,6 +353,24 @@ dialog h3 { margin: 14px 0 4px; font-size: 14px; }
 dialog p, dialog li { font-size: 13.5px; color: var(--text-dim); }
 dialog a { color: var(--text); }
 .dialog-close { float: right; margin: -4px -6px 0 8px; }
+/* Reminders: settings in a small dialog; notices in a corner, still (no animation), until dismissed. */
+.rem-fields { margin: 10px 0 0; padding: 0; border: 0; display: grid; gap: 6px; }
+.reminders .check { display: flex; align-items: center; gap: 8px; min-height: 30px; font-size: 14px; color: var(--text); cursor: pointer; }
+.reminders .check input { width: 18px; height: 18px; margin: 0; accent-color: var(--gold); }
+.reminders .check:has(input:disabled) { color: var(--text-faint); cursor: default; }
+.rem-starred, .rem-status { font-size: 13px; }
+.reminders-tray {
+  position: fixed; right: 16px; bottom: 16px; z-index: 20; display: grid; gap: 8px;
+  width: min(360px, calc(100vw - 32px));
+}
+.reminders-tray[hidden] { display: none; }
+.reminder {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--accent); border-left-width: 4px;
+  border-radius: var(--radius); background: var(--surface-2); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); font-size: 14px;
+}
+.reminder p { margin: 0; flex: 1 1 auto; color: var(--text); }
+.reminder .link-btn { flex: 0 0 auto; }
+
 /* Calendar export: two choices, one checkbox, one button. */
 .export-scope { margin: 0 0 10px; }
 .export-choices { margin: 0; padding: 0; border: 0; display: grid; gap: 4px; }

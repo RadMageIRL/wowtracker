@@ -463,6 +463,7 @@
       option('ahead'), option('time-mode'), prefs.compact ? 'compact' : null, prefs.hidden.length ? `${prefs.hidden.length} hidden` : null,
     ].filter(Boolean).join(' · ');
     searchStatus();
+    renderRemindersUi(); // the button says whether reminders are on; the dialog counts the starred events
     document.body.classList.toggle('compact', prefs.compact);
     const label = { dark: 'Dark', light: 'Light', system: 'System' }[prefs.theme];
     $('theme-btn').textContent = label;
@@ -507,6 +508,8 @@
     else if (a('data-ics')) addOneToCalendar(a('data-ics'), Number(a('data-start')));
     else if (t.id === 'export-btn') { renderExport(); $('export-dialog').showModal(); }
     else if (t.id === 'export-go') exportNow();
+    else if (t.id === 'reminders-btn') { renderRemindersUi(); $('reminders-dialog').showModal(); }
+    else if (a('data-dismiss')) { tray = tray.filter((x) => x.key !== a('data-dismiss')); renderTray(); }
     else if (a('data-star') && t.closest('#details')) {
       prefs.starred = toggleIn(prefs.starred, a('data-star')); changed(); renderDetails();
       const again = document.querySelector(`#details [data-star="${CSS.escape(a('data-star'))}"]`);
@@ -569,6 +572,7 @@
   }
   // Another tab of this page changed the settings: follow it.
   window.addEventListener('storage', (ev) => {
+    if (ev.key === Store.PREFIX + 'reminders') { rem = Rem.sanitize(Store.read(storage, 'reminders')); renderRemindersUi(); syncControls(); return; }
     if (ev.key !== Store.PREFIX + 'prefs') return;
     prefs = Store.sanitizePrefs(Store.read(storage, 'prefs'), EVENTS.map((e) => e.id), CATEGORIES.map((c) => c.id), deviceZone());
     syncControls(); render(true); renderNews();
@@ -790,6 +794,118 @@
     saveIcs(`wowtracker-${e.id}-${fileDay(w.start)}.ics`, `WoW Tracker (${REGION.get(region()).name})`, [icsEntry(e, w)]);
   }
 
+  // ---- Reminders for starred events (only while this page is open) ----
+
+  const Rem = window.WoWReminders;
+  let rem = Rem.sanitize(Store.read(storage, 'reminders'));
+  const saveRem = () => Store.write(storage, 'reminders', rem);
+  let tray = [];                 // reminders shown on the page: { key, event, start, name, title, body }
+  const tried = new Set();       // keys this tab has already tried to deliver
+  let notifyBroken = false;      // the browser has Notification but refuses it (Android Chrome needs a service worker)
+  const BASE_TITLE = document.title;
+  const REM_ENGINE = { scheduleFor: S.scheduleFor, windows: S.windows, isFrequent: (s) => s.type === 'every' && s.periodMin < 1440 };
+
+  const notifyState = () => (!('Notification' in window) || notifyBroken ? 'unsupported' : Notification.permission);
+
+  function reminderText(it, now) {
+    const st = statusFor(it.event), when = at(it.start, 'full');
+    const label = predictedLabel(st);
+    return {
+      title: `${it.name}${label} starts in ${S.duration(it.start - now)}`,
+      body: `${when}${st.status === 'predicted' ? (st.part === 'time' ? '. The start time is a prediction.' : '. The time is a prediction, not published by Blizzard.') : '.'} ${REGION.get(region()).name}. WoW Tracker`,
+    };
+  }
+
+  /** Only one tab delivers each reminder: the key is claimed under a lock shared by every tab. */
+  async function claim(k) {
+    const run = () => {
+      const d = Rem.prune(Store.read(storage, 'reminded'), Date.now());
+      if (d[k]) return false;
+      d[k] = Date.now();
+      Store.write(storage, 'reminded', d);
+      return true;
+    };
+    try { if (navigator.locks && navigator.locks.request) return await navigator.locks.request('wowtracker-reminders', run); } catch (e) { /* no locks here: claim without one */ }
+    return run();
+  }
+
+  function notifyBrowser(it) {
+    if (!rem.notify || notifyState() !== 'granted') return;
+    try {
+      const n = new Notification(it.title, { body: it.body, tag: it.key, silent: true });
+      n.onclick = () => { window.focus(); n.close(); };
+    } catch (e) { notifyBroken = true; } // page notifications refused (a service worker would be needed): the page notice stays
+  }
+
+  async function deliver(it, now) {
+    tried.add(it.key);
+    if (!(await claim(it.key))) return;
+    Object.assign(it, reminderText(it, now));
+    tray.push(it);
+    renderTray();
+    notifyBrowser(it);
+  }
+
+  function renderTray() {
+    const el = $('reminders-tray');
+    el.replaceChildren(...tray.map((it) => h('div', { class: 'reminder', 'data-cat': it.event.category },
+      h('p', {}, h('strong', { text: `${it.name}${predictedLabel(statusFor(it.event))}` }), ' starts ',
+        h('span', { 'data-until': it.start, 'data-prefix': 'in ' }, `in ${S.duration(it.start - nowMs())}`), ` · ${at(it.start, 'time')}`),
+      h('button', { type: 'button', class: 'link-btn', 'data-dismiss': it.key, 'aria-label': `Dismiss the reminder for ${it.name}`, text: 'Dismiss' }))));
+    el.hidden = !tray.length;
+    document.title = tray.length ? `(${tray.length}) ${BASE_TITLE}` : BASE_TITLE;
+  }
+
+  /** On each tick: drop what is no longer due, deliver what has come due. Nothing at all while off. */
+  function checkReminders(now) {
+    if (tray.length) {
+      const ctx = { region: region(), now, starred: prefs.starred, hidden: prefs.hidden };
+      const keep = tray.filter((it) => rem.on && Rem.stillDue(it, ctx));
+      if (keep.length !== tray.length) { tray = keep; renderTray(); }
+    }
+    if (!rem.on || !prefs.starred.length) return;
+    for (const it of Rem.due({ events: EVENTS, region: region(), now, settings: rem, starred: prefs.starred, hidden: prefs.hidden, engine: REM_ENGINE })) {
+      if (!tried.has(it.key)) deliver(it, now);
+    }
+  }
+
+  function renderRemindersUi() {
+    $('reminders-btn').textContent = rem.on ? `Reminders: ${rem.lead} min` : 'Reminders: off';
+    $('reminders-btn').setAttribute('aria-pressed', String(rem.on));
+    $('rem-on').checked = rem.on;
+    $('rem-lead').value = String(rem.lead);
+    $('rem-hourly').checked = rem.hourly;
+    for (const id of ['rem-lead', 'rem-hourly', 'rem-notify']) $(id).disabled = !rem.on;
+    const ns = notifyState();
+    $('rem-notify').checked = rem.notify && ns === 'granted';
+    if (ns === 'unsupported' || ns === 'denied') $('rem-notify').disabled = true;
+    $('rem-notify-status').textContent = {
+      unsupported: 'This browser does not let a page show notifications (phones usually need an installed app for that), so reminders stay on the page.',
+      denied: 'Notifications are blocked for this site. To use them, allow them in your browser\'s site settings.',
+      default: 'Off unless you tick this; your browser will ask first.',
+      granted: rem.notify ? 'On: a silent notification too, also when this tab is in the background.' : 'Allowed by your browser; tick to use them.',
+    }[ns];
+    const starred = EVENTS.filter((e) => prefs.starred.includes(e.id) && !prefs.hidden.includes(e.id));
+    const hourly = starred.filter((e) => { const s = S.scheduleFor(e, region()); return s && REM_ENGINE.isFrequent(s); }).length;
+    $('rem-starred').textContent = starred.length
+      ? `${starred.length} starred ${starred.length === 1 ? 'event' : 'events'} in ${REGION.get(region()).name}${hourly ? `, ${hourly} of them hourly${rem.hourly ? '' : ' (left out unless you tick hourly events)'}` : ''}.`
+      : 'No starred events yet. Star an event (the star by its name) to be reminded of it.';
+  }
+
+  function remChanged() { saveRem(); renderRemindersUi(); syncControls(); checkReminders(nowMs()); }
+
+  $('rem-on').addEventListener('change', (ev) => { rem.on = ev.target.checked; remChanged(); });
+  $('rem-lead').addEventListener('change', (ev) => { rem.lead = Number(ev.target.value); remChanged(); });
+  $('rem-hourly').addEventListener('change', (ev) => { rem.hourly = ev.target.checked; remChanged(); });
+  $('rem-notify').addEventListener('change', async (ev) => {
+    if (!ev.target.checked) { rem.notify = false; remChanged(); return; }
+    // Asked only here, from the reader's own click; never on load.
+    let p = notifyState();
+    if (p === 'default') { try { p = await Notification.requestPermission(); } catch (e) { p = 'denied'; } }
+    rem.notify = p === 'granted';
+    remChanged();
+  });
+
   // ---- Footer, About and the untracked list ----
 
   function renderMeta() {
@@ -942,6 +1058,7 @@
     if (resumed) checkClock(resumed === 'clock-jump' ? 5000 : 60000);
     lastWall = wall; lastSteady = steady;
     render(Boolean(resumed));
+    checkReminders(nowMs()); // after sleep or a clock change too: what has started is never shown late
     if (!prefs.newsCollapsed && Date.now() - newsTried > News.REFRESH_MS) loadNews();
     timer = setTimeout(tick, 1000 - (nowMs() % 1000) + 5);
   }

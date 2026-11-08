@@ -52,7 +52,7 @@ const checks = [];
 const check = (name, fn) => checks.push({ name, fn });
 
 /** A fresh tab: storage cleared (or seeded with prefs), a simulated clock and zone. */
-async function open({ at, tz = 'America/Chicago', width = 1280, height = 900, mobile = false, url = BASE, prefs = null, keepStorage = false, media = null, reminders = null, before = null } = {}) {
+async function open({ at, tz = 'America/Chicago', width = 1280, height = 900, mobile = false, url = BASE, prefs = null, keepStorage = false, media = null, reminders = null, checklist = null, before = null } = {}) {
   const page = await chrome.newPage();
   const origin = new URL(url).origin;
   if (!keepStorage && url.startsWith('http')) await page.send('Storage.clearDataForOrigin', { origin, storageTypes: 'all' });
@@ -61,8 +61,8 @@ async function open({ at, tz = 'America/Chicago', width = 1280, height = 900, mo
   if (media) await page.emulateMedia(media);
   if (at) await page.startClockAt(at);
   if (before) await page.beforeLoad(before);
-  const seed = { prefs, reminders };
-  if (prefs || reminders) await page.beforeLoad(`if (!sessionStorage.getItem('seeded')) { for (const [k, v] of Object.entries(${JSON.stringify(seed)})) if (v) localStorage.setItem('wowtracker:v1:' + k, JSON.stringify(v)); sessionStorage.setItem('seeded', '1'); }`);
+  const seed = { prefs, reminders, checklist };
+  if (prefs || reminders || checklist) await page.beforeLoad(`if (!sessionStorage.getItem('seeded')) { for (const [k, v] of Object.entries(${JSON.stringify(seed)})) if (v) localStorage.setItem('wowtracker:v1:' + k, JSON.stringify(v)); sessionStorage.setItem('seeded', '1'); }`);
   await page.goto(url);
   await page.waitFor("document.querySelector('#summary li') !== null || !document.getElementById('clock-notice').hidden");
   return page;
@@ -487,16 +487,16 @@ check('on a phone the details fit the screen without sideways scrolling, and Clo
 // ---- Calendar export ----
 
 /** Runs action and returns the text of the one file the browser saves meanwhile. */
-async function saved(page, action) {
+async function saved(page, action, ext = '.ics') {
   const dir = mkdtempSync(join(tmpdir(), 'wowtracker-ics-'));
   await page.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dir });
   await action();
   for (let i = 0; i < 50; i++) {
-    const files = readdirSync(dir).filter((f) => f.endsWith('.ics'));
+    const files = readdirSync(dir).filter((f) => f.endsWith(ext));
     if (files.length) { await sleep(100); return { name: files[0], text: readFileSync(join(dir, files[0]), 'utf8') }; }
     await sleep(100);
   }
-  throw new Error('no calendar file was saved');
+  throw new Error(`no ${ext} file was saved`);
 }
 const Ics = require(join(DIR, 'js', 'ics.js'));
 const Engine = require(join(DIR, 'js', 'schedule.js'));
@@ -611,6 +611,8 @@ check('a starred event\'s reminder shows on the page lead minutes before it star
   assert.equal(shown.length, 1, `shown once across two tabs: ${JSON.stringify(shown)}`);
   assert.match(shown[0], /^Thorm'belan \(Predicted\) starts in 14m \d\ds · 9:00 AM$/);
   const tab = (await trayText(one)).length ? one : two;
+  assert.doesNotMatch(await tab.eval(`document.getElementById('reminders-tray').textContent`), /null|undefined/, 'one notice: no bar, nothing stray');
+  assert.equal(await tab.eval(`document.getElementById('reminders-expand') === null && document.getElementById('reminders-clear') === null`), true);
   assert.match(await tab.eval('document.title'), /^\(1\) WoW Tracker/);
   await tab.reload();
   await tab.waitFor("document.querySelector('#summary li') !== null");
@@ -696,6 +698,328 @@ check('browser notifications only after the reader ticks the box and the browser
   await broken.close();
 });
 
+// ---- Several reminders at once ----
+
+// Thorm'belan, the Arena Skirmish bonus week and the hourly Aqir Invasion all start 2026-11-10 15:00 UTC in the Americas.
+const AT_ONCE = { starred: ['world-boss-thormbelan', 'arena-skirmish-bonus', 'aqir-invasion'] };
+const REM_HOURLY = { ...REM_ON, hourly: true };
+const shownReminders = (page) => page.eval(`[...document.querySelectorAll('#reminders-tray .reminder')].filter((r) => r.offsetParent !== null).map((r) => r.querySelector('strong').textContent)`);
+/** Test only: two copies of Thorm'belan put into the data before the page reads it, at 15:00 and 15:05 UTC. */
+const TWO_MORE = `(() => { let d; Object.defineProperty(window, 'WOW_DATA', { configurable: true, get: () => d, set: (v) => {
+  const base = v.events.find((e) => e.id === 'world-boss-thormbelan');
+  for (const [n, later] of [['b', 0], ['c', 5]]) {
+    const copy = JSON.parse(JSON.stringify(base));
+    copy.id = 'world-boss-thormbelan-' + n; copy.name = "Thorm'belan " + n.toUpperCase(); copy.schedules.us.offsetMin += later;
+    v.events.push(copy);
+  }
+  d = v; } }); })()`;
+
+check('on a phone several reminders at once show one notice and "+2 more", which opens the rest as one-line rows; Dismiss, Dismiss all, and each read out once', async () => {
+  const page = await open({ at: utc('2026-11-10T14:50:00Z'), width: 390, height: 844, mobile: true, prefs: AT_ONCE, reminders: REM_HOURLY });
+  await page.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 3`, 5000);
+  assert.equal((await shownReminders(page)).length, 1, 'one notice on a phone');
+  assert.equal(await text(page, '#reminders-expand'), '+2 more reminders');
+  assert.equal(await page.eval(`document.getElementById('reminders-expand').getAttribute('aria-expanded')`), 'false');
+  const folded = await page.eval(`document.getElementById('reminders-tray').getBoundingClientRect().height`);
+  assert.ok(folded < 130, `${folded} px tall with three reminders`);
+  await click(page, '#reminders-expand');
+  assert.equal((await shownReminders(page)).length, 3);
+  assert.equal(await page.eval(`document.getElementById('reminders-expand').getAttribute('aria-expanded')`), 'true');
+  assert.equal(await text(page, '#reminders-expand'), 'Show fewer');
+  const rows = await page.eval(`[...document.querySelectorAll('#reminders-more .reminder')].map((r) => Math.round(r.getBoundingClientRect().height))`);
+  assert.ok(rows.length === 2 && rows.every((x) => x <= 34), `one-line rows: ${rows}`);
+  assert.equal(await page.eval(`(() => { const m = document.getElementById('reminders-more'), r = m.getBoundingClientRect(); return m.scrollWidth <= m.clientWidth && [...m.querySelectorAll('.reminder, [data-dismiss]')].every((e) => e.getBoundingClientRect().right <= r.right + 0.5); })()`), true, 'each row and its Dismiss fit inside the panel');
+  const box = await page.eval(`(() => { const r = document.getElementById('reminders-tray').getBoundingClientRect(); return [r.left, r.right, innerWidth, r.height]; })()`);
+  assert.ok(box[0] >= 0 && box[1] <= box[2] && box[3] < 240, JSON.stringify(box));
+  assert.equal(await page.eval('document.documentElement.scrollWidth <= document.documentElement.clientWidth'), true);
+  assert.match((await texts(page, '#reminders-more .reminder p'))[0], / starts in \d+m \d\ds · 9:00 AM$/, 'the rows count down too');
+  // The tray is not a live region (its countdowns would be read out every second); new reminders are, once.
+  assert.equal(await page.eval(`document.getElementById('reminders-tray').closest('[aria-live], [role="status"], [role="alert"]') === null`), true);
+  await page.waitFor(`(document.getElementById('reminders-say').textContent.match(/Reminder:/g) || []).length === 3`, 3000);
+  assert.match(await text(page, '#reminders-say'), /^Reminder: .+ starts in .+, 9:00 AM\. Reminder: /);
+  await page.eval(`(() => { const b = document.querySelector('#reminders-more [data-dismiss]'); b.focus(); b.click(); })()`);
+  assert.equal(await page.eval(`document.querySelectorAll('#reminders-tray .reminder').length`), 2);
+  assert.equal(await page.eval(`document.activeElement.hasAttribute('data-dismiss')`), true, 'focus stays on a Dismiss in the tray');
+  assert.match(await page.eval('document.title'), /^\(2\) WoW Tracker/);
+  await page.eval(`(() => { const b = document.getElementById('reminders-clear'); b.focus(); b.click(); })()`);
+  assert.equal(await page.eval(`document.getElementById('reminders-tray').hidden`), true);
+  assert.equal(await page.eval('document.title.startsWith("(")'), false);
+  assert.equal(await page.eval('document.activeElement.id'), 'coming-title', 'focus goes somewhere sensible, not to the page body');
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  await sleep(2000);
+  assert.deepEqual(await trayText(page), [], 'dismissed reminders do not come back');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('on a desktop at most three notices show, soonest first, the rest behind "+N more"; narrowing the window to a phone leaves one', async () => {
+  const page = await open({ at: utc('2026-11-10T14:50:00Z'), prefs: { starred: [...AT_ONCE.starred, 'world-boss-thormbelan-b', 'world-boss-thormbelan-c'] }, reminders: REM_HOURLY, before: TWO_MORE });
+  await page.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 5`, 5000);
+  const first = await shownReminders(page);
+  assert.equal(first.length, 3);
+  assert.ok(!first.includes("Thorm'belan C (Predicted)"), `the 15:05 start is not among the first three: ${first}`);
+  assert.equal(await text(page, '#reminders-expand'), '+2 more reminders');
+  const folded = await page.eval(`document.getElementById('reminders-tray').getBoundingClientRect().height`);
+  assert.ok(folded < 260, `${folded} px with three notices and the bar`);
+  await click(page, '#reminders-expand');
+  const all = await shownReminders(page);
+  assert.equal(all.length, 5);
+  assert.equal(all[4], "Thorm'belan C (Predicted)", 'soonest first');
+  const tall = await page.eval(`document.getElementById('reminders-tray').getBoundingClientRect().height`);
+  assert.ok(tall <= (await page.eval('innerHeight')) / 2, `${tall} px with five reminders open`);
+  await page.viewport(390, 844, true);
+  await page.waitFor(`document.querySelectorAll('#reminders-tray .reminder-list .reminder').length === 1`, 3000);
+  await click(page, '#reminders-expand'); // it stayed open: fold it
+  assert.equal(await text(page, '#reminders-expand'), '+4 more reminders');
+  assert.equal((await shownReminders(page)).length, 1);
+  await page.close();
+});
+
+// ---- Your checklist ----
+
+const TASKS = { tasks: [{ id: 'wq', name: 'World quests', kind: 'daily' }, { id: 'vault', name: 'Claim the Great Vault', kind: 'weekly' }], done: {} };
+const ticks = (page) => page.eval(`[...document.querySelectorAll('#checklist [data-task]')].map((b) => b.getAttribute('data-task') + ':' + b.checked).join(' ')`);
+const savedChecklist = async (page) => JSON.parse(await page.eval(`localStorage.getItem('wowtracker:v1:checklist')`));
+
+check('your checklist sits after Coming up as one folded line with nothing added; tasks are added, ticked, renamed, moved and deleted, and come back after a reload', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z') });
+  const order = await page.eval(`[...document.querySelectorAll('main > section')].map((s) => s.getAttribute('aria-labelledby'))`);
+  assert.deepEqual(order.slice(order.indexOf('coming-title'), order.indexOf('coming-title') + 3), ['coming-title', 'checklist-title', 'week-title']);
+  assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:checklist')`), null, 'nothing is added on its own');
+  assert.equal(await text(page, '#checklist-count'), 'No tasks yet');
+  assert.equal(await page.eval(`document.getElementById('checklist-body').hidden`), true);
+  const folded = await page.eval(`document.getElementById('checklist').getBoundingClientRect().height`);
+  assert.ok(folded < 50, `${folded} px folded`);
+  await click(page, '#cl-toggle');
+  assert.equal(await page.eval(`document.getElementById('cl-toggle').getAttribute('aria-expanded')`), 'true');
+  assert.match(await text(page, '#checklist-note'), /the game is not read, so finishing something in game does not tick it here/);
+  assert.match(await text(page, '#checklist-groups'), /No tasks yet\. Add your own below, or start from Suggestions\./);
+  const add = (name, kind, enter) => page.eval(`(() => { const i = document.getElementById('cl-name'); i.value = ${JSON.stringify(name)}; document.getElementById('cl-kind').value = '${kind}';
+    ${enter ? "i.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))" : "document.getElementById('cl-add').click()"}; })()`);
+  await add('World quests', 'daily', false);
+  await add('Great Vault', 'weekly', true);
+  assert.equal(await page.eval(`document.getElementById('cl-name').value`), '', 'the box empties after Add');
+  await add('  world QUESTS ', 'daily', false);
+  assert.match(await text(page, '#cl-status'), /"world QUESTS" is already on your daily list/);
+  await add('   ', 'daily', false);
+  assert.match(await text(page, '#cl-status'), /Type a name/);
+  assert.deepEqual(await texts(page, '#checklist .cl-name'), ['World quests', 'Great Vault']);
+  assert.equal(await text(page, '#checklist-count'), '0 of 1 today · 0 of 1 this week');
+  assert.match(await text(page, '#checklist [data-kind="daily"] h3'), /clears Wed 9:00 AM$/);
+  assert.match(await text(page, '#checklist [data-kind="weekly"] h3'), /clears Tue, Nov 17, 9:00 AM$/);
+  await click(page, '#checklist [data-kind="daily"] [data-task]');
+  assert.equal(await text(page, '#checklist-count'), '1 of 1 today · 0 of 1 this week');
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  assert.equal(await page.eval(`document.getElementById('checklist-body').hidden`), false, 'an opened checklist stays open');
+  assert.equal(await text(page, '#checklist-count'), '1 of 1 today · 0 of 1 this week');
+  await click(page, '#cl-edit');
+  assert.equal(await page.eval(`document.getElementById('cl-edit').getAttribute('aria-pressed')`), 'true');
+  const set = (sel, value, enter) => page.eval(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); e.focus(); e.value = ${JSON.stringify(value)};
+    e.dispatchEvent(${enter ? "new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })" : "new Event('change', { bubbles: true })"}); })()`);
+  await set('#checklist [data-kind="weekly"] [data-rename]', 'Claim the Great Vault', true);
+  assert.match(await page.eval('document.activeElement.getAttribute("data-fkey")'), /^cl:[a-z0-9]+:name$/, 'Enter saves and keeps focus in the name');
+  await set('#checklist [data-kind="daily"] [data-kind-of]', 'weekly', false);
+  assert.deepEqual(await page.eval(`[...document.querySelectorAll('#checklist [data-kind="weekly"] [data-rename]')].map((i) => i.value)`), ['World quests', 'Claim the Great Vault']);
+  await set('#checklist [data-rename]', '', false);
+  assert.match(await text(page, '#cl-status'), /A task needs a name/);
+  await page.eval(`(() => { const b = [...document.querySelectorAll('#checklist [data-delete]')][1]; b.focus(); b.click(); })()`);
+  assert.match(await text(page, '#cl-status'), /Deleted "Claim the Great Vault"/);
+  assert.equal(await page.eval(`document.activeElement.getAttribute('data-delete') !== null`), true, 'focus moves to the next Delete');
+  await click(page, '#cl-edit');
+  assert.deepEqual(await texts(page, '#checklist .cl-name'), ['World quests']);
+  assert.equal(await text(page, '#checklist-count'), '0 of 1 this week', 'moved to weekly, it starts unticked there');
+  const stored = await savedChecklist(page);
+  assert.deepEqual([stored.tasks.map((x) => [x.name, x.kind]), stored.done], [[['World quests', 'weekly']], {}]);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('the checklist clears at the reset on a running page in both regions: a daily reset leaves weekly ticks, the weekly reset clears both', async () => {
+  // Americas, Wednesday 15:00 UTC: a daily reset only.
+  const us = await open({ at: utc('2026-11-11T14:59:57Z'), prefs: { checklistOpen: true }, checklist: { ...TASKS, done: { 'us:daily:2026-11-10T15:00Z': ['wq'], 'us:weekly:2026-11-10T15:00Z': ['vault'] } } });
+  assert.equal(await ticks(us), 'wq:true vault:true');
+  await us.waitFor(`document.querySelector('#checklist [data-task="wq"]').checked === false`, 8000);
+  assert.equal(await ticks(us), 'wq:false vault:true');
+  assert.equal(await text(us, '#checklist-count'), '0 of 1 today · 1 of 1 this week');
+  await us.close();
+  // Europe, Wednesday 04:00 UTC: the daily and the weekly reset at once.
+  const eu = await open({ at: utc('2026-11-11T03:59:57Z'), prefs: { region: 'eu', checklistOpen: true }, checklist: { ...TASKS, done: { 'eu:daily:2026-11-10T04:00Z': ['wq'], 'eu:weekly:2026-11-04T04:00Z': ['vault'] } } });
+  assert.equal(await ticks(eu), 'wq:true vault:true');
+  await eu.waitFor(`document.querySelector('#checklist [data-task="vault"]').checked === false`, 8000);
+  assert.equal(await ticks(eu), 'wq:false vault:false');
+  await eu.close();
+});
+
+check('the checklist after a reload, a sleep across the reset and three weeks away: the current period keeps its ticks, a past one comes back unticked and is pruned', async () => {
+  const done = { 'us:daily:2026-11-09T15:00Z': ['wq'], 'us:weekly:2026-11-03T15:00Z': ['vault'] };
+  const page = await open({ at: utc('2026-11-10T12:00:00Z'), prefs: { checklistOpen: true }, checklist: { ...TASKS, done } });
+  assert.equal(await ticks(page), 'wq:true vault:true');
+  await page.reload();
+  await page.waitFor("document.querySelector('#checklist [data-task]') !== null");
+  assert.equal(await ticks(page), 'wq:true vault:true', 'a reload inside the period keeps the ticks');
+  await jumpClock(page, '2026-11-10T16:00:00Z'); // asleep across Tuesday's resets
+  await page.waitFor(`document.querySelector('#checklist [data-task="vault"]').checked === false`, 5000);
+  assert.equal(await ticks(page), 'wq:false vault:false');
+  await page.close();
+  const later = await open({ at: utc('2026-12-01T12:00:00Z'), keepStorage: true });
+  assert.deepEqual(await savedChecklist(later), { tasks: TASKS.tasks, done: {} }, 'ticks from three weeks ago are pruned on load; the tasks stay');
+  assert.equal(await text(later, '#checklist-count'), '0 of 1 today · 0 of 1 this week');
+  await later.close();
+});
+
+check('tasks are shared by both regions and ticks kept per region, so switching region and back loses nothing', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { checklistOpen: true }, checklist: TASKS });
+  await click(page, '#checklist [data-task="vault"]');
+  assert.equal(await ticks(page), 'wq:false vault:true');
+  await click(page, '[data-region="eu"]');
+  assert.equal(await ticks(page), 'wq:false vault:false', 'Europe has its own week');
+  assert.match(await text(page, '#checklist-note'), /They clear at the Europe daily and weekly resets; each region keeps its own\./);
+  await click(page, '#checklist [data-task="wq"]');
+  await click(page, '[data-region="us"]');
+  assert.equal(await ticks(page), 'wq:false vault:true');
+  await click(page, '[data-region="eu"]');
+  assert.equal(await ticks(page), 'wq:true vault:false');
+  const stored = await savedChecklist(page);
+  assert.deepEqual(stored.tasks, TASKS.tasks);
+  assert.deepEqual(Object.keys(stored.done).sort(), ['eu:daily:2026-11-10T04:00Z', 'us:weekly:2026-11-10T15:00Z']);
+  await page.close();
+});
+
+check('suggested tasks are only offered: nothing is added until picked, picked ones are added, and those on the list are marked', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z') });
+  await click(page, '#cl-toggle');
+  await click(page, '#cl-suggest');
+  assert.equal(await page.eval(`document.getElementById('suggest-dialog').open`), true);
+  assert.match(await text(page, '#suggest-dialog'), /not every one fits every character, and none of them is checked against the game/);
+  assert.ok(await page.eval(`document.querySelectorAll('#suggest-groups [data-template]').length`) >= 8);
+  assert.equal(await page.eval(`document.querySelectorAll('#suggest-groups [data-template]:checked').length`), 0, 'none is picked for you');
+  assert.equal(await page.eval(`document.getElementById('suggest-add').disabled`), true);
+  await click(page, '#suggest-groups [data-template="vault-claim"]');
+  await click(page, '#suggest-groups [data-template="world-quests"]');
+  assert.equal(await text(page, '#suggest-add'), 'Add 2 tasks');
+  assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:checklist')`), null, 'nothing is saved before Add');
+  await click(page, '#suggest-add');
+  assert.equal(await page.eval(`document.getElementById('suggest-dialog').open`), false);
+  assert.deepEqual(await texts(page, '#checklist .cl-name'), ['World quests', 'Claim the Great Vault']);
+  assert.match(await text(page, '#cl-status'), /Added 2 tasks/);
+  await click(page, '#cl-suggest');
+  assert.deepEqual(await page.eval(`[...document.querySelectorAll('#suggest-groups [data-template]:disabled')].map((x) => x.getAttribute('data-template'))`), ['world-quests', 'vault-claim']);
+  assert.match(await text(page, '#suggest-groups'), /Claim the Great Vault \(on your list\)/);
+  await page.close();
+});
+
+check('an open checklist is not rebuilt on the one-second tick, and an idle page with it still restyles about once a second', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { checklistOpen: true }, checklist: TASKS });
+  await page.eval(`window.__cl = 0; new MutationObserver((m) => { window.__cl += m.length; }).observe(document.getElementById('checklist'), { childList: true, subtree: true, characterData: true, attributes: true })`);
+  await page.send('Performance.enable', {});
+  const recalcs = async () => (await page.send('Performance.getMetrics', {})).metrics.find((m) => m.name === 'RecalcStyleCount').value;
+  const before = await recalcs();
+  await sleep(3000);
+  const n = (await recalcs()) - before;
+  assert.equal(await page.eval('window.__cl'), 0, 'no change to the checklist in 3 s');
+  assert.ok(n < 20, `${n} style recalculations in 3 s`);
+  await page.close();
+});
+
+// ---- Settings backup ----
+
+const setBackup = (page, value) => page.eval(`(() => { const t = document.getElementById('backup-in'); t.value = ${JSON.stringify(value)}; t.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+
+check('Back up settings: Copy and Download give one line that brings back settings, stars, hidden events, reminders and the checklist after storage is cleared, only after Replace', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { region: 'eu', starred: ['hallows-end', 'darkmoon-faire'], hidden: ['moonkin-festival'], theme: 'light', checklistOpen: true },
+    reminders: { ...REM_ON, lead: 30 }, checklist: { ...TASKS, done: { 'eu:weekly:2026-11-04T04:00Z': ['vault'] } } });
+  await click(page, '#backup-btn');
+  assert.equal(await page.eval(`document.getElementById('backup-dialog').open`), true);
+  assert.match(await text(page, '#backup-dialog'), /Safari can remove them by itself after 7 days/);
+  assert.equal(await text(page, '#backup-what'), 'This browser now: Europe · 2 starred · 1 hidden · reminders 30 min before · 2 checklist tasks.');
+  const sentBefore = page.requests.length;
+  await click(page, '#backup-copy');
+  await page.waitFor(`navigator.clipboard.readText().then((t) => t.startsWith('{"app":"wowtracker"'))`);
+  const copied = await page.eval('navigator.clipboard.readText()');
+  assert.equal(copied.includes('\n'), false, 'one line');
+  const file = await saved(page, () => click(page, '#backup-download'), '.json');
+  assert.equal(file.name, 'wowtracker-settings-2026-11-10.json');
+  assert.deepEqual(JSON.parse(file.text).checklist, JSON.parse(copied).checklist);
+  assert.deepEqual(page.requests.slice(sentBefore).filter((u) => !u.startsWith('blob:') && !u.includes('?clock=')), [], 'nothing is sent');
+  // The browser forgets everything (cleared site data, or Safari after 7 days).
+  await page.eval('localStorage.clear()');
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  assert.equal(await page.eval(`document.querySelector('[data-region="us"]').getAttribute('aria-pressed')`), 'true');
+  assert.equal(await text(page, '#checklist-count'), 'No tasks yet');
+  await click(page, '#backup-btn');
+  await setBackup(page, copied);
+  await click(page, '#backup-check');
+  assert.match(await text(page, '#backup-result'), /^This backup can be restored\. Made Tue, Nov 10, 12:00 PM with v\d+\.\d+\.\d+\. It holds: Europe · 2 starred · 1 hidden · reminders 30 min before · 2 checklist tasks\./);
+  assert.match(await text(page, '#backup-result'), /Restoring replaces what this browser has now \(Americas · 0 starred · 0 hidden · reminders off · no checklist tasks\)\./);
+  assert.equal(await page.eval('document.activeElement.id'), 'backup-apply');
+  assert.doesNotMatch(await text(page, '#backup-result'), /null|undefined/);
+  assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:checklist')`), null, 'nothing replaced before the confirmation');
+  await click(page, '#backup-cancel');
+  assert.equal(await text(page, '#backup-result'), 'Nothing was changed.');
+  assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:checklist') === null && localStorage.getItem('wowtracker:v1:prefs') === null`), true);
+  await click(page, '#backup-check');
+  await click(page, '#backup-apply');
+  assert.match(await text(page, '#backup-result'), /^Restored: settings, stars, hidden events, reminders and the checklist\.$/);
+  const check2 = async () => {
+    assert.equal(await page.eval(`document.querySelector('[data-region="eu"]').getAttribute('aria-pressed')`), 'true');
+    assert.equal(await page.eval(`document.documentElement.getAttribute('data-theme')`), 'light');
+    assert.equal(await text(page, '#reminders-btn'), 'Reminders: 30 min');
+    assert.equal(await text(page, '#hidden-btn'), 'Hidden (1)');
+    assert.deepEqual(JSON.parse(await page.eval(`localStorage.getItem('wowtracker:v1:prefs')`)).starred, ['hallows-end', 'darkmoon-faire']);
+    assert.equal(await ticks(page), 'wq:false vault:true');
+  };
+  await check2();
+  await page.reload();
+  await page.waitFor("document.querySelector('#checklist [data-task]') !== null");
+  await check2();
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('a damaged, foreign, newer or oversized backup is refused with a reason and changes nothing; a backup file opens; odd entries are left out and shown as text', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { starred: ['hallows-end'] }, checklist: TASKS });
+  const stored = () => page.eval(`JSON.stringify(['prefs', 'reminders', 'checklist'].map((k) => localStorage.getItem('wowtracker:v1:' + k)))`);
+  const before = await stored();
+  await click(page, '#backup-btn');
+  for (const [value, reason] of [
+    ['', /Paste a backup first/],
+    ['{"app": "wowtracker", "prefs": {', /not valid JSON/],
+    ['{"app": "gw2timer", "format": 1, "prefs": {}}', /valid JSON but not a WoW Tracker backup/],
+    ['{"app": "wowtracker", "format": 9, "prefs": {}}', /made by a newer WoW Tracker/],
+    ['{"app": "wowtracker", "format": 1, "edition": "forever", "prefs": {}}', /another edition/],
+    ['{"app": "wowtracker", "format": 1}', /holds no settings/],
+    ['x'.repeat(250000), /far larger than a WoW Tracker backup/],
+  ]) {
+    await setBackup(page, value);
+    await click(page, '#backup-check');
+    const said = await text(page, '#backup-result');
+    assert.match(said, reason);
+    assert.match(said, /Nothing was changed\.$/);
+    assert.equal(await page.eval(`document.getElementById('backup-apply') === null`), true, `no Replace for ${value.slice(0, 30)}`);
+  }
+  assert.equal(await stored(), before, 'storage untouched');
+  const odd = JSON.stringify({ app: 'wowtracker', format: 1, prefs: { region: 'eu', starred: ['hallows-end', 'gone-event'] }, checklist: { tasks: [{ id: 'x1', name: '<img src=x onerror=alert(1)>', kind: 'daily' }], done: {} } });
+  const dir = mkdtempSync(join(tmpdir(), 'wowtracker-backup-'));
+  writeFileSync(join(dir, 'backup.json'), odd);
+  await page.setFiles('#backup-file', [join(dir, 'backup.json')]);
+  await page.waitFor(`document.getElementById('backup-apply') !== null`);
+  assert.match(await text(page, '#backup-result'), /1 starred or hidden event is not in this version's schedule data and will be left out\./);
+  assert.equal(await page.eval(`document.getElementById('backup-in').value`), odd, 'the file is shown in the box');
+  await setBackup(page, odd + ' ');
+  assert.equal(await page.eval(`document.getElementById('backup-apply') === null`), true, 'editing the text after a check asks for a new check');
+  await click(page, '#backup-check');
+  await click(page, '#backup-apply');
+  assert.deepEqual(await texts(page, '#checklist .cl-name'), ['<img src=x onerror=alert(1)>']);
+  assert.equal(await page.eval(`document.querySelectorAll('#checklist img').length`), 0, 'a name is text, never markup');
+  assert.equal(await page.eval(`document.querySelector('[data-region="eu"]').getAttribute('aria-pressed')`), 'true');
+  assert.deepEqual(page.problems, []);
+  rmSync(dir, { recursive: true, force: true });
+  await page.close();
+});
+
 // ---- Security and requests ----
 
 check('no request leaves the site, and the CSP blocks one that tries', async () => {
@@ -722,7 +1046,7 @@ check('the clock check corrects a device clock that is three minutes slow', asyn
 
 check('the footer links go where config.js says, and Share passes the canonical address', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z') });
-  assert.deepEqual(await texts(page, '#footer-links a, #footer-links button'), ['RadMage Labs', 'GitHub', 'Share', 'Feedback', 'Buy me a coffee']);
+  assert.deepEqual(await texts(page, '#footer-links a, #footer-links button'), ['RadMage Labs', 'GitHub', 'Share', 'Back up settings', 'Feedback', 'Buy me a coffee']);
   assert.deepEqual(await page.eval(`[...document.querySelectorAll('#footer-links a')].map((a) => a.href)`),
     ['https://radmagelabs.com/', 'https://github.com/RadMageIRL/wowtracker', 'https://github.com/RadMageIRL/wowtracker/issues', 'https://buymeacoffee.com/radmageirl']);
   const ext = await page.eval(`[...document.querySelectorAll('#footer-links a[target]')].map((a) => a.rel)`);
@@ -780,15 +1104,19 @@ check('before any gap, nothing says "Not known yet": on 2026-10-28 with a 1-day 
 
 for (const [w, mobile] of [[390, true], [360, true], [768, false]]) {
   check(`at ${w} px nothing scrolls sideways and every control can be reached`, async () => {
-    const page = await open({ at: utc('2026-10-28T01:30:00Z'), width: w, height: 800, mobile });
+    const long = { id: 'long', name: 'Profession weekly quests for every crafting profession I have', kind: 'weekly' };
+    const page = await open({ at: utc('2026-10-28T01:30:00Z'), width: w, height: 800, mobile, prefs: { checklistOpen: true }, checklist: { tasks: [...TASKS.tasks, long], done: {} } });
     await page.waitFor(`document.querySelectorAll('#news-list li a').length > 0`);
     await click(page, '#filters-toggle'); // on phones the filters are folded; open them so every control is measured
-    const wide = await page.eval(`[...document.querySelectorAll('body *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && (r.right > ${w} + 1 || r.left < -1); }).map((e) => e.tagName + '.' + e.className).slice(0, 5)`);
-    assert.deepEqual(wide, []);
-    assert.equal(await page.eval('document.documentElement.scrollWidth <= document.documentElement.clientWidth'), true, 'no horizontal scroll');
-    const small = await page.eval(`[...document.querySelectorAll('button, select, a.btn')].filter((e) => e.offsetParent && e.getBoundingClientRect().height < 28).map((e) => e.textContent)`);
-    assert.deepEqual(small, []);
-    if (SHOTS) { mkdirSync(SHOTS, { recursive: true }); await page.screenshot(join(SHOTS, `mobile-${w}.png`), true); }
+    for (const mode of ['list', 'editing']) {
+      const wide = await page.eval(`[...document.querySelectorAll('body *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && (r.right > ${w} + 1 || r.left < -1); }).map((e) => e.tagName + '.' + e.className).slice(0, 5)`);
+      assert.deepEqual(wide, [], mode);
+      assert.equal(await page.eval('document.documentElement.scrollWidth <= document.documentElement.clientWidth'), true, `no horizontal scroll (${mode})`);
+      const small = await page.eval(`[...document.querySelectorAll('button, select, a.btn, input')].filter((e) => e.offsetParent && e.getBoundingClientRect().height < (e.type === 'checkbox' ? 18 : 28)).map((e) => e.textContent || e.id || e.type)`);
+      assert.deepEqual(small, [], mode);
+      if (SHOTS) { mkdirSync(SHOTS, { recursive: true }); await page.screenshot(join(SHOTS, `mobile-${w}${mode === 'editing' ? '-editing' : ''}.png`), true); }
+      if (mode === 'list') await click(page, '#cl-edit');
+    }
     await page.close();
   });
 }

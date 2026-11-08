@@ -22,6 +22,7 @@
     return {
       region: guessRegion(zone), filter: 'all', categories: categoryIds.slice(), starred: [], hidden: [],
       aheadHours: 168, compact: false, timeMode: 'local', theme: 'dark', newsCollapsed: false, newsAll: false, newsShop: false,
+      checklistOpen: false,
     };
   }
 
@@ -49,8 +50,17 @@
       newsCollapsed: raw.newsCollapsed === true,
       newsAll: raw.newsAll === true,
       newsShop: raw.newsShop === true,
+      // Your checklist starts folded to one line; opening it is remembered.
+      checklistOpen: raw.checklistOpen === true,
     };
   }
+
+  /**
+   * The storage key of one piece of state in an edition of the game. Retail keeps the keys it has
+   * always had ("checklist" is wowtracker:v1:checklist); another edition would get its own
+   * ("forever:checklist"), so its tasks and ticks never mix with Retail's.
+   */
+  const editionKey = (name, edition) => (!edition || edition === 'retail' ? name : `${edition}:${name}`);
 
   // localStorage can be missing or throw (private windows, blocked storage); the page still works.
   function read(storage, key) {
@@ -60,7 +70,7 @@
     try { storage.setItem(PREFIX + key, JSON.stringify(value)); return true; } catch (e) { return false; }
   }
 
-  const Store = { PREFIX, REGIONS, FILTERS, AHEAD_HOURS, TIME_MODES, THEMES, guessRegion, defaults, sanitizePrefs, read, write };
+  const Store = { PREFIX, REGIONS, FILTERS, AHEAD_HOURS, TIME_MODES, THEMES, guessRegion, defaults, sanitizePrefs, editionKey, read, write };
   if (typeof module === 'object' && module.exports) module.exports = Store;
   else root.WoWStore = Store;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

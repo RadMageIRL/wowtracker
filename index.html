@@ -130,6 +130,37 @@
       <p class="gap" id="next-gap" hidden></p>
     </section>
 
+    <section class="checklist panel" id="checklist" aria-labelledby="checklist-title">
+      <div class="checklist-head">
+        <h2 id="checklist-title">Your checklist</h2>
+        <span class="checklist-count" id="checklist-count"></span>
+        <span class="checklist-tools">
+          <button type="button" class="link-btn" id="cl-edit" aria-pressed="false" hidden>Edit</button>
+          <button type="button" class="link-btn" id="cl-toggle" aria-controls="checklist-body" aria-expanded="false">Show</button>
+        </span>
+      </div>
+      <div id="checklist-body" hidden>
+        <p class="checklist-note" id="checklist-note"></p>
+        <div class="checklist-groups" id="checklist-groups"></div>
+        <div class="checklist-add">
+          <label class="sr-only" for="cl-name">New task</label>
+          <input type="text" id="cl-name" maxlength="60" placeholder="New task" autocomplete="off" spellcheck="false">
+          <label class="sr-only" for="cl-kind">Repeats</label>
+          <select id="cl-kind">
+            <option value="daily">Daily</option>
+            <option value="weekly" selected>Weekly</option>
+          </select>
+          <button type="button" class="btn small" id="cl-add">Add</button>
+        </div>
+        <p class="checklist-status" id="cl-status" role="status"></p>
+        <p class="checklist-foot">
+          <button type="button" class="link-btn" id="cl-suggest" aria-haspopup="dialog">Suggestions</button>
+          <span class="checklist-keep">Saved in this browser only, and Safari can clear it after 7 days without a visit.</span>
+          <button type="button" class="link-btn" id="cl-backup" aria-haspopup="dialog">Back up settings</button>
+        </p>
+      </div>
+    </section>
+
     <section class="week panel" aria-labelledby="week-title">
       <div class="section-head">
         <h2 id="week-title">Weekly overview</h2>
@@ -170,7 +201,7 @@
     <h3>Schedule data</h3>
     <p id="about-data"></p>
     <h3>Privacy</h3>
-    <p id="about-privacy">Settings, stars and hidden events are saved in this browser only. Two things leave it: the clock check asks this site's own address for the time, and Latest news asks this site for Blizzard's news list (not while you have it collapsed). Blizzard sees this site's request, not yours.</p>
+    <p id="about-privacy">Settings, stars, hidden events, reminders and your checklist are saved in this browser only (Back up settings, in the footer, copies them). Two things leave it: the clock check asks this site's own address for the time, and Latest news asks this site for Blizzard's news list (not while you have it collapsed). Blizzard sees this site's request, not yours.</p>
     <p class="legal">Unofficial fan tool, not affiliated with or endorsed by Blizzard Entertainment. World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.</p>
   </dialog>
 
@@ -227,7 +258,38 @@
     <div id="details-body"></div>
   </dialog>
 
-  <div class="reminders-tray" id="reminders-tray" role="status" aria-live="polite" hidden></div>
+  <dialog id="suggest-dialog" class="suggest" aria-labelledby="suggest-title">
+    <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
+    <h2 id="suggest-title">Suggested tasks</h2>
+    <p>Common Retail activities, to start a list quickly. Pick only what you do: not every one fits every character, and none of them is checked against the game. Rename or delete them any time with Edit.</p>
+    <div class="suggest-groups" id="suggest-groups"></div>
+    <p><button type="button" class="btn" id="suggest-add" disabled>Add selected</button></p>
+  </dialog>
+
+  <dialog id="backup-dialog" class="backup" aria-labelledby="backup-title">
+    <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
+    <h2 id="backup-title">Back up settings</h2>
+    <p>Your settings, stars, hidden events, reminders and checklist are kept in this browser only. Clearing site data removes them, and Safari can remove them by itself after 7 days of using Safari without a visit here. A backup is one line of text you keep; nothing is sent anywhere.</p>
+    <h3>Make a backup</h3>
+    <p class="backup-what" id="backup-what"></p>
+    <label class="backup-label" for="backup-out">Your backup</label>
+    <textarea id="backup-out" rows="3" readonly spellcheck="false"></textarea>
+    <p class="backup-actions">
+      <button type="button" class="btn small" id="backup-copy">Copy</button>
+      <button type="button" class="btn small" id="backup-download">Download file</button>
+    </p>
+    <h3>Restore a backup</h3>
+    <label class="backup-label" for="backup-in">Paste a backup</label>
+    <textarea id="backup-in" rows="3" spellcheck="false" autocomplete="off"></textarea>
+    <p class="backup-actions">
+      <button type="button" class="btn small" id="backup-check">Check backup</button>
+      <label class="btn small file-btn">Open a file<input type="file" id="backup-file" class="sr-only" accept=".json,application/json,text/plain"></label>
+    </p>
+    <div class="backup-result" id="backup-result" role="status"></div>
+  </dialog>
+
+  <div class="reminders-tray" id="reminders-tray" role="region" aria-label="Reminders" hidden></div>
+  <p class="sr-only" id="reminders-say" role="status" aria-live="polite"></p>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -239,6 +301,8 @@
   <script src="js/search.js?v=0.1.1"></script>
   <script src="js/ics.js?v=0.1.1"></script>
   <script src="js/reminders.js?v=0.1.1"></script>
+  <script src="js/checklist.js?v=0.1.1"></script>
+  <script src="js/backup.js?v=0.1.1"></script>
   <script src="js/clock.js?v=0.1.1"></script>
   <script src="js/app.js?v=0.1.1"></script>
 </body>

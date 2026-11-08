@@ -6,6 +6,10 @@
 
   const S = window.WoWSchedule, Store = window.WoWStore, News = window.WoWNews, Clock = window.WoWClock;
   const DATA = window.WOW_DATA, CONFIG = window.WoWConfig;
+  /** The edition of the game this page shows. Retail keeps the storage keys it has always had. */
+  const EDITION = 'retail';
+  /** This page's version, from its own script address (app.js?v=0.2.0), for backups. */
+  const APP_VERSION = (() => { try { return new URL(document.currentScript.src).searchParams.get('v') || ''; } catch (e) { return ''; } })();
   const $ = (id) => document.getElementById(id);
   // Without the schedule data there is nothing to count down: say so instead of showing a broken page.
   if (!DATA || !Array.isArray(DATA.events) || !DATA.resets) {
@@ -432,6 +436,7 @@
       $('calendar').replaceChildren(...(anyItem || gaps(COVERS_UNTIL).length ? months : [h('p', { class: 'empty', text: query ? 'Nothing on the calendar matches your search.' : 'Nothing you follow is on the calendar.' })]),
         h('p', { class: 'gap', text: `Nothing after ${isoDay(DATA.meta.coversUntil)} is in the data yet.` }));
       $('calendar-hint').textContent = `through ${isoDay(DATA.meta.coversUntil)}`;
+      renderChecklist(false); // rebuilt only when its region, periods or display changed
       if (focusKey) { const el = document.querySelector(`[data-fkey="${CSS.escape(focusKey)}"]`); if (el) el.focus(); }
     }
     $('clock-now').textContent = at(now, 'clock');
@@ -509,7 +514,21 @@
     else if (t.id === 'export-btn') { renderExport(); $('export-dialog').showModal(); }
     else if (t.id === 'export-go') exportNow();
     else if (t.id === 'reminders-btn') { renderRemindersUi(); $('reminders-dialog').showModal(); }
-    else if (a('data-dismiss')) { tray = tray.filter((x) => x.key !== a('data-dismiss')); renderTray(); }
+    else if (a('data-dismiss')) dismissReminders([a('data-dismiss')]);
+    else if (t.id === 'reminders-clear') dismissReminders(tray.map((x) => x.key));
+    else if (t.id === 'reminders-expand') { trayOpen = !trayOpen; renderTray(); }
+    else if (t.id === 'cl-toggle') { prefs.checklistOpen = !prefs.checklistOpen; if (!prefs.checklistOpen) clEditing = false; savePrefs(); renderChecklist(true); }
+    else if (t.id === 'cl-edit') { clEditing = !clEditing; clSay(''); renderChecklist(true); }
+    else if (t.id === 'cl-add') addTask();
+    else if (a('data-delete')) deleteTask(a('data-delete'));
+    else if (t.id === 'cl-suggest') { renderSuggest(); $('suggest-dialog').showModal(); }
+    else if (t.id === 'suggest-add') addSuggested();
+    else if (t.id === 'cl-backup' || t.id === 'backup-btn') { renderBackup(); $('backup-dialog').showModal(); }
+    else if (t.id === 'backup-copy') copyBackup();
+    else if (t.id === 'backup-download') downloadBackup();
+    else if (t.id === 'backup-check') checkBackup($('backup-in').value);
+    else if (t.id === 'backup-apply') applyBackup();
+    else if (t.id === 'backup-cancel') cancelBackup();
     else if (a('data-star') && t.closest('#details')) {
       prefs.starred = toggleIn(prefs.starred, a('data-star')); changed(); renderDetails();
       const again = document.querySelector(`#details [data-star="${CSS.escape(a('data-star'))}"]`);
@@ -573,6 +592,7 @@
   // Another tab of this page changed the settings: follow it.
   window.addEventListener('storage', (ev) => {
     if (ev.key === Store.PREFIX + 'reminders') { rem = Rem.sanitize(Store.read(storage, 'reminders')); renderRemindersUi(); syncControls(); return; }
+    if (ev.key === Store.PREFIX + CL_KEY) { checklist = CL.sanitize(Store.read(storage, CL_KEY)); clRev++; renderChecklist(true); return; }
     if (ev.key !== Store.PREFIX + 'prefs') return;
     prefs = Store.sanitizePrefs(Store.read(storage, 'prefs'), EVENTS.map((e) => e.id), CATEGORIES.map((c) => c.id), deviceZone());
     syncControls(); render(true); renderNews();
@@ -726,16 +746,21 @@
     };
   }
 
-  /** Saves a calendar file. Nothing leaves the browser: the file is made here and handed to it. */
-  function saveIcs(fileName, title, entries) {
-    let text;
-    try { text = Ics.calendar({ name: title, stampMs: nowMs(), events: entries }); } catch (err) { toast(`The calendar file could not be made: ${err.message}`); return false; }
-    const url = URL.createObjectURL(new Blob([text], { type: 'text/calendar;charset=utf-8' }));
+  /** Hands a file made here to the browser to save. Nothing leaves the browser. */
+  function saveFile(fileName, text, type) {
+    const url = URL.createObjectURL(new Blob([text], { type }));
     const a = h('a', { href: url, download: fileName, hidden: true });
     document.body.append(a);
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  /** Saves a calendar file, made from the engine's own windows. */
+  function saveIcs(fileName, title, entries) {
+    let text;
+    try { text = Ics.calendar({ name: title, stampMs: nowMs(), events: entries }); } catch (err) { toast(`The calendar file could not be made: ${err.message}`); return false; }
+    saveFile(fileName, text, 'text/calendar;charset=utf-8');
     toast(`Saved ${fileName} (${entries.length} ${entries.length === 1 ? 'event' : 'events'}). Open it to add ${entries.length === 1 ? 'it' : 'them'} to your calendar.`);
     return true;
   }
@@ -842,18 +867,59 @@
     if (!(await claim(it.key))) return;
     Object.assign(it, reminderText(it, now));
     tray.push(it);
+    tray.sort((a, b) => a.start - b.start || a.name.localeCompare(b.name)); // soonest first
     renderTray();
+    announce(`Reminder: ${it.title}, ${at(it.start, 'time')}.`);
     notifyBrowser(it);
   }
 
-  function renderTray() {
-    const el = $('reminders-tray');
-    el.replaceChildren(...tray.map((it) => h('div', { class: 'reminder', 'data-cat': it.event.category },
+  // The tray itself is not a live region (its countdowns change every second); new reminders are
+  // read out once, here, a moment after the tick that delivered them.
+  let sayQueue = [], sayTimer = 0;
+  function announce(text) {
+    sayQueue.push(text);
+    clearTimeout(sayTimer);
+    sayTimer = setTimeout(() => { $('reminders-say').textContent = sayQueue.join(' '); sayQueue = []; }, 250);
+  }
+
+  // A phone shows one notice and a desktop three; the rest wait behind "+N more" as one-line rows.
+  const PHONE = window.matchMedia ? window.matchMedia('(max-width: 640px)') : null;
+  const trayCap = () => (PHONE && PHONE.matches ? 1 : 3);
+  let trayOpen = false;
+
+  function trayEntry(it, line) {
+    return h('li', { class: line ? 'reminder is-line' : 'reminder', 'data-cat': it.event.category },
       h('p', {}, h('strong', { text: `${it.name}${predictedLabel(statusFor(it.event))}` }), ' starts ',
         h('span', { 'data-until': it.start, 'data-prefix': 'in ' }, `in ${S.duration(it.start - nowMs())}`), ` · ${at(it.start, 'time')}`),
-      h('button', { type: 'button', class: 'link-btn', 'data-dismiss': it.key, 'aria-label': `Dismiss the reminder for ${it.name}`, text: 'Dismiss' }))));
+      h('button', { type: 'button', class: 'link-btn', 'data-dismiss': it.key, 'aria-label': `Dismiss the reminder for ${it.name}`, text: 'Dismiss' }));
+  }
+
+  function renderTray() {
+    const el = $('reminders-tray'), cap = trayCap(), extra = Math.max(0, tray.length - cap);
+    if (!extra) trayOpen = false;
+    // Focus inside the tray stays on the same control, or the nearest one, when it is rebuilt.
+    const f = el.contains(document.activeElement) ? document.activeElement : null;
+    const was = f && (f.id || f.getAttribute('data-dismiss'));
+    el.replaceChildren(...[ // replaceChildren would write a null out as the text "null"
+      h('ul', { class: 'reminder-list' }, tray.slice(0, cap).map((it) => trayEntry(it, false))),
+      extra ? h('ul', { class: 'reminder-more', id: 'reminders-more', hidden: !trayOpen }, tray.slice(cap).map((it) => trayEntry(it, true))) : null,
+      tray.length > 1 ? h('div', { class: 'reminder-bar' },
+        extra ? h('button', { type: 'button', class: 'link-btn', id: 'reminders-expand', 'aria-expanded': String(trayOpen), 'aria-controls': 'reminders-more' },
+          trayOpen ? 'Show fewer' : `+${extra} more`, trayOpen ? null : h('span', { class: 'sr-only', text: extra === 1 ? ' reminder' : ' reminders' })) : null,
+        h('button', { type: 'button', class: 'link-btn', id: 'reminders-clear', text: 'Dismiss all' })) : null].filter(Boolean));
     el.hidden = !tray.length;
     document.title = tray.length ? `(${tray.length}) ${BASE_TITLE}` : BASE_TITLE;
+    if (was) {
+      const back = (was === 'reminders-expand' || was === 'reminders-clear' ? $(was) : el.querySelector(`[data-dismiss="${CSS.escape(was)}"]`)) || el.querySelector('[data-dismiss]');
+      (back || $('coming-title')).focus();
+    }
+  }
+  if (PHONE && PHONE.addEventListener) PHONE.addEventListener('change', () => { if (tray.length) renderTray(); });
+
+  /** Takes reminders off the page. They were delivered, so they do not come back. */
+  function dismissReminders(keys) {
+    tray = tray.filter((x) => !keys.includes(x.key));
+    renderTray();
   }
 
   /** On each tick: drop what is no longer due, deliver what has come due. Nothing at all while off. */
@@ -906,6 +972,252 @@
     remChanged();
   });
 
+  // ---- Your checklist: tasks the reader ticks, cleared at the region's resets ----
+
+  // Ticks are stored under the reset period they belong to (js/checklist.js), so nothing runs at a
+  // reset: the next rebuild simply finds the new period unticked. The list is rebuilt only when the
+  // region, a period, the display zone or the list itself changes, never on the one-second tick.
+  const CL = window.WoWChecklist;
+  const CL_KEY = Store.editionKey('checklist', EDITION);
+  const CL_ENGINE = { previousReset: S.previousReset, nextReset: S.nextReset };
+  const KIND_NAME = { daily: 'Daily', weekly: 'Weekly' };
+  let checklist = CL.defaults(), clEditing = false, clRev = 0, clKey = '';
+  {
+    const saved = Store.read(storage, CL_KEY);
+    checklist = CL.prune(CL.sanitize(saved), Date.now()); // ticks from long ago are dropped on load
+    if (saved && JSON.stringify(saved) !== JSON.stringify(checklist)) Store.write(storage, CL_KEY, checklist);
+  }
+  const clPeriods = (now) => CL.periods(DATA.resets, region(), now, CL_ENGINE);
+  const random = () => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] / 4294967296; };
+  const clSay = (msg) => { $('cl-status').textContent = msg; };
+
+  function saveChecklist(next) {
+    checklist = next;
+    clRev++;
+    if (!Store.write(storage, CL_KEY, checklist)) clSay('This browser is not saving right now, so the list lasts only until the page is closed.');
+    renderChecklist(true);
+  }
+
+  function countText(pr) {
+    const parts = [];
+    if (pr.daily.total) parts.push(`${pr.daily.done} of ${pr.daily.total} today`);
+    if (pr.weekly.total) parts.push(`${pr.weekly.done} of ${pr.weekly.total} this week`);
+    return parts.join(' · ') || 'No tasks yet';
+  }
+
+  function taskRow(t, per) {
+    const key = `cl:${t.id}`;
+    if (clEditing) {
+      return h('li', { class: 'cl-task is-editing' },
+        h('input', { type: 'text', class: 'cl-rename', value: t.name, maxlength: CL.MAX_NAME, 'data-rename': t.id, 'data-fkey': `${key}:name`, 'aria-label': `Name of the task ${t.name}`, autocomplete: 'off', spellcheck: 'false' }),
+        h('select', { 'data-kind-of': t.id, 'data-fkey': `${key}:kind`, 'aria-label': `${t.name} repeats` },
+          CL.KINDS.map((k) => h('option', { value: k, selected: k === t.kind, text: KIND_NAME[k] }))),
+        h('button', { type: 'button', class: 'btn small', 'data-delete': t.id, 'data-fkey': `${key}:delete`, 'aria-label': `Delete ${t.name}`, text: 'Delete' }));
+    }
+    const done = CL.isDone(checklist, t, per);
+    return h('li', { class: done ? 'cl-task is-done' : 'cl-task' },
+      h('label', { class: 'check' }, h('input', { type: 'checkbox', 'data-task': t.id, 'data-fkey': `${key}:tick`, checked: done }), h('span', { class: 'cl-name', text: t.name })));
+  }
+
+  function taskGroup(kind, per, pr) {
+    const tasks = checklist.tasks.filter((t) => t.kind === kind);
+    return h('div', { class: 'cl-group', 'data-kind': kind },
+      h('h3', {}, KIND_NAME[kind], tasks.length ? h('span', { class: 'cl-n', text: `${pr[kind].done} of ${pr[kind].total}` }) : null,
+        h('span', { class: 'cl-clears', text: `clears ${at(per[kind].end, kind === 'daily' ? 'wday' : 'full')}` })),
+      tasks.length ? h('ul', { class: 'cl-list' }, tasks.map((t) => taskRow(t, per))) : h('p', { class: 'cl-none', text: `No ${kind} tasks.` }));
+  }
+
+  function renderChecklist(force) {
+    const now = nowMs(), per = clPeriods(now), open = prefs.checklistOpen;
+    const key = [region(), per.daily.key, per.weekly.key, clRev, clEditing, open, formats().zone, formats().local].join('|');
+    if (!force && key === clKey) return;
+    clKey = key;
+    const focusKey = document.activeElement && document.activeElement.getAttribute('data-fkey');
+    const pr = CL.progress(checklist, per), any = checklist.tasks.length > 0;
+    if (!any) clEditing = false;
+    $('checklist-count').textContent = countText(pr);
+    $('checklist').classList.toggle('is-open', open);
+    $('checklist-body').hidden = !open;
+    $('cl-toggle').textContent = open ? 'Hide' : 'Show';
+    $('cl-toggle').setAttribute('aria-expanded', String(open));
+    $('cl-edit').hidden = !open || !any;
+    $('cl-edit').textContent = clEditing ? 'Done' : 'Edit';
+    $('cl-edit').setAttribute('aria-pressed', String(clEditing));
+    $('checklist-note').textContent = `Ticks are yours: the game is not read, so finishing something in game does not tick it here. They clear at the ${REGION.get(region()).name} daily and weekly resets; each region keeps its own.`;
+    $('checklist-groups').replaceChildren(...(any ? CL.KINDS.map((k) => taskGroup(k, per, pr)) : [h('p', { class: 'cl-empty', text: 'No tasks yet. Add your own below, or start from Suggestions.' })]));
+    if (focusKey) { const el = document.querySelector(`#checklist [data-fkey="${CSS.escape(focusKey)}"]`); if (el) el.focus(); }
+  }
+
+  function addTask() {
+    const input = $('cl-name'), kind = $('cl-kind').value, name = CL.cleanName(input.value);
+    const r = CL.add(checklist, input.value, kind, random);
+    if (r.error) {
+      clSay({ empty: 'Type a name for the task first.', full: `The list is full (${CL.MAX_TASKS} tasks). Delete one to add another.`, exists: `"${name}" is already on your ${kind} list.`, kind: 'Choose Daily or Weekly.' }[r.error]);
+      input.focus();
+      return;
+    }
+    input.value = '';
+    saveChecklist(r.list);
+    clSay(`Added "${name}" (${kind}).`);
+    input.focus();
+  }
+
+  function deleteTask(id) {
+    const i = checklist.tasks.findIndex((t) => t.id === id);
+    if (i < 0) return;
+    const name = checklist.tasks[i].name;
+    saveChecklist(CL.remove(checklist, id));
+    clSay(`Deleted "${name}".`);
+    // Focus moves to the next task's Delete, or the one before, or Done.
+    const rest = document.querySelectorAll('#checklist [data-delete]');
+    (rest[Math.min(i, rest.length - 1)] || ($('cl-edit').hidden ? $('cl-name') : $('cl-edit'))).focus();
+  }
+
+  /** A tick, a rename or a move to the other kind, from a control in the list. */
+  function checklistChange(t) {
+    const a = (n) => t.getAttribute(n);
+    if (a('data-task')) { clSay(''); saveChecklist(CL.tick(checklist, a('data-task'), t.checked, clPeriods(nowMs()))); return; }
+    const id = a('data-rename') || a('data-kind-of');
+    if (!id) return;
+    const r = CL.edit(checklist, id, a('data-rename') ? { name: t.value } : { kind: t.value });
+    if (r.error) {
+      const task = checklist.tasks.find((x) => x.id === id);
+      clSay({ empty: 'A task needs a name; it was left as it was.', exists: 'That name is already on that list; it was left as it was.' }[r.error] || '');
+      if (a('data-rename')) t.value = task ? task.name : t.value; else if (task) t.value = task.kind;
+      return;
+    }
+    clSay('');
+    saveChecklist(r.list);
+  }
+  $('checklist').addEventListener('change', (ev) => checklistChange(ev.target));
+  $('cl-name').addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); addTask(); } });
+  // Enter in a name being edited saves it at once (as leaving the box does).
+  $('checklist').addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.target.matches('.cl-rename')) { ev.preventDefault(); checklistChange(ev.target); } });
+
+  // Suggestions: optional starter tasks, added only when picked.
+  function renderSuggest() {
+    $('suggest-groups').replaceChildren(...CL.KINDS.map((kind) => h('fieldset', { class: 'suggest-group' },
+      h('legend', { text: KIND_NAME[kind] }),
+      CL.TEMPLATES.filter((x) => x.kind === kind).map((tpl) => {
+        const has = CL.hasTemplate(checklist, tpl);
+        return h('label', { class: has ? 'check is-added' : 'check' },
+          h('input', { type: 'checkbox', 'data-template': tpl.id, checked: has, disabled: has }),
+          h('span', {}, tpl.name, has ? h('span', { class: 'suggest-has', text: ' (on your list)' }) : null));
+      }))));
+    suggestButton();
+  }
+  const pickedTemplates = () => [...document.querySelectorAll('#suggest-groups [data-template]:checked:not(:disabled)')].map((x) => CL.TEMPLATES.find((tpl) => tpl.id === x.getAttribute('data-template')));
+  function suggestButton() {
+    const n = pickedTemplates().length, b = $('suggest-add');
+    b.disabled = !n;
+    b.textContent = n ? `Add ${n} ${n === 1 ? 'task' : 'tasks'}` : 'Add selected';
+  }
+  $('suggest-dialog').addEventListener('change', suggestButton);
+  function addSuggested() {
+    let list = checklist, added = 0, full = false;
+    for (const tpl of pickedTemplates()) {
+      const r = CL.add(list, tpl.name, tpl.kind, random);
+      if (r.error === 'full') { full = true; break; }
+      if (!r.error) { list = r.list; added++; }
+    }
+    if (!prefs.checklistOpen) { prefs.checklistOpen = true; savePrefs(); }
+    $('suggest-dialog').close();
+    saveChecklist(list);
+    clSay(`Added ${added} ${added === 1 ? 'task' : 'tasks'}.${full ? ` The list is full at ${CL.MAX_TASKS}.` : ''}`);
+  }
+
+  // ---- Settings backup: one line of text the reader keeps; restored only after a confirmation ----
+
+  const Backup = window.WoWBackup;
+  const backupClean = {
+    prefs: (raw) => Store.sanitizePrefs(raw, EVENTS.map((e) => e.id), CATEGORIES.map((c) => c.id), deviceZone()),
+    reminders: (raw) => Rem.sanitize(raw),
+    checklist: (raw) => CL.sanitize(raw),
+  };
+  let pendingBackup = null;
+
+  function settingsSummary(p, r, c) {
+    const n = c.tasks.length;
+    return [REGION.get(p.region).name, `${p.starred.length} starred`, `${p.hidden.length} hidden`, r.on ? `reminders ${r.lead} min before` : 'reminders off',
+      n ? `${n} checklist ${n === 1 ? 'task' : 'tasks'}` : 'no checklist tasks'].join(' · ');
+  }
+  const backupText = () => Backup.make({ prefs, reminders: rem, checklist: CL.prune(checklist, nowMs()), edition: EDITION, version: APP_VERSION, now: nowMs() });
+
+  function renderBackup() {
+    $('backup-what').textContent = `This browser now: ${settingsSummary(prefs, rem, checklist)}.`;
+    $('backup-out').value = backupText();
+    pendingBackup = null;
+    $('backup-result').replaceChildren();
+  }
+
+  async function copyBackup() {
+    const text = backupText(), out = $('backup-out');
+    out.value = text;
+    try { await navigator.clipboard.writeText(text); toast('Backup copied. Keep it somewhere safe, such as a note or an email to yourself.'); } catch (e) { out.focus(); out.select(); toast('Copying is not allowed here: the backup is selected in the box, so copy it from there.'); }
+  }
+
+  function downloadBackup() {
+    const name = `wowtracker-settings-${fileDay(nowMs())}.json`;
+    saveFile(name, backupText(), 'application/json');
+    toast(`Saved ${name}. Open a file under Restore to bring it back.`);
+  }
+
+  function checkBackup(text) {
+    const r = Backup.read(text, backupClean, EDITION), out = $('backup-result');
+    pendingBackup = null;
+    if (!r.ok) { out.replaceChildren(h('p', { class: 'backup-error', text: `${Backup.ERRORS[r.error]} Nothing was changed.` })); return; }
+    pendingBackup = r.data;
+    const d = r.data, lost = r.dropped.starred + r.dropped.hidden;
+    out.replaceChildren(...[
+      h('p', {}, h('strong', { text: 'This backup can be restored. ' }), r.saved ? `Made ${at(r.saved, 'full')}${r.version ? ` with v${r.version}` : ''}. ` : '', `It holds: ${settingsSummary(d.prefs, d.reminders, d.checklist)}.`),
+      lost || r.dropped.tasks ? h('p', { text: [lost ? `${lost} starred or hidden ${lost === 1 ? 'event is' : 'events are'} not in this version's schedule data and will be left out.` : '', r.dropped.tasks ? `${r.dropped.tasks} damaged checklist ${r.dropped.tasks === 1 ? 'task' : 'tasks'} will be left out.` : ''].filter(Boolean).join(' ') }) : null,
+      h('p', { text: `Restoring replaces what this browser has now (${settingsSummary(prefs, rem, checklist)}).` }),
+      h('p', { class: 'backup-actions' },
+        h('button', { type: 'button', class: 'btn small', id: 'backup-apply', text: 'Replace my settings' }),
+        h('button', { type: 'button', class: 'btn small', id: 'backup-cancel', text: 'Cancel' }))].filter(Boolean));
+    $('backup-apply').focus();
+  }
+
+  function cancelBackup() {
+    pendingBackup = null;
+    $('backup-result').replaceChildren(h('p', { text: 'Nothing was changed.' }));
+    $('backup-check').focus();
+  }
+
+  function applyBackup() {
+    if (!pendingBackup) return;
+    const d = pendingBackup;
+    pendingBackup = null;
+    prefs = d.prefs;
+    rem = d.reminders;
+    checklist = CL.prune(d.checklist, nowMs());
+    clRev++;
+    const saved = [Store.write(storage, 'prefs', prefs), Store.write(storage, 'reminders', rem), Store.write(storage, CL_KEY, checklist)].every(Boolean);
+    $('backup-in').value = '';
+    syncControls();
+    render(true);
+    renderChecklist(true);
+    renderNews();
+    if (!prefs.newsCollapsed && !newsState.items.length) loadNews();
+    checkReminders(nowMs());
+    $('backup-what').textContent = `This browser now: ${settingsSummary(prefs, rem, checklist)}.`;
+    $('backup-out').value = backupText();
+    $('backup-result').replaceChildren(h('p', { text: saved ? 'Restored: settings, stars, hidden events, reminders and the checklist.' : 'Restored for this visit, but this browser is not saving right now, so it lasts only until the page is closed.' }));
+    $('backup-check').focus();
+  }
+
+  $('backup-in').addEventListener('input', () => { if (pendingBackup || $('backup-result').childNodes.length) { pendingBackup = null; $('backup-result').replaceChildren(); } });
+  $('backup-file').addEventListener('change', async (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = ''; // the same file can be opened again
+    if (!file) return;
+    if (file.size > Backup.MAX_CHARS * 4) { $('backup-result').replaceChildren(h('p', { class: 'backup-error', text: `${Backup.ERRORS['too-big']} Nothing was changed.` })); return; }
+    let text = '';
+    try { text = await file.text(); } catch (e) { $('backup-result').replaceChildren(h('p', { class: 'backup-error', text: 'That file could not be read. Nothing was changed.' })); return; }
+    $('backup-in').value = text.length > Backup.MAX_CHARS ? '' : text;
+    checkBackup(text);
+  });
+
   // ---- Footer, About and the untracked list ----
 
   function renderMeta() {
@@ -914,6 +1226,7 @@
     if (L.labs) links.push(h('a', { href: L.labs, text: 'RadMage Labs' }));
     if (L.github) links.push(h('a', { href: L.github, target: '_blank', rel: 'noopener', text: 'GitHub' }));
     links.push(h('button', { type: 'button', class: 'link-btn', id: 'share-btn', text: 'Share' }));
+    links.push(h('button', { type: 'button', class: 'link-btn', id: 'backup-btn', 'aria-haspopup': 'dialog', text: 'Back up settings' }));
     if (L.feedback) links.push(h('a', { href: L.feedback, target: '_blank', rel: 'noopener', text: 'Feedback' }));
     if (L.coffee) links.push(h('a', { href: L.coffee, target: '_blank', rel: 'noopener', text: 'Buy me a coffee' }));
     $('footer-links').replaceChildren(...links);

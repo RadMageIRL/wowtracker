@@ -339,6 +339,20 @@ check('a slow news answer never holds up the countdowns or moves Happening now, 
   }
 });
 
+check('a headline too long for one line ends in an ellipsis and never widens the page, from 1024 px down to the phone layout', async () => {
+  const feed = JSON.parse(FEED);
+  for (const item of feed.contentItems) item.properties.title = 'The Adventure Begins in WoW: Forever, Stay Connected with Discord, and Taldramir Takes Shape in WoW Weekly, Plus Hotfixes, a Gamepad Guide and Everything Else That Happened This Week';
+  const url = await site(DIR, { sendDate: false, news: { body: JSON.stringify(feed) } });
+  for (const w of [1024, 900, 768, 660]) { // 640 and under is the phone layout: two lines, clamped
+    const page = await open({ at: utc('2026-10-28T01:30:00Z'), url, width: w });
+    await page.waitFor(`document.querySelectorAll('#news-list li a').length === 3`);
+    const m = await page.eval(`(() => { const a = document.querySelector('#news-list li a'); return { sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, lines: Math.round(a.getBoundingClientRect().height / parseFloat(getComputedStyle(a).lineHeight)), cut: a.scrollWidth > a.clientWidth }; })()`);
+    assert.ok(m.sw <= m.cw, `${w} px: the page is ${m.sw} px wide in ${m.cw}`);
+    assert.deepEqual([m.lines, m.cut], [1, true], `${w} px: one line, cut`);
+    await page.close();
+  }
+});
+
 check('when news.json is missing the section links to Blizzard News and the timers carry on', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z'), url: NO_NEWS });
   await page.waitFor(`/cannot load/.test(document.getElementById('news-note').textContent)`);
@@ -517,6 +531,41 @@ check('Curse Surges: the Details name the place of each slot and the order, labe
   await page.close();
 });
 
+check('details from the weekly overview describe the slot on now, not the week\'s first; the other region\'s line is the same occurrence there', async () => {
+  const page = await open({ at: utc('2026-11-08T20:10:00Z') });
+  const dl = () => page.eval(`Object.fromEntries([...document.querySelectorAll('#details dt')].map((dt) => [dt.textContent, dt.nextElementSibling.textContent]))`);
+  // The week's line for Curse Surges opens the 20:00 UTC slot, not Tuesday's first one.
+  await click(page, '#week-grid .week-col:first-child [data-details="curse-surge"]');
+  let d = await dl();
+  assert.equal(await text(page, '#details-title'), "Curse Surge: The Broodmother's Nest");
+  assert.match(d.When, /^On now, ends Sun, Nov 8, 2:30 PM/);
+  assert.match(d.Later, /^Curse Surge: The Looming Mutagenitor: Sun, Nov 8, 2:30 PM/);
+  assert.equal(d.Europe, 'Mlurkkr Massacre: On now, ends Sun, Nov 8, 2:30 PM (Predicted)');
+  assert.equal(await page.eval(`Number(document.querySelector('#details [data-ics]').dataset.start)`), utc('2026-11-08T20:00:00Z'), 'Add to calendar saves this slot');
+  await page.eval(`document.getElementById('details').close()`);
+  await click(page, '#week-grid .week-col:first-child [data-details="aqir-invasion"]');
+  d = await dl();
+  assert.match(d.When, /^(On now|Starts Sun, Nov 8, 3:00 PM)/, d.When);
+  assert.doesNotMatch(JSON.stringify(d), /Nov 3/, 'nothing from the start of the week');
+  await page.eval(`document.getElementById('details').close()`);
+  // Next week's line opens that week's first slot, which is still to come.
+  await click(page, '#week-grid .week-col:last-child [data-details="curse-surge"]');
+  assert.match((await dl()).When, /^Starts Tue, Nov 10, 9:00 AM/);
+  await page.eval(`document.getElementById('details').close()`);
+  // This week's Faire has ended in both regions, and Europe's line says so instead of "On now" or December's.
+  await click(page, '#week-grid .week-col:first-child [data-details="darkmoon-faire"]');
+  d = await dl();
+  assert.deepEqual([d.When, d.Europe], ['Ended Sun, Nov 8, 1:00 AM', 'Ended Sat, Nov 7, 5:00 PM (Predicted time)']);
+  await page.eval(`document.getElementById('details').close()`);
+  // A January Darkmoon Faire from the calendar: Europe's line is Europe's January Faire, not the next one.
+  await page.eval(`[...document.querySelectorAll('#calendar [data-details="darkmoon-faire"]')].find((b) => new Date(Number(b.dataset.start)).getUTCMonth() === 0).click()`);
+  d = await dl();
+  assert.match(d.When, /^Starts Sun, Jan 3, /);
+  assert.match(d.Europe, /^Starts Sat, Jan 2, 5:00 PM \(Predicted time\)$/);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
 // ---- Calendar export ----
 
 /** Runs action and returns the text of the one file the browser saves meanwhile. */
@@ -620,6 +669,10 @@ const FAKE_NOTIFICATIONS = (answer, broken = false) => `(() => {
 check('reminders are off by default; the dialog turns them on, sets the lead and hourly events, and says they need the page open; all saved', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z') });
   assert.equal(await text(page, '#reminders-btn'), 'Reminders: off');
+  // It opens a dialog, so it is not announced as a toggle; on, it looks pressed all the same.
+  const look = () => page.eval(`(() => { const b = document.getElementById('reminders-btn'); return [b.hasAttribute('aria-pressed'), b.getAttribute('aria-haspopup'), getComputedStyle(b).borderColor]; })()`);
+  const off = await look();
+  assert.deepEqual(off.slice(0, 2), [false, 'dialog']);
   await click(page, '#reminders-btn');
   assert.equal(await page.eval(`document.getElementById('reminders-dialog').open`), true);
   assert.match(await text(page, '#reminders-dialog'), /only while WoW Tracker is open in a tab/);
@@ -628,6 +681,10 @@ check('reminders are off by default; the dialog turns them on, sets the lead and
   await page.eval(`(() => { const s = document.getElementById('rem-lead'); s.value = '5'; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
   await click(page, '#rem-hourly');
   assert.equal(await text(page, '#reminders-btn'), 'Reminders: 5 min');
+  const on = await look();
+  assert.equal(on[0], false, 'still no aria-pressed');
+  assert.equal(on[2], await page.eval(`(() => { const b = document.createElement('button'); b.className = 'btn small'; b.setAttribute('aria-pressed', 'true'); document.body.append(b); const c = getComputedStyle(b).borderColor; b.remove(); return c; })()`), 'drawn like a pressed button');
+  assert.notEqual(on[2], off[2]);
   await page.reload();
   await page.waitFor("document.querySelector('#summary li') !== null");
   assert.equal(await text(page, '#reminders-btn'), 'Reminders: 5 min');
@@ -1068,6 +1125,27 @@ check('a damaged, foreign, newer or oversized backup is refused with a reason an
 });
 
 // ---- Security and requests ----
+
+check('selecting the backup text with a drag that ends outside the box keeps the dialog open; a click on the backdrop closes it', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z') });
+  const mouse = (type, [x, y], buttons) => page.send('Input.dispatchMouseEvent', { type, x, y, button: 'left', buttons, clickCount: 1 });
+  const centre = (sel) => page.eval(`(() => { const b = document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect(); return [b.left + b.width / 2, b.top + b.height / 2]; })()`);
+  await click(page, '#backup-btn');
+  await setBackup(page, '{"app":"wowtracker"}');
+  for (const [from, to] of [['#backup-out', '#backup-what'], ['#backup-out', '#backup-copy'], ['#backup-in', '#backup-result']]) {
+    const a = await centre(from), b = await centre(to);
+    await mouse('mouseMoved', a, 0); await mouse('mousePressed', a, 1);
+    for (let i = 1; i <= 4; i++) await mouse('mouseMoved', [a[0] + (b[0] - a[0]) * i / 4, a[1] + (b[1] - a[1]) * i / 4], 1);
+    await mouse('mouseReleased', b, 0);
+    await sleep(150);
+    assert.equal(await page.eval(`document.getElementById('backup-dialog').open`), true, `a drag from ${from} to ${to}`);
+  }
+  assert.equal(await page.eval(`document.getElementById('backup-in').value`), '{"app":"wowtracker"}', 'the pasted text is still there');
+  await mouse('mousePressed', [8, 8], 1); await mouse('mouseReleased', [8, 8], 0);
+  await sleep(150);
+  assert.equal(await page.eval(`document.getElementById('backup-dialog').open`), false, 'the backdrop closes it');
+  await page.close();
+});
 
 check('no request leaves the site, and the CSP blocks one that tries', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z'), prefs: { newsOpen: true } });

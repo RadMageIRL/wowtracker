@@ -131,7 +131,7 @@
   /** An event's name, as the button that opens its details at this occurrence. */
   function nameButton(item, key) {
     const name = nameOf(item);
-    return h('button', { type: 'button', class: 'name name-btn', 'data-details': item.event.id, 'data-start': item.start, 'data-fkey': `${key}:details`, 'aria-haspopup': 'dialog', 'aria-label': `${name}: details`, text: name });
+    return h('button', { type: 'button', class: 'name name-btn', 'data-details': item.event.id, 'data-start': item.at !== undefined ? item.at : item.start, 'data-fkey': `${key}:details`, 'aria-haspopup': 'dialog', 'aria-label': `${name}: details`, text: name });
   }
 
   function badges(e) {
@@ -320,8 +320,12 @@
       const s = S.scheduleFor(e, region());
       if (!s) continue;
       const found = S.windows(s, from, to);
-      // Something that repeats every hour or so gets one line for the week, not one per start.
-      if (isFrequent(e)) { if (found.length) items.push({ event: e, start: found[0].start, end: found[found.length - 1].end, repeats: true }); continue; }
+      // Something that repeats every hour or so gets one line for the week, not one per start. Its details
+      // open at the slot on now or next (`at`), not at the week's first slot, which may be days past.
+      if (isFrequent(e)) {
+        if (found.length) items.push({ event: e, start: found[0].start, end: found[found.length - 1].end, repeats: true, at: (found.find((w) => w.end > now) || found[found.length - 1]).start });
+        continue;
+      }
       for (const w of found) items.push({ event: e, start: w.start, end: w.end, name: w.name });
     }
     items.sort((a, b) => Number(Boolean(a.repeats)) - Number(Boolean(b.repeats)) || a.start - b.start || a.event.name.localeCompare(b.event.name));
@@ -590,7 +594,11 @@
   $('time-mode').addEventListener('change', (ev) => { prefs.timeMode = ev.target.value; changed(); });
   $('export-dialog').addEventListener('change', renderExport); // the range and the predicted choice
   for (const d of document.querySelectorAll('dialog')) {
-    d.addEventListener('click', (ev) => { if (ev.target === d) d.close(); }); // a click on the backdrop closes it
+    // A click on the backdrop closes it. A drag that starts inside (selecting the backup text) and ends
+    // outside also reaches the dialog as a click, so it closes only when the press was on the backdrop too.
+    let pressedOutside = false;
+    d.addEventListener('pointerdown', (ev) => { pressedOutside = ev.target === d; });
+    d.addEventListener('click', (ev) => { if (ev.target === d && pressedOutside) d.close(); });
   }
   // Another tab of this page changed the settings: follow it.
   window.addEventListener('storage', (ev) => {
@@ -651,6 +659,17 @@
     return S.currentWindow(s, now) || S.windows(s, now + 1, now + HORIZON_MS).find((x) => x.start > now) || null;
   }
 
+  /**
+   * The same occurrence in the other region: its window that starts closest to w, within a day and a half
+   * (the regions' starts differ by hours, never by a week), else none. Without w: its current or next one.
+   */
+  function counterpart(os, w, now) {
+    if (!os) return null;
+    if (!w) return occurrence(os, NaN, now);
+    return S.windows(os, w.start - 1.5 * S.DAY, w.start + 1.5 * S.DAY)
+      .reduce((best, x) => (!best || Math.abs(x.start - w.start) < Math.abs(best.start - w.start) ? x : best), null);
+  }
+
   function whenLine(w, now) {
     if (!w) return null;
     const live = w.start <= now && now < w.end;
@@ -687,7 +706,7 @@
     const w = occurrence(s, detailsOpen.at, now);
     const later = s && w ? S.windows(s, w.end, now + HORIZON_MS).filter((x) => x.start >= w.end).slice(0, 3) : [];
     const other = DATA.regions.find((x) => x.id !== r);
-    const os = other && S.scheduleFor(e, other.id), ow = occurrence(os, w ? w.start : NaN, now);
+    const os = other && S.scheduleFor(e, other.id), ow = counterpart(os, w, now);
     const row = (label, ...value) => (value.flat().filter((v) => v !== null && v !== '').length ? [h('dt', { text: label }), h('dd', {}, ...value.flat())] : []);
     const name = w && w.name ? w.name : e.name;
     $('details').setAttribute('data-cat', e.category); // the category color, as on the cards
@@ -700,7 +719,7 @@
         row('Region', REGION.get(r).name, ` (${REGION.get(r).realms})`),
         // A rotation is at another place in the other region at the same time: name it.
         ow && other ? row(other.name, ow.name && ow.name !== name ? `${ow.name.startsWith(`${e.name}: `) ? ow.name.slice(e.name.length + 2) : ow.name}: ` : '',
-          ow.start > now ? `Starts ${at(ow.start, 'full')}` : `On now, ends ${at(ow.end, 'full')}`,
+          ow.start > now ? `Starts ${at(ow.start, 'full')}` : ow.end > now ? `On now, ends ${at(ow.end, 'full')}` : `Ended ${at(ow.end, 'full')}`,
           os.status === 'predicted' ? (os.part === 'time' ? ' (Predicted time)' : ' (Predicted)') : e.status === 'predicted' ? ' (Predicted)' : '') : [],
         row('Where', e.zone),
         row('In turn', rotationText(e, s, w)),
@@ -952,7 +971,7 @@
 
   function renderRemindersUi() {
     $('reminders-btn').textContent = rem.on ? `Reminders: ${rem.lead} min` : 'Reminders: off';
-    $('reminders-btn').setAttribute('aria-pressed', String(rem.on));
+    $('reminders-btn').dataset.on = String(rem.on); // shown like a pressed button, but it opens a dialog, so no aria-pressed
     $('rem-on').checked = rem.on;
     $('rem-lead').value = String(rem.lead);
     $('rem-hourly').checked = rem.hourly;

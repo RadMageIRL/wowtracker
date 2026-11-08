@@ -65,6 +65,10 @@ export function icsTests(test) {
     const a = Ics.uid('hallows-end|us|1792429200000');
     assert.match(a, /^[0-9a-f]{16}@radmagelabs\.com$/);
     assert.equal(Ics.uid('hallows-end|us|1792429200000'), a, 'the same occurrence, the same UID');
+    // A day later (and not merely a later call in the same millisecond) it is still the same.
+    const realNow = Date.now;
+    Date.now = () => realNow() + 86400000;
+    try { assert.equal(Ics.uid('hallows-end|us|1792429200000'), a, 'the same UID on another day'); } finally { Date.now = realNow; }
     assert.notEqual(Ics.uid('hallows-end|eu|1792429200000'), a);
     assert.notEqual(Ics.uid('hallows-end|us|1792429200001'), a);
     assert.ok(!a.includes('hallows'), 'nothing readable in it');

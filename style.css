@@ -99,7 +99,7 @@ button, input, select { font: inherit; color: inherit; }
   white-space: nowrap;
 }
 .btn:hover { border-color: var(--text-faint); }
-.btn[aria-pressed="true"] { border-color: var(--focus); color: var(--text); }
+.btn[aria-pressed="true"], .btn[data-on="true"] { border-color: var(--focus); color: var(--text); }
 .btn.small { min-height: 30px; padding: 0 10px; font-size: 12.5px; }
 .link-btn { min-height: 30px; border: 0; background: none; padding: 0 2px; color: var(--text-dim); text-decoration: underline; cursor: pointer; font-size: 13px; }
 
@@ -375,7 +375,8 @@ main > * { min-width: 0; }
 .news-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
 .news-list li { display: grid; grid-template-columns: 50px minmax(0, 1fr) auto; align-items: baseline; gap: 10px; font-size: 14px; line-height: 1.45; min-height: 1.45em; }
 .news-list time, .news-list .no-date { color: var(--text-faint); font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.news-list a { display: block; min-width: 0; color: var(--text); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* position: relative, so the hidden "(opens a new tab)" after a long title is clipped with it instead of widening the page. */
+.news-list a { position: relative; display: block; min-width: 0; color: var(--text); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .news-list a:hover { text-decoration: underline; }
 .news-list .cat { color: var(--text-faint); font-size: 12px; white-space: nowrap; }
 .news-list .ph { background: linear-gradient(var(--line), var(--line)) 60px 50% / 55% 6px no-repeat; }

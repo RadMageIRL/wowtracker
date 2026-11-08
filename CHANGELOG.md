@@ -12,6 +12,10 @@ First public release.
 - Latest news from Blizzard News, closed until opened. Shop and sale posts (Blizzard's own Shop Now, Sale, On Sale and Pre-purchase categories) are left out unless you ask for them; New Mount posts stay.
 - Footer with RadMage Labs, GitHub, Share, Feedback and Buy me a coffee; the addresses live in js/config.js. Link previews and the canonical address point at radmagelabs.com/wow/.
 
+Changes since v0.1.0, without a new version number:
+
+- 2026-10-31, live the same day: a shorter page description (the meta description only), so search results show it in full. Nothing on the page changed.
+
 Schedule data:
 
 - r1 (2026-10-27), first dataset: patch 12.1.5, game build 12.1.5.70575.

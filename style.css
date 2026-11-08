@@ -353,6 +353,17 @@ dialog h3 { margin: 14px 0 4px; font-size: 14px; }
 dialog p, dialog li { font-size: 13.5px; color: var(--text-dim); }
 dialog a { color: var(--text); }
 .dialog-close { float: right; margin: -4px -6px 0 8px; }
+/* Calendar export: two choices, one checkbox, one button. */
+.export-scope { margin: 0 0 10px; }
+.export-choices { margin: 0; padding: 0; border: 0; display: grid; gap: 4px; }
+.export-choices label { display: flex; align-items: center; gap: 8px; min-height: 30px; font-size: 14px; color: var(--text); cursor: pointer; }
+.export-choices input { width: 18px; height: 18px; margin: 0; accent-color: var(--gold); }
+.export-choices .export-predicted { margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
+.export-notes { margin: 8px 0 0; padding-left: 18px; }
+.export-notes:empty { display: none; }
+.export-help { color: var(--text-faint); font-size: 12.5px; }
+#export-go:disabled { opacity: 0.55; cursor: default; }
+
 /* Event details: label and value side by side, stacked on phones. */
 .details .badges { margin: -2px 0 10px; }
 .details-list { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 6px 14px; margin: 0; font-size: 13.5px; }

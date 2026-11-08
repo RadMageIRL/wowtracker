@@ -504,6 +504,9 @@
     if (!t) return;
     const a = (name) => t.getAttribute(name);
     if (a('data-details')) openDetails(a('data-details'), Number(a('data-start')), t);
+    else if (a('data-ics')) addOneToCalendar(a('data-ics'), Number(a('data-start')));
+    else if (t.id === 'export-btn') { renderExport(); $('export-dialog').showModal(); }
+    else if (t.id === 'export-go') exportNow();
     else if (a('data-star') && t.closest('#details')) {
       prefs.starred = toggleIn(prefs.starred, a('data-star')); changed(); renderDetails();
       const again = document.querySelector(`#details [data-star="${CSS.escape(a('data-star'))}"]`);
@@ -560,6 +563,7 @@
 
   $('ahead').addEventListener('change', (ev) => { prefs.aheadHours = Number(ev.target.value); changed(); });
   $('time-mode').addEventListener('change', (ev) => { prefs.timeMode = ev.target.value; changed(); });
+  $('export-dialog').addEventListener('change', renderExport); // the range and the predicted choice
   for (const d of document.querySelectorAll('dialog')) {
     d.addEventListener('click', (ev) => { if (ev.target === d) d.close(); }); // a click on the backdrop closes it
   }
@@ -670,6 +674,7 @@
           h('a', { href: src.url, target: '_blank', rel: 'noopener noreferrer' }, src.publisher, h('span', { class: 'sr-only', text: ' (opens a new tab)' })),
           ` · ${KIND[src.kind] || src.kind}`))), h('span', { class: 'details-checked', text: `Checked ${isoDay(e.lastVerified)}.` }))),
       h('div', { class: 'details-actions' }, star(e, key), h('span', { class: 'star-label', text: prefs.starred.includes(e.id) ? 'Starred' : 'Star' }),
+        w ? h('button', { type: 'button', class: 'btn small', 'data-ics': e.id, 'data-start': w.start, 'aria-label': `Add ${name} on ${at(w.start, 'full')} to your calendar (downloads a calendar file)`, text: 'Add to calendar' }) : null,
         e.link ? h('a', { class: 'btn small', href: e.link.url, target: '_blank', rel: 'noopener noreferrer', text: e.link.label }, h('span', { class: 'sr-only', text: ' (opens a new tab)' })) : null,
         h('button', { type: 'button', class: 'btn small', 'data-hide': e.id, 'data-fkey': `${key}:hide`, 'aria-label': `Hide ${e.name}`, text: 'Hide' })));
   }
@@ -687,6 +692,103 @@
     const back = t && t.isConnected ? t : fkey ? document.querySelector(`[data-fkey="${CSS.escape(fkey)}"]`) : null;
     if (back) back.focus();
   });
+
+  // ---- Calendar export (.ics): the engine's own windows, written by js/ics.js ----
+
+  const Ics = window.WoWIcs;
+  const PAGE_URL = CONFIG.shareUrl || location.href.split('#')[0];
+  const predictedLabel = (st) => (st.status !== 'predicted' ? '' : st.part === 'time' ? ' (Predicted time)' : ' (Predicted)');
+
+  /** One calendar entry for one window of an event, in the chosen region. */
+  function icsEntry(e, w) {
+    const r = region(), reg = REGION.get(r), st = statusFor(e);
+    const sure = st.status === 'predicted' && st.part === 'time'
+      ? `Predicted time: the dates are confirmed; the start time on ${reg.realms} is not. ${st.basis || ''}`
+      : st.status === 'predicted' ? `Predicted: ${st.basis || e.basis || 'a pattern Blizzard has not published.'}`
+        : `Confirmed: from ${[...new Set(e.sources.map((s) => KIND[s.kind] || s.kind))].join(' and ')}.`;
+    const description = [
+      sure.trim(),
+      e.note || null,
+      `Region: ${reg.name} (${reg.realms}).`,
+      `A scheduled time from WoW Tracker schedule data r${DATA.meta.datasetRevision}, checked ${e.lastVerified}. It is not read from the game; a realm can open early or late around maintenance.`,
+      `Sources: ${e.sources.map((s) => `${s.publisher} ${s.url}`).join(' ; ')}`,
+      `WoW Tracker: ${PAGE_URL}`,
+    ].filter(Boolean).join('\n');
+    return {
+      uid: Ics.uid(`${e.id}|${r}|${w.start}`), start: w.start, end: w.end,
+      summary: `${w.name || e.name}${predictedLabel(st)}`, description,
+      location: `World of Warcraft: ${e.zone}`, url: e.link ? e.link.url : e.sources[0].url,
+      tentative: st.status === 'predicted', categories: [CATEGORY.get(e.category).name],
+    };
+  }
+
+  /** Saves a calendar file. Nothing leaves the browser: the file is made here and handed to it. */
+  function saveIcs(fileName, title, entries) {
+    let text;
+    try { text = Ics.calendar({ name: title, stampMs: nowMs(), events: entries }); } catch (err) { toast(`The calendar file could not be made: ${err.message}`); return false; }
+    const url = URL.createObjectURL(new Blob([text], { type: 'text/calendar;charset=utf-8' }));
+    const a = h('a', { href: url, download: fileName, hidden: true });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    toast(`Saved ${fileName} (${entries.length} ${entries.length === 1 ? 'event' : 'events'}). Open it to add ${entries.length === 1 ? 'it' : 'them'} to your calendar.`);
+    return true;
+  }
+  const fileDay = (ms) => new Date(ms).toISOString().slice(0, 10);
+  const regionSlug = () => REGION.get(region()).name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+  /** What a bulk export holds: windows of what the filters show, from now to the end of the range. */
+  function exportPlan(range, withPredicted) {
+    const now = nowMs(), to = range === 'all' ? COVERS_UNTIL : now + prefs.aheadHours * S.HOUR;
+    const entries = [], hourly = [], predicted = new Set(), timeOnly = new Set();
+    for (const e of shown()) {
+      const s = S.scheduleFor(e, region());
+      if (!s) continue;
+      const ws = S.windows(s, now, to); // on now, or starting before the end of the range
+      if (!ws.length) continue;
+      if (isFrequent(e)) { hourly.push(e.name); continue; }
+      const st = statusFor(e);
+      if (st.status === 'predicted' && st.part !== 'time' && !withPredicted) continue;
+      for (const w of ws) {
+        entries.push(icsEntry(e, w));
+        if (st.status === 'predicted') (st.part === 'time' ? timeOnly : predicted).add(e.id);
+      }
+    }
+    entries.sort((a, b) => a.start - b.start || a.summary.localeCompare(b.summary));
+    return { entries, hourly, predicted: predicted.size, timeOnly: timeOnly.size, to };
+  }
+
+  function renderExport() {
+    const range = document.querySelector('input[name="export-range"]:checked').value, withPredicted = $('export-predicted').checked;
+    const p = exportPlan(range, withPredicted), all = exportPlan('all', withPredicted), soon = exportPlan('soon', withPredicted);
+    $('export-soon-label').textContent = `On now and the next ${aheadText(prefs.aheadHours)} (${soon.entries.length})`;
+    $('export-all-label').textContent = `Everything known, through ${isoDay(DATA.meta.coversUntil)} (${all.entries.length})`;
+    $('export-scope').textContent = `${REGION.get(region()).name}, with your filters: ${$('filters-summary').textContent}. Hidden events are left out.`;
+    const withP = exportPlan(range, true);
+    const pred = withP.entries.filter((x) => / \(Predicted\)$/.test(x.summary)).length;
+    $('export-predicted-label').textContent = `Include predicted events (${pred}, titled "(Predicted)")`;
+    $('export-notes').replaceChildren(...[
+      p.timeOnly ? h('li', { text: `${p.timeOnly} ${p.timeOnly === 1 ? 'event has' : 'events have'} a predicted start time in this region and ${p.timeOnly === 1 ? 'says' : 'say'} "(Predicted time)" in the title.` }) : null,
+      p.hourly.length ? h('li', { text: `Left out: ${p.hourly.join(', ')} (repeats every hour or so). Add a single one from its details.` }) : null,
+    ].filter(Boolean));
+    const go = $('export-go');
+    go.disabled = !p.entries.length;
+    go.textContent = p.entries.length ? `Download ${p.entries.length} ${p.entries.length === 1 ? 'event' : 'events'} (.ics)` : 'Nothing to export';
+  }
+
+  function exportNow() {
+    const range = document.querySelector('input[name="export-range"]:checked').value;
+    const p = exportPlan(range, $('export-predicted').checked);
+    if (p.entries.length && saveIcs(`wowtracker-${regionSlug()}-${fileDay(nowMs())}.ics`, `WoW Tracker (${REGION.get(region()).name})`, p.entries)) $('export-dialog').close();
+  }
+
+  function addOneToCalendar(id, startMs) {
+    const e = BY_ID.get(id), s = e && S.scheduleFor(e, region());
+    const w = s && S.windows(s, startMs, startMs + 1).find((x) => x.start === startMs);
+    if (!w) { toast('That time is no longer in the schedule.'); return; }
+    saveIcs(`wowtracker-${e.id}-${fileDay(w.start)}.ics`, `WoW Tracker (${REGION.get(region()).name})`, [icsEntry(e, w)]);
+  }
 
   // ---- Footer, About and the untracked list ----
 

@@ -4,13 +4,14 @@
 //
 //   node tests/smoke.mjs [--dir dist] [--only <part of a check name>] [--shots <folder>]
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync, mkdirSync, mkdtempSync, cpSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, mkdirSync, mkdtempSync, cpSync, writeFileSync, rmSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 import { launchChrome } from './lib/cdp.mjs';
 import { serve } from '../tools/serve.mjs';
+import { events as icsEvents } from './ics.mjs';
 
 const require = createRequire(import.meta.url);
 
@@ -478,6 +479,91 @@ check('on a phone the details fit the screen without sideways scrolling, and Clo
   const box = await page.eval(`(() => { const d = document.getElementById('details').getBoundingClientRect(), c = document.querySelector('#details [data-close]').getBoundingClientRect(); return { left: d.left, right: d.right, h: d.height, sw: document.getElementById('details').scrollWidth, cw: document.getElementById('details').clientWidth, close: c.height, closeTop: c.top }; })()`);
   assert.ok(box.left >= 0 && box.right <= 390 && box.sw <= box.cw, JSON.stringify(box));
   assert.ok(box.close >= 28 && box.closeTop >= 0 && box.h <= 844, JSON.stringify(box));
+  await page.close();
+});
+
+// ---- Calendar export ----
+
+/** Runs action and returns the text of the one file the browser saves meanwhile. */
+async function saved(page, action) {
+  const dir = mkdtempSync(join(tmpdir(), 'wowtracker-ics-'));
+  await page.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dir });
+  await action();
+  for (let i = 0; i < 50; i++) {
+    const files = readdirSync(dir).filter((f) => f.endsWith('.ics'));
+    if (files.length) { await sleep(100); return { name: files[0], text: readFileSync(join(dir, files[0]), 'utf8') }; }
+    await sleep(100);
+  }
+  throw new Error('no calendar file was saved');
+}
+const Ics = require(join(DIR, 'js', 'ics.js'));
+const Engine = require(join(DIR, 'js', 'schedule.js'));
+
+check('Export to calendar saves what the filters show, on now and coming up, as the engine has it; hidden and hourly events stay out; nothing is sent', async () => {
+  const at = utc('2026-10-28T01:30:00Z');
+  const page = await open({ at, prefs: { hidden: ['day-of-the-dead'] } });
+  await click(page, '#export-btn');
+  assert.equal(await page.eval(`document.getElementById('export-dialog').open`), true);
+  assert.equal(await text(page, '#export-scope'), 'Americas, with your filters: all categories · 7 days · Local · 1 hidden. Hidden events are left out.');
+  assert.match(await text(page, '#export-notes'), /Left out: Aqir Invasion \(repeats every hour or so\)/);
+  const before = page.requests.length;
+  const file = await saved(page, () => click(page, '#export-go'));
+  assert.equal(page.requests.filter((u, i) => i >= before && !u.startsWith('blob:')).length, 0, 'the export asks nothing of the network');
+  assert.equal(file.name, 'wowtracker-americas-2026-10-28.ics');
+  // The windows the engine gives for the same filters: overlapping now .. now + 7 days, not hidden, not hourly.
+  const DATA = require(join(DIR, 'events-data.js'));
+  const expected = DATA.events.filter((e) => e.id !== 'day-of-the-dead' && e.id !== 'aqir-invasion')
+    .flatMap((e) => (e.schedules.us ? Engine.windows(e.schedules.us, at, at + 7 * 86400000).map((w) => `${Ics.stamp(w.start)} ${Ics.stamp(w.end)} ${w.name || e.name}${e.status === 'predicted' ? ' (Predicted)' : ''}`) : []))
+    .sort();
+  const got = icsEvents(file.text).map((x) => `${x.DTSTART} ${x.DTEND} ${x.SUMMARY}`).sort();
+  assert.deepEqual(got, expected);
+  assert.ok(got.length >= 4 && got.some((g) => g.endsWith("Lu'ashal (Predicted)")), got.join('\n'));
+  await page.close();
+});
+
+check('the export choices: everything known, and predicted events left out when unticked', async () => {
+  const page = await open({ at: utc('2026-10-28T01:30:00Z') });
+  await click(page, '#export-btn');
+  const count = async () => Number((/^Download (\d+)/.exec(await text(page, '#export-go')) || [])[1]);
+  const soon = await count();
+  await page.eval(`(() => { const r = document.querySelector('input[name="export-range"][value="all"]'); r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  const all = await count();
+  assert.ok(all > soon, `${all} > ${soon}`);
+  assert.match(await text(page, '#export-all-label'), new RegExp(`^Everything known, through Mar 31, 2027 \\(${all}\\)$`));
+  await page.eval(`(() => { const c = document.getElementById('export-predicted'); c.checked = false; c.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  const withoutPredicted = await count();
+  assert.ok(withoutPredicted < all, 'unticking leaves the predicted events out of the count');
+  const file = await saved(page, () => click(page, '#export-go'));
+  const titles = icsEvents(file.text).map((x) => x.SUMMARY);
+  assert.equal(titles.length, withoutPredicted, 'the file holds what the button said');
+  assert.ok(!titles.some((t) => t.endsWith('(Predicted)')), 'no predicted events');
+  assert.ok(titles.includes('Darkmoon Faire') && titles.includes('Noblegarden'), 'through the end of the data');
+  await page.close();
+});
+
+check('Add to calendar in the details saves that one occurrence with a stable identifier; in Europe the title says (Predicted time)', async () => {
+  const page = await open({ at: utc('2026-10-28T01:30:00Z'), prefs: { region: 'eu' } });
+  await click(page, '#now-list [data-details="hallows-end"]');
+  const one = await saved(page, () => click(page, '#details [data-ics]'));
+  const [e] = icsEvents(one.text);
+  assert.equal(icsEvents(one.text).length, 1);
+  assert.equal(one.name, 'wowtracker-hallows-end-2026-10-19.ics');
+  assert.deepEqual([e.DTSTART, e.DTEND, e.SUMMARY, e.STATUS], ['20261019T080000Z', '20261102T090000Z', "Hallow's End (Predicted time)", 'TENTATIVE']);
+  assert.equal(e.UID, Ics.uid(`hallows-end|eu|${Date.parse('2026-10-19T08:00:00Z')}`));
+  assert.match(e.DESCRIPTION, /^Predicted time: the dates are confirmed\\; the start time on European realms is not\./);
+  assert.match(e.DESCRIPTION, /Sources: .*https:\/\//);
+  const again = await saved(page, () => click(page, '#details [data-ics]'));
+  assert.equal(icsEvents(again.text)[0].UID, e.UID, 'exporting again gives the same identifier');
+  await page.close();
+});
+
+check('at the moment a bonus week ends it is not exported, and the next one is', async () => {
+  const page = await open({ at: utc('2026-11-10T14:00:00Z') });
+  await click(page, '#export-btn');
+  const file = await saved(page, () => click(page, '#export-go'));
+  const titles = icsEvents(file.text).map((x) => x.SUMMARY);
+  assert.ok(!titles.includes('Midnight Dungeon Event'), 'ended at 14:00 UTC (half-open window)');
+  assert.ok(titles.includes('Arena Skirmish Bonus Event') && titles.includes('Cragpine (Predicted)'), titles.join(', '));
   await page.close();
 });
 

@@ -122,6 +122,7 @@
       <div class="section-head">
         <h2 id="coming-title" tabindex="-1">Coming up</h2>
         <span class="hint" id="coming-hint"></span>
+        <button type="button" class="link-btn" id="export-btn" aria-haspopup="dialog">Export to calendar</button>
       </div>
       <ol class="rows" id="next-list"></ol>
       <p class="empty" id="next-empty" hidden></p>
@@ -180,6 +181,21 @@
     <button type="button" class="btn small" id="unhide-all" hidden>Show all</button>
   </dialog>
 
+  <dialog id="export-dialog" class="export" aria-labelledby="export-title">
+    <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
+    <h2 id="export-title">Export to calendar</h2>
+    <p class="export-scope" id="export-scope"></p>
+    <fieldset class="export-choices">
+      <legend class="sr-only">What to export</legend>
+      <label><input type="radio" name="export-range" value="soon" checked> <span id="export-soon-label">On now and coming up</span></label>
+      <label><input type="radio" name="export-range" value="all"> <span id="export-all-label">Everything known</span></label>
+      <label class="export-predicted"><input type="checkbox" id="export-predicted" checked> <span id="export-predicted-label">Include predicted events</span></label>
+    </fieldset>
+    <ul class="export-notes" id="export-notes"></ul>
+    <p><button type="button" class="btn" id="export-go">Download</button></p>
+    <p class="export-help">A calendar file (.ics) is made in your browser; nothing is sent anywhere. Open it with your calendar app, or import it (Google Calendar: on a computer, Settings, Import). Times are in UTC, so your calendar shows them in your own time zone. Each event keeps the same identifier in every export, so a calendar that matches identifiers updates it instead of adding a copy.</p>
+  </dialog>
+
   <dialog id="details" class="details" aria-labelledby="details-title">
     <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
     <div id="details-body"></div>
@@ -193,6 +209,7 @@
   <script src="js/store.js?v=0.1.1"></script>
   <script src="js/news.js?v=0.1.1"></script>
   <script src="js/search.js?v=0.1.1"></script>
+  <script src="js/ics.js?v=0.1.1"></script>
   <script src="js/clock.js?v=0.1.1"></script>
   <script src="js/app.js?v=0.1.1"></script>
 </body>

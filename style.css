@@ -86,8 +86,9 @@ button, input, select { font: inherit; color: inherit; }
 .brand { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; margin-right: auto; }
 .brand h1 { margin: 0; font: 600 21px/1.2 var(--serif); letter-spacing: 0.02em; white-space: nowrap; }
 .brand .tag { color: var(--text-faint); font-size: 12px; }
-.brand .tag a { color: var(--text-dim); text-decoration: none; }
-.brand .tag a:hover { text-decoration: underline; }
+/* Underlined, so the link stands out from the tagline by more than its color. */
+.brand .tag a { color: var(--text-dim); text-decoration: underline; text-underline-offset: 2px; }
+.brand .tag a:hover { color: var(--text); }
 .tools { display: flex; gap: 6px; }
 
 .btn {
@@ -174,23 +175,17 @@ main > * { min-width: 0; }
 [data-cat="monthly"] { --accent: var(--monthly); }
 [data-cat="minor"] { --accent: var(--minor); }
 
-/* Happening now: cards. The active card breathes in its own color, as in D4 Tracker. */
+/* Happening now: cards. The active card glows in its own color. The glow is still: an endless
+   box-shadow animation repainted every card on every frame for as long as the page was open. */
 
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
 .event {
   position: relative; overflow: hidden;
   padding: 13px 15px 11px; display: flex; flex-direction: column; gap: 5px;
   background: var(--surface); border: 1px solid var(--accent); border-radius: var(--radius);
-  animation: breathe 4.5s ease-in-out infinite;
+  box-shadow: 0 0 0 1px var(--accent), 0 0 10px 0 color-mix(in srgb, var(--accent) 30%, transparent);
 }
 .event::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--accent); opacity: 0.85; }
-@keyframes breathe {
-  0%, 100% { box-shadow: 0 0 0 1px var(--accent), 0 0 2px 0 color-mix(in srgb, var(--accent) 15%, transparent); }
-  50% { box-shadow: 0 0 0 1px var(--accent), 0 0 14px 1px color-mix(in srgb, var(--accent) 45%, transparent); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .event { animation: none; box-shadow: 0 0 0 1px var(--accent); }
-}
 .event-head { display: flex; align-items: center; gap: 6px; min-width: 0; margin-left: -6px; }
 .event-head h3 { margin: 0; font: 600 16.5px/1.25 var(--serif); letter-spacing: 0.01em; min-width: 0; overflow-wrap: anywhere; }
 .pill {
@@ -271,6 +266,8 @@ main > * { min-width: 0; }
 .agenda .what { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; min-width: 0; }
 .agenda .name { font-weight: 600; overflow-wrap: anywhere; }
 .agenda .sub { color: var(--text-faint); font-size: 12.5px; }
+/* The faint color falls under 4.5:1 on the tinted row of an event that is on now. */
+.agenda li.is-now .sub { color: var(--text-dim); }
 /* Where schedules are not known yet: a quiet dashed line, never an empty "nothing" */
 .gap { margin: 6px 0 0; padding: 2px 0 2px 10px; border-left: 2px dashed var(--line-strong); color: var(--text-faint); font-size: 12.5px; }
 .gap-cats { color: var(--text-dim); text-decoration: underline dotted; text-underline-offset: 2px; cursor: help; }

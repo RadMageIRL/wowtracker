@@ -414,10 +414,52 @@ check('keyboard: Tab starts at the skip link, reaches the region buttons, and Es
   await page.close();
 });
 
-check('with reduced motion the Happening now cards do not breathe', async () => {
-  const page = await open({ at: utc('2026-10-28T01:30:00Z'), media: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
-  assert.equal(await page.eval(`getComputedStyle(document.querySelector('#now-list .event')).animationName`), 'none');
+check('a live calendar row keeps its text at 4.5:1 or more in every category and both themes, and the header link is underlined', async () => {
+  const page = await open({ at: utc('2026-11-02T00:00:00Z') });
+  const worst = await page.eval(`(() => {
+    const rgb = (s) => {
+      let m = /^rgba?\\(([\\d.]+),\\s*([\\d.]+),\\s*([\\d.]+)/.exec(s);
+      if (m) return [+m[1], +m[2], +m[3]];
+      m = /^color\\(srgb ([\\d.e-]+) ([\\d.e-]+) ([\\d.e-]+)/.exec(s);
+      if (m) return [m[1] * 255, m[2] * 255, m[3] * 255];
+      throw new Error('unknown color ' + s);
+    };
+    const lum = (c) => { const [r, g, b] = c.map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+    const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    const li = document.querySelector('#calendar li.is-now'), sub = li.querySelector('.sub');
+    const cats = [...document.querySelectorAll('#category-chips [data-category]')].map((b) => b.getAttribute('data-category'));
+    let worst = { ratio: Infinity };
+    for (const theme of ['dark', 'light']) {
+      document.documentElement.setAttribute('data-theme', theme);
+      for (const cat of cats) {
+        li.setAttribute('data-cat', cat);
+        const r = ratio(rgb(getComputedStyle(sub).color), rgb(getComputedStyle(li).backgroundColor));
+        if (r < worst.ratio) worst = { ratio: Math.round(r * 100) / 100, theme, cat, n: cats.length };
+      }
+    }
+    return worst;
+  })()`);
+  assert.equal(worst.n, 7, 'every category was tried');
+  assert.ok(worst.ratio >= 4.5, `${worst.ratio}:1 for ${worst.cat} in the ${worst.theme} theme`);
+  assert.match(await page.eval(`getComputedStyle(document.getElementById('labs-link')).textDecorationLine`), /underline/);
   await page.close();
+});
+
+check('Happening now cards glow without animating, with or without reduced motion, so an idle page restyles about once a second', async () => {
+  for (const media of [null, [{ name: 'prefers-reduced-motion', value: 'reduce' }]]) {
+    const page = await open({ at: utc('2026-10-28T01:30:00Z'), media });
+    const card = `getComputedStyle(document.querySelector('#now-list .event'))`;
+    assert.equal(await page.eval(`${card}.animationName`), 'none');
+    const shadows = (await page.eval(`${card}.boxShadow`)).split(/,(?![^(]*\))/);
+    assert.equal(shadows.length, 2, 'a ring and a glow in the card color');
+    await page.send('Performance.enable', {});
+    const recalcs = async () => (await page.send('Performance.getMetrics', {})).metrics.find((m) => m.name === 'RecalcStyleCount').value;
+    const before = await recalcs();
+    await sleep(3000);
+    const n = (await recalcs()) - before;
+    assert.ok(n < 20, `${n} style recalculations in 3 s on an idle page`);
+    await page.close();
+  }
 });
 
 check('screenshots for review: desktop dark, desktop light, Europe', async () => {

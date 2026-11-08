@@ -15,6 +15,10 @@ First public release.
 Changes since v0.1.0, without a new version number:
 
 - 2026-10-31, live the same day: a shorter page description (the meta description only), so search results show it in full. Nothing on the page changed.
+- Committed 2026-11-08, not published yet:
+  - The Happening now cards keep their glow but no longer animate it. The endless "breathing" redrew every card on every frame, about 100 ms of work each second for as long as the page was open; an idle page now uses about 3 ms a second.
+  - The "on now" line of a calendar entry is brighter, so it reads at 4.5:1 or more on its tinted row in every category and theme (it was as low as 4.4:1 in the dark theme).
+  - The RadMage Labs link in the header is underlined, so it stands out from the tagline by more than its color.
 
 Schedule data:
 

@@ -35,7 +35,7 @@ checklistTests(test);
 // ---- The page ----
 
 const html = file('index.html');
-const VERSION = '0.1.1';
+const VERSION = '0.2.0';
 
 test('the version is the same in the title, header, About, README and every asset link', () => {
   assert.ok(html.includes(`<title>WoW Tracker v${VERSION} - `));
@@ -47,12 +47,24 @@ test('the version is the same in the title, header, About, README and every asse
   for (const a of assets) assert.ok(a.endsWith(`?v=${VERSION}`), a);
 });
 
-test('the changelog opens with this version and lists the current schedule data revision', () => {
+// The schedule data revision comes from the data source (data/events.source.json), never from where a line
+// happens to sit in the changelog: each revision is listed once, in the entry of the version that first
+// shipped it, and the newest entry names the revision it ships, either as its own line or, for a release
+// with no data change, as "Schedule data: rN, unchanged."
+test('the changelog opens with this version, which names the schedule data revision of the data source', () => {
   const log = file('CHANGELOG.md');
+  const src = JSON.parse(file('data/events.source.json')).meta;
   const DATA = require('../events-data.js');
+  assert.deepEqual([DATA.meta.datasetRevision, DATA.meta.reviewedOn], [src.datasetRevision, src.reviewedOn], 'events-data.js is built from the current source');
   assert.ok(log.startsWith(`# Changelog\n\n## v${VERSION} (`), 'the newest entry is this version');
   assert.match(log.split('\n')[2], /^## v\d+\.\d+\.\d+ \(\d{4}-\d{2}-\d{2}\)$/);
-  assert.ok(log.includes(`\n- r${DATA.meta.datasetRevision} (${DATA.meta.reviewedOn})`), 'the schedule data revision is listed');
+  const entries = log.split(/^(?=## v)/m).slice(1).map((e) => [...e.matchAll(/^- r(\d+) \((\d{4}-\d{2}-\d{2})\)/gm)].map((m) => Number(m[1])));
+  const listed = entries.flat();
+  assert.deepEqual([...listed].sort((a, b) => a - b), Array.from({ length: src.datasetRevision }, (_, i) => i + 1), 'r1 to the current revision, each once');
+  entries.forEach((revs, i) => { for (const older of entries.slice(i + 1).flat()) assert.ok(revs.every((r) => r > older), `entry ${i + 1} lists r${revs} after an older entry's r${older}`); });
+  const newest = log.split(/^(?=## v)/m)[1];
+  assert.ok(newest.includes(`\n- r${src.datasetRevision} (${src.reviewedOn})`) || newest.includes(`Schedule data: r${src.datasetRevision}, unchanged.`),
+    `the v${VERSION} entry names schedule data r${src.datasetRevision}`);
 });
 
 test('the page loads the schedule data with ?r= set to the dataset revision', () => {

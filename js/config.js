@@ -12,6 +12,14 @@
      * the page does not ask for it, because nothing would answer; Latest news links to Blizzard News.
      */
     newsHosts: ['radmagelabs.com', '127.0.0.1', 'localhost'],
+    /**
+     * The editions of the game this page can show, the default first. Each has its own dataset (built
+     * from data/<source>.source.json into `file`, which sets window[`data`]); the page shows one per load.
+     */
+    editions: [
+      { id: 'retail', name: 'Retail', title: 'World of Warcraft (Retail)', source: 'events', file: 'events-data.js', data: 'WOW_DATA' },
+      { id: 'forever', name: 'Forever', title: 'World of Warcraft: Forever', source: 'forever', file: 'forever-data.js', data: 'WOW_DATA_FOREVER' },
+    ],
     links: {
       labs: 'https://radmagelabs.com/',
       github: 'https://github.com/RadMageIRL/wowtracker',

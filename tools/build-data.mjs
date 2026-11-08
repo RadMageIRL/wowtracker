@@ -1,16 +1,20 @@
-// Checks data/events.source.json against the data rules and writes events-data.js, the file the page
-// loads. The page gets what it shows (names, schedules, labels, source links, check dates); the
-// verbatim source quotes stay in the source file for whoever maintains it.
+// Checks each edition's schedule data (data/<source>.source.json, editions listed in js/config.js) against
+// the data rules and writes the file the page loads for it (Retail: events-data.js). The page gets what it
+// shows (names, schedules, labels, source links, check dates); the verbatim source quotes stay in the
+// source file for whoever maintains it.
 //
-//   node tools/build-data.mjs           check and write events-data.js
-//   node tools/build-data.mjs --check   check, and fail if events-data.js is not current
+//   node tools/build-data.mjs           check every edition and write its file
+//   node tools/build-data.mjs --check   check, and fail if a generated file is not current
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const S = createRequire(import.meta.url)('../js/schedule.js');
+const require = createRequire(import.meta.url);
+const S = require('../js/schedule.js');
+/** The editions, from js/config.js: the default (Retail) first. */
+export const EDITIONS = require('../js/config.js').editions;
 
 const STATUSES = ['confirmed', 'predicted'];
 const SOURCE_KINDS = ['official', 'client', 'game-api', 'wiki', 'guide'];
@@ -20,27 +24,52 @@ const ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 function validZone(zone) {
+  // A missing zone is not valid: Intl would quietly use the machine's own.
+  if (typeof zone !== 'string' || !zone) return false;
   try { new Intl.DateTimeFormat('en-US', { timeZone: zone }); return true; } catch (e) { return false; }
 }
 const httpsUrl = (u) => { try { return new URL(u).protocol === 'https:'; } catch (e) { return false; } };
 
-/** Every rule the data must pass; an empty list means it is good. */
-export function validate(src) {
+/**
+ * Every rule the data must pass; an empty list means it is good. `edition` is the dataset's edition id:
+ * Retail's file predates editions and carries no edition fields; every other edition must name itself,
+ * its client product, and the server clock each region reads its client calendar in.
+ */
+export function validate(src, edition = 'retail') {
   const errors = [];
   const err = (where, msg) => errors.push(`${where}: ${msg}`);
   const meta = src.meta || {};
+  const retail = edition === 'retail';
   if (!Number.isInteger(meta.datasetRevision) || meta.datasetRevision < 1) err('meta', 'datasetRevision must be a positive whole number');
   for (const k of ['reviewedOn', 'coversUntil']) if (!ISO_DAY.test(meta[k] || '')) err('meta', `${k} must be YYYY-MM-DD`);
   if (!meta.patch) err('meta', 'patch is required');
+  if (retail) { if (meta.edition !== undefined && meta.edition !== 'retail') err('meta', 'the Retail data cannot name another edition'); }
+  else {
+    if (meta.edition !== edition) err('meta', `edition must be ${edition}`);
+    if (!/^[a-z_]+$/.test(meta.product || '')) err('meta', 'product (the client product code, such as wowf) is required');
+    if (!/^\d+\.\d+\.\d+\.\d+$/.test(meta.clientBuild || '')) err('meta', 'clientBuild must be a full build number');
+  }
+  // A client source of an edition other than Retail must cite a build of that edition's own client line.
+  const buildLine = retail ? null : String(meta.clientBuild || '').split('.').slice(0, 2).join('.') + '.';
 
   const regions = new Set((src.regions || []).map((r) => r.id));
   if ([...regions].sort().join() !== 'eu,us') err('regions', 'must be exactly us and eu');
-  for (const r of src.regions || []) if (!r.name || !r.realms) err(`region ${r.id}`, 'name and realms are required');
+  for (const r of src.regions || []) {
+    if (!r.name || !r.realms) err(`region ${r.id}`, 'name and realms are required');
+    // The server clock the region reads its client calendar rows in (never assumed from another edition).
+    if (!retail || r.serverZone !== undefined) {
+      const z = r.serverZone || {};
+      if (!validZone(z.zone)) err(`region ${r.id}`, 'serverZone.zone must be a time zone');
+      if (!STATUSES.includes(z.status)) err(`region ${r.id}`, `serverZone.status must be one of ${STATUSES.join(', ')}`);
+      if (!(typeof z.basis === 'string' && z.basis.length > 20)) err(`region ${r.id}`, 'serverZone.basis (the evidence for this clock) is required');
+    }
+  }
 
   const checkSources = (where, item) => {
     if (!Array.isArray(item.sources) || !item.sources.length) { err(where, 'at least one source is required'); return; }
     for (const s of item.sources) {
       if (!httpsUrl(s.url)) err(where, `source url must be https: ${s.url}`);
+      if (buildLine && s.kind === 'client' && !String(s.url).includes(`build=${buildLine}`)) err(where, `a client source must cite a ${buildLine}x build of this edition: ${s.url}`);
       if (!SOURCE_KINDS.includes(s.kind)) err(where, `source kind must be one of ${SOURCE_KINDS.join(', ')}`);
       if (!s.publisher) err(where, 'source publisher is required');
       if (!ISO_DAY.test(s.retrieved || '')) err(where, 'source retrieved date must be YYYY-MM-DD');
@@ -70,6 +99,13 @@ export function validate(src) {
     if (!rs) { err(`resets ${r}`, 'missing'); continue; }
     for (const kind of ['daily', 'weekly']) if (!rs[kind]) err(`resets ${r}`, `${kind} missing`);
     for (const [kind, item] of Object.entries(rs)) {
+      // A reset nobody has published or observed is said to be unknown: never a guessed rule.
+      if (item.status === 'unknown') {
+        if (!item.name) err(`resets ${r}.${kind}`, 'name is required');
+        if (item.rule !== undefined) err(`resets ${r}.${kind}`, 'an unknown reset has no rule');
+        if (!(typeof item.note === 'string' && item.note.length > 20)) err(`resets ${r}.${kind}`, 'an unknown reset needs a note saying what is not known');
+        continue;
+      }
       checkRule(`resets ${r}.${kind}`, item.rule);
       checkSources(`resets ${r}.${kind}`, item);
     }
@@ -186,7 +222,8 @@ export function pageData(src) {
   for (const [r, rs] of Object.entries(src.resets)) {
     resets[r] = {};
     for (const [kind, item] of Object.entries(rs)) {
-      resets[r][kind] = Object.assign({ name: item.name, rule: item.rule, status: item.status }, item.basis ? { basis: item.basis } : {}, { lastVerified: item.lastVerified, sources: sourceLinks(item) });
+      resets[r][kind] = item.status === 'unknown' ? { name: item.name, status: 'unknown', note: item.note }
+        : Object.assign({ name: item.name, rule: item.rule, status: item.status }, item.basis ? { basis: item.basis } : {}, { lastVerified: item.lastVerified, sources: sourceLinks(item) });
     }
   }
   return {
@@ -205,33 +242,43 @@ export function pageData(src) {
   };
 }
 
-export function render(src) {
+export function render(src, edition = EDITIONS[0]) {
   const json = JSON.stringify(pageData(src), null, 1);
-  return '// Generated by tools/build-data.mjs from data/events.source.json. Do not edit by hand.\n'
+  return `// Generated by tools/build-data.mjs from data/${edition.source}.source.json. Do not edit by hand.\n`
     + '(function (root) {\n  \'use strict\';\n  const DATA = ' + json.replace(/\n/g, '\n  ') + ';\n'
-    + '  if (typeof module === \'object\' && module.exports) module.exports = DATA;\n  else root.WOW_DATA = DATA;\n'
+    + `  if (typeof module === 'object' && module.exports) module.exports = DATA;\n  else root.${edition.data} = DATA;\n`
     + '})(typeof globalThis !== \'undefined\' ? globalThis : this);\n';
 }
 
-export function buildData({ check = false, log = console.log } = {}) {
-  const src = JSON.parse(readFileSync(join(ROOT, 'data', 'events.source.json'), 'utf8'));
-  const errors = validate(src);
+/** Checks one edition and writes (or, with check, compares) its generated file. */
+function buildEdition(edition, check, log) {
+  const src = JSON.parse(readFileSync(join(ROOT, 'data', `${edition.source}.source.json`), 'utf8'));
+  const errors = validate(src, edition.id).map((e) => `${edition.id}: ${e}`);
   if (errors.length) return { ok: false, errors };
-  const out = render(src);
-  const path = join(ROOT, 'events-data.js');
+  const out = render(src, edition);
+  const path = join(ROOT, edition.file);
   let current = '';
   try { current = readFileSync(path, 'utf8'); } catch (e) { current = ''; }
   if (check) {
-    if (current !== out) return { ok: false, errors: ['events-data.js is not current: run node tools/build-data.mjs'] };
+    if (current !== out) return { ok: false, errors: [`${edition.file} is not current: run node tools/build-data.mjs`] };
   } else if (current !== out) {
     writeFileSync(path, out);
-    log('Wrote events-data.js');
+    log(`Wrote ${edition.file}`);
   }
-  return { ok: true, errors: [], revision: src.meta.datasetRevision, events: src.events.length };
+  return { ok: true, errors: [], id: edition.id, revision: src.meta.datasetRevision, events: src.events.length };
+}
+
+/** Every edition; revision and events are Retail's (the default), and editions lists each one. */
+export function buildData({ check = false, log = console.log } = {}) {
+  const results = EDITIONS.map((e) => buildEdition(e, check, log));
+  const errors = results.flatMap((r) => r.errors);
+  if (errors.length) return { ok: false, errors };
+  return { ok: true, errors: [], revision: results[0].revision, events: results[0].events, editions: results.map(({ id, revision, events }) => ({ id, revision, events })) };
 }
 
 if (process.argv[1] && process.argv[1].endsWith('build-data.mjs')) {
   const r = buildData({ check: process.argv.includes('--check') });
   if (!r.ok) { console.error('Data refused:\n  ' + r.errors.join('\n  ')); process.exit(1); }
   console.log(`Data r${r.revision}: ${r.events} events, every rule passes.`);
+  for (const e of r.editions.slice(1)) console.log(`${e.id} data r${e.revision}: ${e.events} events, every rule passes.`);
 }

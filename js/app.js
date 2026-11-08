@@ -5,20 +5,28 @@
   'use strict';
 
   const S = window.WoWSchedule, Store = window.WoWStore, News = window.WoWNews, Clock = window.WoWClock;
-  const DATA = window.WOW_DATA, CONFIG = window.WoWConfig;
-  /** The edition of the game this page shows. Retail keeps the storage keys it has always had. */
-  const EDITION = 'retail';
+  const CONFIG = window.WoWConfig;
+  const storage = (() => { try { return window.localStorage; } catch (e) { return null; } })();
+  /**
+   * The edition of the game this page shows, chosen once per load: a "#forever" link, else the saved
+   * choice, else Retail. Switching saves the choice and reloads, so a page never holds two editions'
+   * data. Retail keeps every storage key it has always had; the choice itself has a key of its own.
+   */
+  const EDITIONS = CONFIG.editions;
+  const EDITION = Store.pickEdition(location.hash, Store.read(storage, 'edition'), EDITIONS.map((e) => e.id));
+  const ED = EDITIONS.find((e) => e.id === EDITION);
+  const RETAIL = EDITION === EDITIONS[0].id;
+  const DATA = window[ED.data];
   /** This page's version, from its own script address (app.js?v=0.2.0), for backups. */
   const APP_VERSION = (() => { try { return new URL(document.currentScript.src).searchParams.get('v') || ''; } catch (e) { return ''; } })();
   const $ = (id) => document.getElementById(id);
   // Without the schedule data there is nothing to count down: say so instead of showing a broken page.
   if (!DATA || !Array.isArray(DATA.events) || !DATA.resets) {
     const n = $('clock-notice');
-    n.textContent = 'The schedule data did not load. Reload the page; if this stays, the site is missing events-data.js.';
+    n.textContent = `The schedule data did not load. Reload the page; if this stays, the site is missing ${ED.file}.`;
     n.hidden = false;
     return;
   }
-  const storage = (() => { try { return window.localStorage; } catch (e) { return null; } })();
 
   const EVENTS = DATA.events;
   const BY_ID = new Map(EVENTS.map((e) => [e.id, e]));
@@ -32,10 +40,20 @@
   const DATA_END = Date.parse(DATA.meta.coversUntil + 'T00:00:00Z');
 
   const deviceZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  let prefs = Store.sanitizePrefs(Store.read(storage, 'prefs'), EVENTS.map((e) => e.id), CATEGORIES.map((c) => c.id), deviceZone());
+  // Settings. Retail reads and writes "prefs" exactly as before. Another edition keeps its own stars,
+  // hidden events, categories, filter and checklist choice under "<edition>:prefs", and writes only the
+  // shared settings (region, times, theme, news) into "prefs", leaving Retail's own fields as stored.
+  const PREFS_KEY = Store.editionKey('prefs', EDITION);
+  function loadPrefs() {
+    const ids = EVENTS.map((e) => e.id), cats = CATEGORIES.map((c) => c.id);
+    if (RETAIL) return Store.sanitizePrefs(Store.read(storage, 'prefs'), ids, cats, deviceZone());
+    return Object.assign(Store.sanitizeShared(Store.read(storage, 'prefs'), deviceZone()), Store.sanitizeEditionPrefs(Store.read(storage, PREFS_KEY), ids, cats));
+  }
+  let prefs = loadPrefs();
   let clockOffset = 0;
   const nowMs = () => Date.now() + clockOffset;
-  const savePrefs = () => Store.write(storage, 'prefs', prefs);
+  const savePrefs = () => (RETAIL ? Store.write(storage, 'prefs', prefs)
+    : [Store.write(storage, 'prefs', Store.mergeShared(Store.read(storage, 'prefs'), prefs)), Store.write(storage, PREFS_KEY, Store.editionPrefs(prefs))].every(Boolean));
 
   // ---- Small DOM helper ----
 
@@ -105,6 +123,8 @@
   }
   const region = () => prefs.region;
   const resets = () => DATA.resets[region()];
+  /** A reset with a rule. An edition whose resets are not published says "unknown" and has none. */
+  const knownReset = (r) => Boolean(r && r.rule);
 
   // ---- Pieces shared by cards, rows and the calendar ----
 
@@ -204,22 +224,27 @@
 
   function summaryItems(now, nextItem) {
     const rs = resets(), f = formats();
-    const daily = S.nextReset(rs.daily.rule, now), weekly = S.nextReset(rs.weekly.rule, now);
+    // A reset that is not published is said so: never a countdown to a guessed time.
+    const unknownReset = (kind, label) => h('li', { class: 'reset is-unknown', 'data-reset': kind },
+      h('span', { class: 'label', text: label }),
+      h('span', { class: 'value', text: 'Not published' }),
+      h('span', { class: 'sub', text: 'Blizzard has not said when' }));
+    const daily = knownReset(rs.daily) ? S.nextReset(rs.daily.rule, now) : null, weekly = knownReset(rs.weekly) ? S.nextReset(rs.weekly.rule, now) : null;
     const items = [
       h('li', { class: 'clock' },
         h('span', { class: 'label', text: prefs.timeMode === 'utc' ? 'Time (UTC)' : 'Your time' }),
         h('span', { class: 'value', id: 'clock-now', text: at(now, 'clock') }),
         h('span', { class: 'sub', id: 'clock-sub', text: prefs.timeMode === 'both' ? `${f.utc.clock.format(now)} UTC` : zoneName() })),
-      h('li', { class: 'reset', 'data-reset': 'daily' },
+      daily === null ? unknownReset('daily', 'Daily reset') : h('li', { class: 'reset', 'data-reset': 'daily' },
         h('span', { class: 'label', text: 'Daily reset' }),
         h('span', { class: 'value', 'data-until': daily, 'data-prefix': 'in ' }, 'in ' + S.duration(daily - now)),
         h('span', { class: 'sub', text: [at(daily, 'wday'), utcToo(daily, 'time')].filter(Boolean).join(' · ') })),
-      h('li', { class: 'reset', 'data-reset': 'weekly' },
+      weekly === null ? unknownReset('weekly', 'Weekly reset') : h('li', { class: 'reset', 'data-reset': 'weekly' },
         h('span', { class: 'label', text: 'Weekly reset' }),
         h('span', { class: 'value', 'data-until': weekly, 'data-prefix': 'in ' }, 'in ' + S.duration(weekly - now)),
         h('span', { class: 'sub', text: [at(weekly, 'full'), utcToo(weekly, 'wday')].filter(Boolean).join(' · ') })),
     ];
-    if (rs.monthly) {
+    if (knownReset(rs.monthly)) {
       const monthly = S.nextReset(rs.monthly.rule, now);
       items.push(h('li', { class: 'reset', 'data-reset': 'monthly' },
         h('span', { class: 'label' }, rs.monthly.name, ' ', predictedBadge(rs.monthly)),
@@ -250,6 +275,9 @@
   function regionLine() {
     const r = REGION.get(region()), rs = resets();
     const utcRule = (rule) => (rule.zone === 'UTC' ? `${rule.time} UTC` : `${rule.time} ${rule.zone}`);
+    if (!knownReset(rs.daily) || !knownReset(rs.weekly)) {
+      return [h('strong', { text: r.name }), ` · ${r.realms}. The daily and weekly reset times of ${DATA.meta.game} are not published, so this page does not count down to them.`];
+    }
     return [h('strong', { text: r.name }), ` · ${r.realms}. Daily reset ${utcRule(rs.daily.rule)}, weekly reset ${S.WEEKDAYS[rs.weekly.rule.weekday]} ${utcRule(rs.weekly.rule)}, the same all year, so local clocks move an hour when daylight saving changes.`];
   }
 
@@ -347,9 +375,12 @@
   }
 
   function weekGrid(list, now) {
-    const rule = resets().weekly.rule;
+    const weekly = resets().weekly;
+    // Without a published weekly reset the overview shows calendar weeks: Monday to Monday in the reader's time.
+    const rule = knownReset(weekly) ? weekly.rule : { type: 'weekly', weekday: 1, time: '00:00', zone: formats().zone };
     const start = S.previousReset(rule, now), next = S.nextReset(rule, now), after = S.nextReset(rule, next);
-    return [weekColumn('This reset week', start, next, list, now), weekColumn('Next reset week', next, after, list, now)];
+    const [a, b] = knownReset(weekly) ? ['This reset week', 'Next reset week'] : ['This week', 'Next week'];
+    return [weekColumn(a, start, next, list, now), weekColumn(b, next, after, list, now)];
   }
 
   // ---- Event calendar: an agenda by month ----
@@ -401,7 +432,7 @@
       formats().local, S.dayKey(now, formats().zone),
       nowItems.map((i) => i.event.id + i.start).join(), nextItems.map((i) => i.event.id + i.start).join(),
       nextItem ? nextItem.event.id + nextItem.start : '', list.length,
-      Object.values(rs).map((r) => S.nextReset(r.rule, now)).join()].join('|');
+      Object.values(rs).filter(knownReset).map((r) => S.nextReset(r.rule, now)).join()].join('|');
   }
 
   function render(force) {
@@ -437,7 +468,7 @@
       }
       $('coming-hint').textContent = `next ${aheadText(prefs.aheadHours)}, ${zoneName() === 'UTC' ? 'in UTC' : `your time (${zoneName()})`}`;
       $('week-grid').replaceChildren(...weekGrid(list, now));
-      $('week-hint').textContent = `${REGION.get(region()).name} reset weeks`;
+      $('week-hint').textContent = knownReset(resets().weekly) ? `${REGION.get(region()).name} reset weeks` : 'calendar weeks, Monday to Monday in your time (the weekly reset is not published)';
       const months = calendarMonths(list, now);
       const anyItem = months.some((m) => m.querySelector('.agenda'));
       $('calendar').replaceChildren(...(anyItem || gaps(COVERS_UNTIL).length ? months : [h('p', { class: 'empty', text: query ? 'Nothing on the calendar matches your search.' : 'Nothing you follow is on the calendar.' })]),
@@ -456,8 +487,25 @@
 
   // ---- Controls ----
 
+  /**
+   * Shows another edition: the choice is saved, the address says it (Retail, the default, needs no
+   * "#"), and the page reloads, so nothing from this edition's data, timers or dialogs carries over.
+   */
+  function switchEdition(id) {
+    if (id === EDITION || !EDITIONS.some((e) => e.id === id)) return;
+    Store.write(storage, 'edition', id);
+    const hash = id === EDITIONS[0].id ? '' : `#${id}`;
+    try { history.replaceState(null, '', location.pathname + location.search + hash); } catch (e) { location.hash = hash; }
+    location.reload();
+  }
+  // A link to another edition opened in this tab ("#forever" typed or clicked): show it.
+  window.addEventListener('hashchange', () => {
+    if (Store.pickEdition(location.hash, EDITION, EDITIONS.map((e) => e.id)) !== EDITION) location.reload();
+  });
+
   function syncControls() {
     for (const b of document.querySelectorAll('[data-region]')) b.setAttribute('aria-pressed', String(b.getAttribute('data-region') === prefs.region));
+    for (const b of document.querySelectorAll('[data-edition]')) b.setAttribute('aria-pressed', String(b.getAttribute('data-edition') === EDITION));
     for (const b of document.querySelectorAll('[data-filter]')) b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === prefs.filter));
     $('category-chips').replaceChildren(...CATEGORIES.map((c) => h('button', {
       type: 'button', class: 'chip', 'data-cat': c.id, 'data-category': c.id, 'aria-pressed': String(prefs.categories.includes(c.id)), text: c.name,
@@ -541,6 +589,7 @@
       const again = document.querySelector(`#details [data-star="${CSS.escape(a('data-star'))}"]`);
       if (again) again.focus();
     } else if (a('data-region')) { prefs.region = a('data-region'); changed(); }
+    else if (a('data-edition')) switchEdition(a('data-edition'));
     else if (a('data-filter')) { prefs.filter = a('data-filter'); changed(); }
     else if (a('data-category')) { prefs.categories = toggleIn(prefs.categories, a('data-category')); changed(); }
     else if (a('data-star')) { prefs.starred = toggleIn(prefs.starred, a('data-star')); changed(); }
@@ -604,8 +653,8 @@
   window.addEventListener('storage', (ev) => {
     if (ev.key === Store.PREFIX + 'reminders') { rem = Rem.sanitize(Store.read(storage, 'reminders')); renderRemindersUi(); syncControls(); return; }
     if (ev.key === Store.PREFIX + CL_KEY) { checklist = CL.sanitize(Store.read(storage, CL_KEY)); clRev++; renderChecklist(true); return; }
-    if (ev.key !== Store.PREFIX + 'prefs') return;
-    prefs = Store.sanitizePrefs(Store.read(storage, 'prefs'), EVENTS.map((e) => e.id), CATEGORIES.map((c) => c.id), deviceZone());
+    if (ev.key !== Store.PREFIX + 'prefs' && ev.key !== Store.PREFIX + PREFS_KEY) return;
+    prefs = loadPrefs();
     syncControls(); render(true); renderNews();
     if (!prefs.newsCollapsed && !newsState.items.length) loadNews();
   });
@@ -1061,7 +1110,32 @@
       tasks.length ? h('ul', { class: 'cl-list' }, tasks.map((t) => taskRow(t, per))) : h('p', { class: 'cl-none', text: `No ${kind} tasks.` }));
   }
 
+  /** The checklist clears itself at the region's resets, so it is only on where both are known. */
+  const clAvailable = () => knownReset(resets().daily) && knownReset(resets().weekly);
+  function setChecklistParts(on) {
+    for (const el of document.querySelectorAll('#checklist .checklist-add, #cl-suggest')) el.hidden = !on;
+  }
+
+  /** An edition without published resets: the checklist is off, said plainly, and nothing in it can clear by itself. */
+  function renderChecklistOff(force) {
+    const open = prefs.checklistOpen, key = ['off', region(), open].join('|');
+    if (!force && key === clKey) return;
+    clKey = key;
+    clEditing = false;
+    setChecklistParts(false);
+    $('checklist-count').textContent = 'Off: resets not published';
+    $('checklist').classList.toggle('is-open', open);
+    $('checklist-body').hidden = !open;
+    $('cl-toggle').textContent = open ? 'Hide' : 'Show';
+    $('cl-toggle').setAttribute('aria-expanded', String(open));
+    $('cl-edit').hidden = true;
+    $('checklist-note').textContent = `Your checklist clears itself at the daily and weekly resets. ${DATA.meta.game} has not published its reset times for the ${REGION.get(region()).name} region, so the checklist is off here rather than clearing at a guessed time. Checklists in other editions are kept as they are.`;
+    $('checklist-groups').replaceChildren();
+  }
+
   function renderChecklist(force) {
+    if (!clAvailable()) { renderChecklistOff(force); return; }
+    setChecklistParts(true);
     const now = nowMs(), per = clPeriods(now), open = prefs.checklistOpen;
     const key = [region(), per.daily.key, per.weekly.key, clRev, clEditing, open, formats().zone, formats().local].join('|');
     if (!force && key === clKey) return;
@@ -1235,7 +1309,7 @@
     rem = d.reminders;
     checklist = CL.prune(d.checklist, nowMs());
     clRev++;
-    const saved = [Store.write(storage, 'prefs', prefs), Store.write(storage, 'reminders', rem), Store.write(storage, CL_KEY, checklist)].every(Boolean);
+    const saved = [savePrefs(), Store.write(storage, 'reminders', rem), Store.write(storage, CL_KEY, checklist)].every(Boolean);
     $('backup-in').value = '';
     syncControls();
     render(true);

@@ -62,6 +62,41 @@
    */
   const editionKey = (name, edition) => (!edition || edition === 'retail' ? name : `${edition}:${name}`);
 
+  // ---- Editions: which settings are the reader's, and which belong to one edition's dataset ----
+
+  /** About the reader, the same in every edition. They live in "prefs", as they always have. */
+  const SHARED_PREFS = ['region', 'aheadHours', 'compact', 'timeMode', 'theme', 'newsCollapsed', 'newsAll', 'newsShop'];
+  /** About one edition's events and categories. Retail keeps them in "prefs"; another edition in "<edition>:prefs". */
+  const EDITION_PREFS = ['filter', 'categories', 'starred', 'hidden', 'checklistOpen'];
+  const pickKeys = (obj, keys) => Object.fromEntries(keys.map((k) => [k, obj[k]]));
+
+  /** The shared settings from saved preferences, cleaned. */
+  const sanitizeShared = (raw, zone) => pickKeys(sanitizePrefs(raw, [], [], zone), SHARED_PREFS);
+  /** One edition's own settings, cleaned against that edition's event and category ids. */
+  const sanitizeEditionPrefs = (raw, eventIds, categoryIds) => pickKeys(sanitizePrefs(raw, eventIds, categoryIds, 'UTC'), EDITION_PREFS);
+  /** The part of preferences an edition other than Retail stores under its own key. */
+  const editionPrefs = (prefs) => pickKeys(prefs, EDITION_PREFS);
+
+  /**
+   * What an edition other than Retail writes back to "prefs": the stored object exactly as it is,
+   * with only the shared settings replaced. Retail's stars, hidden events, categories, filter and
+   * checklist choice are never touched (cleaning them against another edition's ids would erase them).
+   */
+  function mergeShared(raw, prefs) {
+    return Object.assign({}, isObj(raw) ? raw : {}, pickKeys(prefs, SHARED_PREFS));
+  }
+
+  /**
+   * The edition a page shows: a link's "#forever" first (it is not saved), then the reader's saved
+   * choice, then the default (the first id). Anything else, such as "#coming-title", is ignored.
+   */
+  function pickEdition(hash, saved, ids) {
+    const h = typeof hash === 'string' ? hash.replace(/^#/, '') : '';
+    if (ids.includes(h)) return h;
+    if (typeof saved === 'string' && ids.includes(saved)) return saved;
+    return ids[0];
+  }
+
   // localStorage can be missing or throw (private windows, blocked storage); the page still works.
   function read(storage, key) {
     try { const s = storage && storage.getItem(PREFIX + key); return s ? JSON.parse(s) : null; } catch (e) { return null; }
@@ -70,7 +105,7 @@
     try { storage.setItem(PREFIX + key, JSON.stringify(value)); return true; } catch (e) { return false; }
   }
 
-  const Store = { PREFIX, REGIONS, FILTERS, AHEAD_HOURS, TIME_MODES, THEMES, guessRegion, defaults, sanitizePrefs, editionKey, read, write };
+  const Store = { PREFIX, REGIONS, FILTERS, AHEAD_HOURS, TIME_MODES, THEMES, SHARED_PREFS, EDITION_PREFS, guessRegion, defaults, sanitizePrefs, sanitizeShared, sanitizeEditionPrefs, editionPrefs, mergeShared, pickEdition, editionKey, read, write };
   if (typeof module === 'object' && module.exports) module.exports = Store;
   else root.WoWStore = Store;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

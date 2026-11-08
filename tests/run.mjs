@@ -13,6 +13,7 @@ import { searchTests } from './search.mjs';
 import { icsTests } from './ics.mjs';
 import { reminderTests } from './reminders.mjs';
 import { checklistTests } from './checklist.mjs';
+import { editionTests } from './editions.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
@@ -31,6 +32,7 @@ searchTests(test);
 icsTests(test);
 reminderTests(test);
 checklistTests(test);
+await editionTests(test);
 
 // ---- The page ----
 

@@ -1168,6 +1168,144 @@ check('the clock check corrects a device clock that is three minutes slow', asyn
   await page.close();
 });
 
+// ---- Editions: Retail (the default) and Forever, one per page load ----
+
+const pressedEdition = (page) => page.eval(`(document.querySelector('[data-edition][aria-pressed="true"]') || {}).getAttribute ? document.querySelector('[data-edition][aria-pressed="true"]').getAttribute('data-edition') : null`);
+/** Clicks an edition and waits for the reloaded page to show it. */
+async function switchTo(page, id) {
+  await page.eval(`document.querySelector('[data-edition="${id}"]').click()`);
+  await page.waitFor(`document.readyState === 'complete' && document.querySelector('[data-edition="${id}"][aria-pressed="true"]') !== null && document.querySelector('#summary li') !== null`, 10000);
+}
+/** Every WoW Tracker key in this origin's storage, as stored text (except the shared news cache, which the page refreshes on its own). */
+const stored = (page) => page.eval(`JSON.stringify(Object.fromEntries(Object.keys(localStorage).filter((k) => k.startsWith('wowtracker:') && k !== 'wowtracker:v1:news').sort().map((k) => [k, localStorage.getItem(k)])))`).then(JSON.parse);
+const RETAIL_PREFS = { region: 'eu', filter: 'starred', categories: ['holiday', 'darkmoon', 'bonus'], starred: ['feast-of-winter-veil', 'darkmoon-faire'], hidden: ['moonkin-festival'], aheadHours: 72, compact: true, timeMode: 'both', theme: 'light', newsCollapsed: false, newsAll: true, newsShop: false, checklistOpen: true };
+
+check('Retail is the default: with nothing saved and no link the page shows Retail, says so in the game version toggle, and writes nothing about editions', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z') });
+  assert.equal(await pressedEdition(page), 'retail');
+  assert.equal(await page.eval(`document.querySelector('[data-edition="forever"]').getAttribute('aria-pressed')`), 'false');
+  assert.equal(await page.eval(`document.querySelector('.edition').getAttribute('role') + ' ' + document.querySelector('.edition').getAttribute('aria-label')`), 'group Game version');
+  assert.match(await text(page, '#summary [data-reset="daily"] .value'), /^in \d/);
+  assert.ok((await cardNames(page)).length > 0, 'Retail events are shown');
+  await click(page, '[data-filter="starred"]'); // a Retail change: only Retail's own keys are written
+  assert.deepEqual(Object.keys(await stored(page)), ['wowtracker:v1:prefs'], 'no edition choice and no Forever key');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('storage isolation: switching to Forever and back, five times, leaves every Retail key byte for byte as it was; Forever keeps its own choices under its own keys, across reloads', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: RETAIL_PREFS, reminders: { on: true, lead: 30, notify: false, hourly: false }, checklist: { ...TASKS, done: { 'eu:weekly:2026-11-04T04:00Z': ['vault'] } } });
+  const before = await stored(page);
+  assert.deepEqual(Object.keys(before), ['wowtracker:v1:checklist', 'wowtracker:v1:prefs', 'wowtracker:v1:reminders']);
+  await switchTo(page, 'forever');
+  assert.equal(await pressedEdition(page), 'forever');
+  assert.equal(await text(page, '#summary [data-reset="daily"] .value'), 'Not published');
+  // Forever's own choices: a category, the Starred filter, the checklist panel.
+  await click(page, '.chip[data-cat="holiday"]');
+  await click(page, '[data-filter="all"]');
+  await click(page, '#cl-toggle');
+  const forever = JSON.parse((await stored(page))['wowtracker:v1:forever:prefs']);
+  assert.deepEqual(forever, { filter: 'all', categories: ['darkmoon', 'minor'], starred: [], hidden: [], checklistOpen: true });
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  assert.equal(await pressedEdition(page), 'forever', 'remembered across a reload');
+  assert.equal(await page.eval(`document.querySelector('.chip[data-cat="holiday"]').getAttribute('aria-pressed')`), 'false', 'Forever settings survive a reload');
+  for (let i = 0; i < 5; i++) { await switchTo(page, 'retail'); await switchTo(page, 'forever'); }
+  await switchTo(page, 'retail');
+  const after = await stored(page);
+  for (const k of Object.keys(before)) assert.equal(after[k], before[k], `${k} is unchanged`);
+  assert.deepEqual(Object.keys(after), ['wowtracker:v1:checklist', 'wowtracker:v1:edition', 'wowtracker:v1:forever:prefs', 'wowtracker:v1:prefs', 'wowtracker:v1:reminders'], 'the only new keys are the choice and Forever\'s own');
+  assert.equal(after['wowtracker:v1:edition'], '"retail"');
+  assert.equal(after['wowtracker:v1:forever:prefs'], (await stored(page))['wowtracker:v1:forever:prefs']);
+  // Retail as it was: Europe, the Starred view, two stars, one hidden, the checklist open with its tick.
+  assert.equal(await page.eval(`document.querySelector('[data-region="eu"]').getAttribute('aria-pressed')`), 'true');
+  assert.equal(await page.eval(`document.querySelector('[data-filter="starred"]').getAttribute('aria-pressed')`), 'true');
+  assert.equal(await text(page, '#checklist-count'), '0 of 1 today · 1 of 1 this week');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('shared settings follow the reader between editions: region, theme, times and news set in Forever are what Retail shows, without touching Retail\'s own choices', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: RETAIL_PREFS });
+  const retailOwn = (p) => Object.fromEntries(['filter', 'categories', 'starred', 'hidden', 'checklistOpen'].map((k) => [k, p[k]]));
+  const seeded = JSON.parse((await stored(page))['wowtracker:v1:prefs']);
+  await switchTo(page, 'forever');
+  assert.equal(await page.eval(`document.documentElement.dataset.theme`), 'light', 'the theme came along');
+  assert.equal(await page.eval(`document.querySelector('[data-region="eu"]').getAttribute('aria-pressed')`), 'true', 'so did the region');
+  await click(page, '[data-region="us"]');
+  await click(page, '#theme-btn'); // light to system
+  await page.eval(`(() => { const s = document.getElementById('time-mode'); s.value = 'utc'; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await click(page, '#news-toggle');
+  const prefs = JSON.parse((await stored(page))['wowtracker:v1:prefs']);
+  assert.deepEqual([prefs.region, prefs.theme, prefs.timeMode, prefs.newsCollapsed], ['us', 'system', 'utc', true]);
+  assert.deepEqual(retailOwn(prefs), retailOwn(seeded), 'Retail\'s own fields untouched');
+  await switchTo(page, 'retail');
+  assert.equal(await page.eval(`document.querySelector('[data-region="us"]').getAttribute('aria-pressed')`), 'true');
+  assert.equal(await page.eval(`document.getElementById('time-mode').value`), 'utc');
+  assert.equal(await page.eval(`document.getElementById('news').classList.contains('is-collapsed')`), true);
+  assert.equal(await page.eval(`document.querySelector('[data-filter="starred"]').getAttribute('aria-pressed')`), 'true', 'Retail\'s Starred view is still on');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('a "#forever" link shows Forever without saving it; the skip link and unknown links change nothing; following a link to another edition in an open tab switches', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever` });
+  assert.equal(await pressedEdition(page), 'forever');
+  assert.equal((await stored(page))['wowtracker:v1:edition'], undefined, 'a link is not a saved choice');
+  await page.goto(BASE);
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  assert.equal(await pressedEdition(page), 'retail', 'without the link: the default');
+  await page.goto(`${BASE}#classic`);
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  assert.equal(await pressedEdition(page), 'retail', 'an edition this page does not have');
+  await click(page, '.skip');
+  await sleep(300);
+  assert.equal(await pressedEdition(page), 'retail', 'the skip link is not an edition');
+  await page.eval(`location.hash = 'forever'`);
+  await page.waitFor(`document.querySelector('[data-edition="forever"][aria-pressed="true"]') !== null && document.querySelector('#summary li') !== null`, 10000);
+  assert.equal((await stored(page))['wowtracker:v1:edition'], undefined);
+  // The toggle saves the choice: Retail from a "#forever" address drops the hash and stays Retail after a reload.
+  await switchTo(page, 'retail');
+  assert.equal(await page.eval('location.hash'), '');
+  assert.equal((await stored(page))['wowtracker:v1:edition'], '"retail"');
+  await page.close();
+});
+
+check('Forever without published resets: no reset countdown anywhere, calendar weeks in the overview, and the checklist off with its reason, so nothing can clear at a guessed time', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever`, prefs: { checklistOpen: true }, checklist: TASKS });
+  const resetsShown = await page.eval(`[...document.querySelectorAll('#summary .reset')].map((li) => li.getAttribute('data-reset') + ': ' + li.querySelector('.value').textContent + (li.querySelector('[data-until]') ? ' (counting)' : ''))`);
+  assert.deepEqual(resetsShown, ['daily: Not published', 'weekly: Not published'], 'no Trading Post, no countdown');
+  assert.match(await text(page, '#region-line'), /reset times of World of Warcraft: Forever are not published, so this page does not count down to them/);
+  assert.match(await text(page, '#week-hint'), /calendar weeks, Monday to Monday in your time \(the weekly reset is not published\)/);
+  assert.deepEqual(await texts(page, '#week-grid .week-col h3'), ['This week Mon, Nov 9 to Mon, Nov 16', 'Next week Mon, Nov 16 to Mon, Nov 23']);
+  await click(page, '[data-region="eu"]');
+  assert.equal(await text(page, '#checklist-count'), 'Off: resets not published');
+  assert.match(await text(page, '#checklist-note'), /has not published its reset times for the Europe region, so the checklist is off here rather than clearing at a guessed time/);
+  assert.equal(await page.eval(`document.querySelectorAll('#checklist [data-task], #checklist .cl-task').length`), 0, 'no task to tick');
+  assert.deepEqual(await page.eval(`[document.querySelector('#checklist .checklist-add').hidden, document.getElementById('cl-suggest').hidden, document.getElementById('cl-edit').hidden]`), [true, true, true]);
+  // Retail's checklist (seeded under Retail's key) is untouched by the Forever page.
+  assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:checklist')`), JSON.stringify(TASKS));
+  assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:forever:checklist')`), null);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('Forever at 390, 360 and 768 px: nothing scrolls sideways, every control can be reached, and the game version toggle sits beside the title', async () => {
+  for (const [w, mobile] of [[390, true], [360, true], [768, false]]) {
+    const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever`, width: w, height: 800, mobile, prefs: { checklistOpen: true } });
+    await click(page, '#filters-toggle');
+    const wide = await page.eval(`[...document.querySelectorAll('body *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && (r.right > ${w} + 1 || r.left < -1); }).map((e) => e.tagName + '.' + e.className).slice(0, 5)`);
+    assert.deepEqual(wide, [], `${w} px`);
+    assert.equal(await page.eval('document.documentElement.scrollWidth <= document.documentElement.clientWidth'), true, `${w} px: no horizontal scroll`);
+    const small = await page.eval(`[...document.querySelectorAll('button, select, a.btn, input')].filter((e) => e.offsetParent && e.getBoundingClientRect().height < (e.type === 'checkbox' ? 18 : 28)).map((e) => e.textContent || e.id || e.type)`);
+    assert.deepEqual(small, [], `${w} px`);
+    const rows = await page.eval(`(() => { const t = document.querySelector('.brand h1').getBoundingClientRect(), g = document.querySelector('.edition').getBoundingClientRect(); return [Math.round(t.top + t.height / 2), Math.round(g.top + g.height / 2)]; })()`);
+    assert.ok(Math.abs(rows[0] - rows[1]) <= 6, `${w} px: the toggle is on the title row (${rows})`);
+    assert.deepEqual(page.problems, []);
+    await page.close();
+  }
+});
+
 // ---- Footer ----
 
 check('the footer links go where config.js says, and Share passes the canonical address', async () => {
@@ -1278,7 +1416,7 @@ check('on phones the filters fold behind one button that says what is set; wide 
   await wide.close();
 });
 
-check('keyboard: Tab starts at the skip link, reaches the region buttons, and Escape closes About', async () => {
+check('keyboard: Tab starts at the skip link, reaches the game version and region buttons, and Escape closes About', async () => {
   const page = await open({ at: utc('2026-10-28T01:30:00Z') });
   const key = async (k, code) => {
     await page.send('Input.dispatchKeyEvent', { type: 'keyDown', key: k, code, windowsVirtualKeyCode: k === 'Tab' ? 9 : k === 'Escape' ? 27 : 13 });
@@ -1286,8 +1424,9 @@ check('keyboard: Tab starts at the skip link, reaches the region buttons, and Es
   };
   await key('Tab', 'Tab');
   assert.equal(await page.eval('document.activeElement.className'), 'skip');
-  await key('Tab', 'Tab'); await key('Tab', 'Tab');
-  assert.equal(await page.eval(`document.activeElement.getAttribute('data-region')`), 'us');
+  const stops = [];
+  for (let i = 0; i < 4; i++) { await key('Tab', 'Tab'); stops.push(await page.eval(`document.activeElement.getAttribute('data-edition') || document.activeElement.getAttribute('data-region') || document.activeElement.id`)); }
+  assert.deepEqual(stops, ['retail', 'forever', 'labs-link', 'us'], 'skip link, Retail, Forever, RadMage Labs, Americas');
   await click(page, '#about-btn');
   assert.equal(await page.eval(`document.getElementById('about').open`), true);
   await key('Escape', 'Escape');

@@ -29,6 +29,10 @@
   <header class="topbar">
     <div class="brand">
       <h1>WoW Tracker</h1>
+      <div class="edition seg" role="group" aria-label="Game version">
+        <button type="button" class="seg-btn" data-edition="retail" aria-pressed="true">Retail</button>
+        <button type="button" class="seg-btn" data-edition="forever" aria-pressed="false">Forever</button>
+      </div>
       <span class="tag">v0.2.0 · Resets, Events &amp; Holidays · <a id="labs-link" href="https://radmagelabs.com/">RadMage Labs</a></span>
     </div>
     <div class="region seg" role="group" aria-label="Region">
@@ -295,6 +299,7 @@
 
   <script src="js/config.js?v=0.2.0"></script>
   <script src="events-data.js?r=2"></script>
+  <script src="forever-data.js?r=1"></script>
   <script src="js/schedule.js?v=0.2.0"></script>
   <script src="js/store.js?v=0.2.0"></script>
   <script src="js/news.js?v=0.2.0"></script>

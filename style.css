@@ -149,6 +149,23 @@ main > * { min-width: 0; }
 
 .controls { padding: 12px 14px; }
 .filters-body { display: grid; gap: 10px; }
+.filters-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.filters-line .chips { flex: 1 1 auto; }
+.search { flex: 0 1 250px; margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.search input {
+  flex: 1 1 auto; min-width: 0; min-height: 32px; padding: 4px 10px; border: 1px solid var(--line-strong); border-radius: 8px;
+  background: var(--bg); color: var(--text); font-size: 14px;
+}
+.search input::placeholder { color: var(--text-faint); opacity: 1; }
+.search-status { margin: -4px 0 0; color: var(--text-dim); font-size: 12.5px; }
+.search-status:empty { display: none; }
+
+/* An event's name opens its details. The padding makes a 28 px target; the margin keeps the line height. */
+.name-btn {
+  padding: 5px 0; margin: -5px 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+  text-decoration: underline dotted color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 3px; overflow-wrap: anywhere;
+}
+.name-btn:hover { text-decoration: underline; }
 /* On phones the filters fold behind one button that says what is set; wider screens never show it. */
 .filters-toggle { display: none; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -336,6 +353,17 @@ dialog h3 { margin: 14px 0 4px; font-size: 14px; }
 dialog p, dialog li { font-size: 13.5px; color: var(--text-dim); }
 dialog a { color: var(--text); }
 .dialog-close { float: right; margin: -4px -6px 0 8px; }
+/* Event details: label and value side by side, stacked on phones. */
+.details .badges { margin: -2px 0 10px; }
+.details-list { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 6px 14px; margin: 0; font-size: 13.5px; }
+.details-list dt { color: var(--text-faint); }
+.details-list dd { margin: 0; color: var(--text-dim); overflow-wrap: anywhere; }
+.details-list dd strong { color: var(--text); font-weight: 600; }
+.details-later, .details-sources { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.details .details-later li, .details .details-sources li { font-size: 13.5px; }
+.details-checked { display: block; margin-top: 2px; color: var(--text-faint); font-size: 12.5px; }
+.details-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.details-actions .star-label { margin: 0 6px 0 -4px; color: var(--text-dim); font-size: 13px; }
 .hidden-list { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
 .hidden-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 
@@ -373,6 +401,10 @@ dialog a { color: var(--text); }
   .filters-summary { min-width: 0; color: var(--text-faint); font-size: 12.5px; overflow-wrap: anywhere; }
   .filters-act { margin-left: auto; color: var(--text-dim); font-size: 13px; text-decoration: underline; }
   .controls:not(.is-open) .filters-body { display: none; }
+  .search { flex: 1 1 100%; margin-left: 0; }
+  .search input { min-height: 36px; }
+  .details-list { grid-template-columns: 1fr; gap: 0; }
+  .details-list dt { margin-top: 8px; font-size: 12.5px; }
   .controls.is-open .filters-body { margin: 4px 0 6px; }
   .news { padding: 8px 12px 4px; }
   .news-list li { grid-template-columns: 44px minmax(0, 1fr); gap: 8px; }

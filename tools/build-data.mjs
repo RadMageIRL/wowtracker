@@ -144,6 +144,16 @@ export function validate(src) {
       else if (!s.until || Date.parse(s.until) > k) err(`${where} ${r}`, "a repeating schedule needs an until at or before its category's knownUntil");
     }
     if (e.link && !httpsUrl(e.link.url)) err(where, 'link must be https');
+    // Search words only (what players also call it), never shown as facts: short plain text, each once.
+    if (e.aliases !== undefined) {
+      const seen = new Set([e.name.toLowerCase()]);
+      if (!Array.isArray(e.aliases) || !e.aliases.length || e.aliases.length > 4) err(where, 'aliases must be a list of 1 to 4 words');
+      else for (const a of e.aliases) {
+        if (typeof a !== 'string' || !/^[A-Za-z0-9' ]{2,30}$/.test(a)) err(where, `alias ${JSON.stringify(a)} must be 2 to 30 letters, digits, spaces or apostrophes`);
+        else if (seen.has(a.toLowerCase())) err(where, `alias ${a} repeats the name or another alias`);
+        else seen.add(a.toLowerCase());
+      }
+    }
     checkSources(where, e);
   }
   for (const u of src.untracked || []) if (!u.name || !u.reason) err('untracked', 'name and reason are required');
@@ -167,7 +177,7 @@ export function pageData(src) {
     categories: src.categories,
     events: src.events.map((e) => {
       const out = { id: e.id, name: e.name, category: e.category, zone: e.zone, status: e.status, schedules: e.schedules };
-      for (const k of ['note', 'basis', 'link', 'important']) if (e[k] !== undefined) out[k] = e[k];
+      for (const k of ['aliases', 'note', 'basis', 'link', 'important']) if (e[k] !== undefined) out[k] = e[k];
       out.sources = sourceLinks(e);
       out.lastVerified = e.lastVerified;
       return out;

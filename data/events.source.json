@@ -289,6 +289,9 @@
     {
       "id": "hallows-end",
       "name": "Hallow's End",
+      "aliases": [
+        "Halloween"
+      ],
       "category": "holiday",
       "zone": "Inns and capital cities",
       "status": "confirmed",
@@ -347,6 +350,9 @@
     {
       "id": "day-of-the-dead",
       "name": "Day of the Dead",
+      "aliases": [
+        "Dia de los Muertos"
+      ],
       "category": "holiday",
       "zone": "Graveyards of the capital cities",
       "status": "confirmed",
@@ -405,6 +411,9 @@
     {
       "id": "wow-anniversary",
       "name": "WoW's 22nd Anniversary",
+      "aliases": [
+        "birthday"
+      ],
       "category": "holiday",
       "zone": "Caverns of Time, Tanaris",
       "status": "confirmed",
@@ -463,6 +472,9 @@
     {
       "id": "pilgrims-bounty",
       "name": "Pilgrim's Bounty",
+      "aliases": [
+        "Thanksgiving"
+      ],
       "category": "holiday",
       "zone": "Capital cities",
       "status": "confirmed",
@@ -514,6 +526,10 @@
     {
       "id": "feast-of-winter-veil",
       "name": "Feast of Winter Veil",
+      "aliases": [
+        "Winterveil",
+        "Christmas"
+      ],
       "category": "holiday",
       "zone": "Ironforge, Orgrimmar and capital cities",
       "status": "confirmed",
@@ -572,6 +588,9 @@
     {
       "id": "lunar-festival",
       "name": "Lunar Festival",
+      "aliases": [
+        "Lunar New Year"
+      ],
       "category": "holiday",
       "zone": "Moonglade and elders across Azeroth",
       "status": "confirmed",
@@ -623,6 +642,9 @@
     {
       "id": "love-is-in-the-air",
       "name": "Love is in the Air",
+      "aliases": [
+        "Valentine's Day"
+      ],
       "category": "holiday",
       "zone": "Capital cities",
       "status": "confirmed",
@@ -674,6 +696,9 @@
     {
       "id": "noblegarden",
       "name": "Noblegarden",
+      "aliases": [
+        "Easter"
+      ],
       "category": "holiday",
       "zone": "Starting areas",
       "status": "confirmed",
@@ -827,6 +852,9 @@
     {
       "id": "fireworks-celebration",
       "name": "Fireworks Celebration",
+      "aliases": [
+        "New Year's Eve"
+      ],
       "category": "minor",
       "zone": "Capital cities",
       "status": "confirmed",
@@ -1084,6 +1112,9 @@
     {
       "id": "trial-of-style",
       "name": "Trial of Style",
+      "aliases": [
+        "transmog"
+      ],
       "category": "minor",
       "zone": "Transmogrifiers in capital cities",
       "status": "confirmed",
@@ -1135,6 +1166,9 @@
     {
       "id": "darkmoon-faire",
       "name": "Darkmoon Faire",
+      "aliases": [
+        "DMF"
+      ],
       "category": "darkmoon",
       "zone": "Darkmoon Island (portals in Elwynn Forest and Mulgore)",
       "status": "confirmed",
@@ -1193,6 +1227,9 @@
     {
       "id": "timewalking",
       "name": "Timewalking",
+      "aliases": [
+        "TW"
+      ],
       "category": "timewalking",
       "zone": "Dungeon Finder",
       "status": "confirmed",

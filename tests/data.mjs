@@ -41,6 +41,20 @@ export async function dataTests(test) {
     assert.deepEqual(DATA.events.filter((e) => e.status === 'predicted').map((e) => e.category).sort(), ['outdoor', 'world-boss', 'world-boss', 'world-boss', 'world-boss']);
   });
 
+  test('search aliases are short plain words, each once, and reach the page; a bad one is refused', () => {
+    const withAliases = DATA.events.filter((e) => e.aliases);
+    assert.equal(withAliases.length, 12);
+    assert.deepEqual(DATA.events.find((e) => e.id === 'darkmoon-faire').aliases, ['DMF']);
+    const bad = (aliases) => { const src = copy(SOURCE); src.events.find((e) => e.id === 'hallows-end').aliases = aliases; return validate(src).join('\n'); };
+    assert.equal(bad(['Halloween']), '');
+    assert.match(bad([]), /aliases must be a list of 1 to 4 words/);
+    assert.match(bad(['a', 'b', 'c', 'd', 'e']), /aliases must be a list of 1 to 4 words/);
+    assert.match(bad(['<b>Halloween</b>']), /must be 2 to 30 letters/);
+    assert.match(bad(['Halloween', 'halloween']), /repeats the name or another alias/);
+    assert.match(bad(["Hallow's End"]), /repeats the name or another alias/);
+    assert.match(bad('Halloween'), /aliases must be a list/);
+  });
+
   test('the page data carries source links and check dates but no quotes', () => {
     const text = JSON.stringify(pageData(SOURCE));
     assert.ok(!text.includes('"quote"') && !text.includes('"retrieved"'));

@@ -144,6 +144,20 @@ export function unitTests(test) {
     assert.equal(News.parseNews({ contentItems: 'x' }).length, 0);
   });
 
+  test('news.json is asked for only on a configured host over http(s): RadMage Labs and the local server, never GitHub Pages or a file', () => {
+    const Config = require('../js/config.js');
+    assert.deepEqual(Config.newsHosts, ['radmagelabs.com', '127.0.0.1', 'localhost']);
+    assert.equal(News.canAsk('https:', 'radmagelabs.com', Config.newsHosts), true);
+    assert.equal(News.canAsk('https:', 'RadMageLabs.com', Config.newsHosts), true);
+    assert.equal(News.canAsk('http:', '127.0.0.1', Config.newsHosts), true);
+    assert.equal(News.canAsk('http:', 'localhost', Config.newsHosts), true);
+    assert.equal(News.canAsk('https:', 'radmageirl.github.io', Config.newsHosts), false);
+    assert.equal(News.canAsk('https:', 'www.radmagelabs.com.evil.example', Config.newsHosts), false);
+    assert.equal(News.canAsk('file:', '', Config.newsHosts), false);
+    assert.equal(News.canAsk('file:', 'localhost', Config.newsHosts), false);
+    assert.equal(News.canAsk('https:', 'radmagelabs.com', undefined), false);
+  });
+
   test('a news copy is fresh for 15 minutes and is re-checked when read back', () => {
     const items = News.parseNews(FEED);
     const t = Date.parse('2026-10-28T00:00:00Z');

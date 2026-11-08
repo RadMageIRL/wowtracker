@@ -67,9 +67,17 @@
     </section>
 
     <section class="controls panel" id="filters" aria-label="Filters">
-      <button type="button" class="filters-toggle" id="filters-toggle" aria-expanded="false" aria-controls="filters-body"><span class="filters-label">Filters</span> <span class="filters-summary" id="filters-summary"></span> <span class="filters-act" id="filters-act">Show</span></button>
+      <button type="button" class="filters-toggle" id="filters-toggle" aria-expanded="false" aria-controls="filters-body"><span class="filters-label">Search and filters</span> <span class="filters-summary" id="filters-summary"></span> <span class="filters-act" id="filters-act">Show</span></button>
       <div class="filters-body" id="filters-body">
-      <div class="chips" id="category-chips" role="group" aria-label="Categories"></div>
+      <div class="filters-line">
+        <div class="chips" id="category-chips" role="group" aria-label="Categories"></div>
+        <div class="search" role="search">
+          <label class="sr-only" for="search">Search events</label>
+          <input type="search" id="search" placeholder="Search events" autocomplete="off" spellcheck="false" maxlength="60" aria-describedby="search-status">
+          <button type="button" class="link-btn" id="search-clear" hidden>Clear</button>
+        </div>
+      </div>
+      <p class="search-status" id="search-status" role="status"></p>
       <div class="control-row">
         <div class="seg" role="group" aria-label="Show">
           <button type="button" class="seg-btn" data-filter="all" aria-pressed="true">All</button>
@@ -172,6 +180,11 @@
     <button type="button" class="btn small" id="unhide-all" hidden>Show all</button>
   </dialog>
 
+  <dialog id="details" class="details" aria-labelledby="details-title">
+    <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
+    <div id="details-body"></div>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="js/config.js?v=0.1.1"></script>
@@ -179,6 +192,7 @@
   <script src="js/schedule.js?v=0.1.1"></script>
   <script src="js/store.js?v=0.1.1"></script>
   <script src="js/news.js?v=0.1.1"></script>
+  <script src="js/search.js?v=0.1.1"></script>
   <script src="js/clock.js?v=0.1.1"></script>
   <script src="js/app.js?v=0.1.1"></script>
 </body>

@@ -93,6 +93,11 @@
     return newestFirst(items, max || KEEP_ITEMS);
   }
 
+  /** True where news.json is passed through: an http(s) page on one of the configured hosts. */
+  function canAsk(protocol, hostname, hosts) {
+    return /^https?:$/.test(String(protocol)) && Array.isArray(hosts) && hosts.includes(String(hostname).toLowerCase());
+  }
+
   const isFresh = (cache, nowMs) => Boolean(cache) && nowMs >= cache.fetchedAt && nowMs - cache.fetchedAt < REFRESH_MS;
 
   /** True for a post Blizzard files under one of its store categories. */
@@ -117,7 +122,7 @@
     return items.length ? { fetchedAt: raw.fetchedAt, items: newestFirst(items, KEEP_ITEMS) } : null;
   }
 
-  const News = { NEWS_PATH, NEWS_HOST, BLIZZARD_NEWS, UPSTREAM, MAX_ITEMS, KEEP_ITEMS, PREVIEW, SHOP_CATEGORIES, REFRESH_MS, TIMEOUT_MS, plainText, cleanLink, parseNews, isShop, visible, shown, isFresh, sanitizeCache };
+  const News = { NEWS_PATH, NEWS_HOST, BLIZZARD_NEWS, UPSTREAM, MAX_ITEMS, KEEP_ITEMS, PREVIEW, SHOP_CATEGORIES, REFRESH_MS, TIMEOUT_MS, plainText, cleanLink, parseNews, isShop, visible, shown, canAsk, isFresh, sanitizeCache };
   if (typeof module === 'object' && module.exports) module.exports = News;
   else root.WoWNews = News;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

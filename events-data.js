@@ -286,6 +286,9 @@
        "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
       }
      },
+     "aliases": [
+      "Halloween"
+     ],
      "link": {
       "url": "https://news.blizzard.com/en-us/article/24310656/hallow-s-end-brings-frights-delights-and-haunting-rewards",
       "label": "Blizzard"
@@ -338,6 +341,9 @@
        "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
       }
      },
+     "aliases": [
+      "Dia de los Muertos"
+     ],
      "link": {
       "url": "https://warcraft.wiki.gg/wiki/Day_of_the_Dead",
       "label": "Wiki"
@@ -390,6 +396,9 @@
        "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
       }
      },
+     "aliases": [
+      "birthday"
+     ],
      "link": {
       "url": "https://warcraft.wiki.gg/wiki/WoW%27s_Anniversary",
       "label": "Wiki"
@@ -442,6 +451,9 @@
        "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
       }
      },
+     "aliases": [
+      "Thanksgiving"
+     ],
      "link": {
       "url": "https://warcraft.wiki.gg/wiki/Pilgrim%27s_Bounty",
       "label": "Wiki"
@@ -489,6 +501,10 @@
        "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
       }
      },
+     "aliases": [
+      "Winterveil",
+      "Christmas"
+     ],
      "link": {
       "url": "https://warcraft.wiki.gg/wiki/Feast_of_Winter_Veil",
       "label": "Wiki"
@@ -541,6 +557,9 @@
        "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
       }
      },
+     "aliases": [
+      "Lunar New Year"
+     ],
      "link": {
       "url": "https://warcraft.wiki.gg/wiki/Lunar_Festival",
       "label": "Wiki"
@@ -588,6 +607,9 @@
        "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
       }
      },
+     "aliases": [
+      "Valentine's Day"
+     ],
      "link": {
       "url": "https://warcraft.wiki.gg/wiki/Love_is_in_the_Air",
       "label": "Wiki"
@@ -635,6 +657,9 @@
        "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
       }
      },
+     "aliases": [
+      "Easter"
+     ],
      "link": {
       "url": "https://warcraft.wiki.gg/wiki/Noblegarden",
       "label": "Wiki"
@@ -776,6 +801,9 @@
        "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
       }
      },
+     "aliases": [
+      "New Year's Eve"
+     ],
      "note": "New Year fireworks over the capitals.",
      "link": {
       "url": "https://warcraft.wiki.gg/wiki/New_Year",
@@ -1013,6 +1041,9 @@
        "basis": "The dates are the game's own. For European realms the game's calendar data writes its weekly rows in Central European time, so these start times are read the same way; Blizzard has not said so."
       }
      },
+     "aliases": [
+      "transmog"
+     ],
      "link": {
       "url": "https://warcraft.wiki.gg/wiki/Trial_of_Style",
       "label": "Wiki"
@@ -1060,6 +1091,9 @@
        "until": "2027-04-01T00:00:00Z"
       }
      },
+     "aliases": [
+      "DMF"
+     ],
      "link": {
       "url": "https://news.blizzard.com/en-us/article/23785338/the-darkmoon-faire-returns",
       "label": "Blizzard"
@@ -1121,6 +1155,9 @@
        ]
       }
      },
+     "aliases": [
+      "TW"
+     ],
      "link": {
       "url": "https://warcraft.wiki.gg/wiki/Timewalking",
       "label": "Wiki"

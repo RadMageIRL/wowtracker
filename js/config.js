@@ -6,6 +6,12 @@
   const Config = {
     /** The address Share passes along (the canonical one). null: the address the page was opened at. */
     shareUrl: 'https://radmagelabs.com/wow/',
+    /**
+     * Where news.json next to the page passes Blizzard's news list through: RadMage Labs (a Vercel
+     * rewrite) and the local tools/serve.mjs. Anywhere else (GitHub Pages, a file opened from disk)
+     * the page does not ask for it, because nothing would answer; Latest news links to Blizzard News.
+     */
+    newsHosts: ['radmagelabs.com', '127.0.0.1', 'localhost'],
     links: {
       labs: 'https://radmagelabs.com/',
       github: 'https://github.com/RadMageIRL/wowtracker',

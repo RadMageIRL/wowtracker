@@ -84,9 +84,19 @@
 
   // ---- Which events show ----
 
+  // Search narrows what the filters show. It is not saved: categories, stars and hiding stay as saved.
+  const Search = window.WoWSearch;
+  let query = '';
+  const SEARCH_INDEX = new Map(EVENTS.map((e) => {
+    const c = CATEGORY.get(e.category);
+    const windowNames = Object.values(e.schedules || {}).flatMap((s) => (s && s.windows ? s.windows.map((w) => w.name).filter(Boolean) : []));
+    return [e.id, Search.index([e.name, ...(e.aliases || []), ...windowNames, e.zone, c.name, c.short || ''])];
+  }));
+  const found = (e) => Search.matches(SEARCH_INDEX.get(e.id), query);
+
   function shown() {
     const cats = new Set(prefs.categories), hidden = new Set(prefs.hidden), starred = new Set(prefs.starred);
-    return EVENTS.filter((e) => !hidden.has(e.id) && cats.has(e.category) && (prefs.filter === 'all' || starred.has(e.id)));
+    return EVENTS.filter((e) => !hidden.has(e.id) && cats.has(e.category) && (prefs.filter === 'all' || starred.has(e.id)) && found(e));
   }
   const region = () => prefs.region;
   const resets = () => DATA.resets[region()];
@@ -112,6 +122,12 @@
   }
   const isFrequent = (e) => { const s = S.scheduleFor(e, region()); return Boolean(s && s.type === 'every' && s.periodMin < 1440); };
   const nameOf = (item) => item.name || item.event.name;
+
+  /** An event's name, as the button that opens its details at this occurrence. */
+  function nameButton(item, key) {
+    const name = nameOf(item);
+    return h('button', { type: 'button', class: 'name name-btn', 'data-details': item.event.id, 'data-start': item.start, 'data-fkey': `${key}:details`, 'aria-haspopup': 'dialog', 'aria-label': `${name}: details`, text: name });
+  }
 
   function badges(e) {
     return [h('span', { class: 'badge cat', text: CATEGORY.get(e.category).short || CATEGORY.get(e.category).name }), predictedBadge(statusFor(e))];
@@ -146,10 +162,9 @@
 
   /** The categories the viewer follows: the chosen ones, or with Starred, those of the starred events. */
   function followedCategories() {
-    const cats = new Set(prefs.categories);
-    if (prefs.filter !== 'starred') return cats;
-    const hidden = new Set(prefs.hidden);
-    return new Set(EVENTS.filter((e) => prefs.starred.includes(e.id) && !hidden.has(e.id) && cats.has(e.category)).map((e) => e.category));
+    if (prefs.filter !== 'starred' && !query) return new Set(prefs.categories);
+    // With Starred or a search: the categories of what is shown.
+    return new Set(shown().map((e) => e.category));
   }
 
   /** Followed categories whose schedules stop being known before toMs, grouped by when: [{ until, cats }]. */
@@ -238,7 +253,7 @@
   function card(item, now) {
     const e = item.event, key = `now:${e.id}`;
     return h('article', { class: 'event', 'data-cat': e.category, 'data-id': e.id },
-      h('div', { class: 'event-head' }, star(e, key), h('h3', { text: nameOf(item) }), h('span', { class: 'pill', text: 'Scheduled now' })),
+      h('div', { class: 'event-head' }, star(e, key), h('h3', {}, nameButton(item, key)), h('span', { class: 'pill', text: 'Scheduled now' })),
       h('div', { class: 'badges' }, badges(e)),
       h('p', { class: 'where', text: e.zone }),
       h('p', { class: 'countdown' },
@@ -261,7 +276,7 @@
         utcToo(item.start, 'time') ? h('span', { class: 'utc', text: utcToo(item.start, 'time') }) : null,
         h('span', { class: 'in', 'data-until': item.start, 'data-prefix': 'in ' }, 'in ' + S.duration(item.start - now))),
       h('div', { class: 'what' },
-        h('div', { class: 'line1' }, star(e, key), h('span', { class: 'name', text: nameOf(item) }), badges(e)),
+        h('div', { class: 'line1' }, star(e, key), nameButton(item, key), badges(e)),
         h('div', { class: 'line2', text: [e.zone, long ? `runs ${span(item.start, item.end)}` : `${Math.round((item.end - item.start) / S.MIN)} min`, repeatText(e)].filter(Boolean).join(' · ') }),
         e.note ? h('p', { class: 'note', text: e.note }) : null),
       actions(e, key));
@@ -311,12 +326,12 @@
         : whole ? 'all week' : i.start < from ? `until ${at(i.end, 'wday')}` : i.end > to ? `from ${at(i.start, 'wday')}` : `${at(i.start, 'wday')} to ${at(i.end, 'wday')}`;
       const live = !i.repeats && i.start <= now && now < i.end;
       return h('li', { 'data-cat': i.event.category, 'data-id': i.event.id },
-        h('span', { class: 'name', text: nameOf(i) }),
+        nameButton(i, `week:${i.event.id}:${i.start}`),
         predictedBadge(statusFor(i.event)),
         h('span', { class: 'span', text: when + (live ? ' · on now' : '') }));
     });
     const note = gapNote(to);
-    if (!li.length) li.push(h('li', { class: 'none', text: note ? 'Nothing known yet.' : 'Nothing you follow is scheduled.' }));
+    if (!li.length) li.push(h('li', { class: 'none', text: note ? 'Nothing known yet.' : query ? 'Nothing that matches is scheduled.' : 'Nothing you follow is scheduled.' }));
     return h('div', { class: 'week-col' },
       h('h3', {}, title, ' ', h('span', { class: 'dates', text: `${at(from, 'wdate')} to ${at(to, 'wdate')}` })),
       h('ul', { class: 'week-list' }, li), note);
@@ -363,7 +378,7 @@
         return h('li', { class: live ? 'is-now' : null, 'data-cat': i.event.category, 'data-id': i.event.id },
           h('span', { class: 'dates', text: span(i.start, i.end) }),
           h('span', { class: 'what' },
-            h('span', { class: 'name', text: nameOf(i) }), badges(i.event),
+            nameButton(i, `cal:${i.event.id}:${i.start}`), badges(i.event),
             h('span', { class: 'sub', text: live ? `on now, ends ${at(i.end, 'full')}` : `starts ${at(i.start, 'full')}` })));
       })) : null));
   }
@@ -373,7 +388,7 @@
   let lastKey = '';
   function structureKey(now, list, nowItems, nextItems, nextItem) {
     const rs = resets();
-    return [prefs.region, prefs.filter, prefs.categories.join(), prefs.starred.join(), prefs.hidden.join(), prefs.aheadHours, prefs.compact, prefs.timeMode,
+    return [prefs.region, prefs.filter, prefs.categories.join(), prefs.starred.join(), prefs.hidden.join(), prefs.aheadHours, prefs.compact, prefs.timeMode, query,
       formats().local, S.dayKey(now, formats().zone),
       nowItems.map((i) => i.event.id + i.start).join(), nextItems.map((i) => i.event.id + i.start).join(),
       nextItem ? nextItem.event.id + nextItem.start : '', list.length,
@@ -414,7 +429,7 @@
       $('week-hint').textContent = `${REGION.get(region()).name} reset weeks`;
       const months = calendarMonths(list, now);
       const anyItem = months.some((m) => m.querySelector('.agenda'));
-      $('calendar').replaceChildren(...(anyItem || gaps(COVERS_UNTIL).length ? months : [h('p', { class: 'empty', text: 'Nothing you follow is on the calendar.' })]),
+      $('calendar').replaceChildren(...(anyItem || gaps(COVERS_UNTIL).length ? months : [h('p', { class: 'empty', text: query ? 'Nothing on the calendar matches your search.' : 'Nothing you follow is on the calendar.' })]),
         h('p', { class: 'gap', text: `Nothing after ${isoDay(DATA.meta.coversUntil)} is in the data yet.` }));
       $('calendar-hint').textContent = `through ${isoDay(DATA.meta.coversUntil)}`;
       if (focusKey) { const el = document.querySelector(`[data-fkey="${CSS.escape(focusKey)}"]`); if (el) el.focus(); }
@@ -442,10 +457,12 @@
     // What the folded filters (phones) are set to, so they need not be opened to be read.
     const option = (id) => { const s = $(id); return s.options[s.selectedIndex] ? s.options[s.selectedIndex].textContent : ''; };
     $('filters-summary').textContent = [
+      query ? `search "${query}"` : null,
       prefs.filter === 'starred' ? 'Starred' : null,
       prefs.categories.length === CATEGORIES.length ? 'all categories' : `${prefs.categories.length} of ${CATEGORIES.length} categories`,
       option('ahead'), option('time-mode'), prefs.compact ? 'compact' : null, prefs.hidden.length ? `${prefs.hidden.length} hidden` : null,
     ].filter(Boolean).join(' · ');
+    searchStatus();
     document.body.classList.toggle('compact', prefs.compact);
     const label = { dark: 'Dark', light: 'Light', system: 'System' }[prefs.theme];
     $('theme-btn').textContent = label;
@@ -486,7 +503,12 @@
     const t = ev.target.closest('button');
     if (!t) return;
     const a = (name) => t.getAttribute(name);
-    if (a('data-region')) { prefs.region = a('data-region'); changed(); }
+    if (a('data-details')) openDetails(a('data-details'), Number(a('data-start')), t);
+    else if (a('data-star') && t.closest('#details')) {
+      prefs.starred = toggleIn(prefs.starred, a('data-star')); changed(); renderDetails();
+      const again = document.querySelector(`#details [data-star="${CSS.escape(a('data-star'))}"]`);
+      if (again) again.focus();
+    } else if (a('data-region')) { prefs.region = a('data-region'); changed(); }
     else if (a('data-filter')) { prefs.filter = a('data-filter'); changed(); }
     else if (a('data-category')) { prefs.categories = toggleIn(prefs.categories, a('data-category')); changed(); }
     else if (a('data-star')) { prefs.starred = toggleIn(prefs.starred, a('data-star')); changed(); }
@@ -494,6 +516,7 @@
       const e = BY_ID.get(a('data-hide'));
       prefs.hidden = toggleIn(prefs.hidden, e.id); changed();
       toast(`${e.name} is hidden. Show it again from Hidden.`);
+      if ($('details').open) $('details').close();
       $('coming-title').focus();
     } else if (a('data-unhide')) { prefs.hidden = prefs.hidden.filter((x) => x !== a('data-unhide')); changed(); renderHidden(); }
     else if (t.id === 'unhide-all') { prefs.hidden = []; changed(); renderHidden(); }
@@ -512,6 +535,28 @@
     else if (t.id === 'share-btn') share();
     else if (a('data-close') !== null) t.closest('dialog').close();
   });
+
+  // Search: lists narrow as you type (briefly debounced); Escape or Clear empties it.
+  function searchStatus() {
+    const el = $('search-status');
+    $('search-clear').hidden = !query;
+    if (!query) { el.textContent = ''; return; }
+    const n = shown().length;
+    const elsewhere = EVENTS.filter(found).length - n;
+    el.textContent = (n ? `${n} ${n === 1 ? 'event matches' : 'events match'}.` : `No event you follow matches "${query}".`)
+      + (elsewhere > 0 ? ` ${elsewhere} more ${elsewhere === 1 ? 'is' : 'are'} hidden, not starred, or in a category you turned off.` : '');
+  }
+  function setQuery(text) {
+    const next = String(text || '').trim().slice(0, 60);
+    if (next === query) return;
+    query = next;
+    syncControls();
+    render(true);
+  }
+  let searchTimer = 0;
+  $('search').addEventListener('input', (ev) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => setQuery(ev.target.value), 120); });
+  $('search').addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && ev.target.value) { ev.preventDefault(); ev.target.value = ''; setQuery(''); } });
+  $('search-clear').addEventListener('click', () => { $('search').value = ''; setQuery(''); $('search').focus(); });
 
   $('ahead').addEventListener('change', (ev) => { prefs.aheadHours = Number(ev.target.value); changed(); });
   $('time-mode').addEventListener('change', (ev) => { prefs.timeMode = ev.target.value; changed(); });
@@ -534,6 +579,114 @@
     $('hidden-empty').hidden = items.length > 0;
     $('unhide-all').hidden = items.length < 2;
   }
+
+  // ---- Event details: one dialog, built only from what the dataset says ----
+
+  const KIND = { official: 'Blizzard', client: 'game data', 'game-api': 'game API', wiki: 'wiki', guide: 'guide' };
+  const ORDINAL = { 1: 'first', 2: 'second', 3: 'third', 4: 'fourth' };
+
+  /** "6 days 23 hours", "10 minutes": whole units only, as the data has them. */
+  function lengthText(ms) {
+    const m = Math.round(ms / S.MIN), d = Math.floor(m / 1440), hr = Math.floor((m % 1440) / 60), mi = m % 60;
+    const part = (n, unit) => (n ? `${n} ${unit}${n === 1 ? '' : 's'}` : null);
+    return [part(d, 'day'), part(hr, 'hour'), part(mi, 'minute')].filter(Boolean).join(' ') || '0 minutes';
+  }
+
+  /** How long one window lasts and how it repeats, read off the schedule itself. */
+  function durationText(s, w) {
+    if (!s) return null;
+    if (s.type === 'every') {
+      const len = lengthText(s.durationMin * S.MIN);
+      return s.periodMin < 1440 ? `${len}, ${repeatTextFor(s)}` : `${len}, once every ${lengthText(s.periodMin * S.MIN)}`;
+    }
+    if (s.type === 'monthlyNth') return `${lengthText(s.durationMin * S.MIN)}, from the ${ORDINAL[s.n] || `${s.n}th`} ${S.WEEKDAYS[s.weekday]} of each month at ${s.time} (${s.zone})`;
+    return w ? lengthText(w.end - w.start) : null;
+  }
+  const repeatTextFor = (s) => (s.periodMin === 60 ? 'every hour' : s.periodMin % 60 === 0 ? `every ${s.periodMin / 60} hours` : `every ${s.periodMin} minutes`);
+
+  /** The window to describe: the one clicked if it still exists, else the current one, else the next. */
+  function occurrence(s, at, now) {
+    if (!s) return null;
+    if (Number.isFinite(at)) { const w = S.windows(s, at, at + 1).find((x) => x.start === at); if (w) return w; }
+    return S.currentWindow(s, now) || S.windows(s, now + 1, now + HORIZON_MS).find((x) => x.start > now) || null;
+  }
+
+  function whenLine(w, now) {
+    if (!w) return null;
+    const live = w.start <= now && now < w.end;
+    const utc = (ms) => utcToo(ms, 'full');
+    return live
+      ? [h('strong', { text: 'On now' }), ', ends ', at(w.end, 'full'), utc(w.end) ? ` (${utc(w.end)})` : '', ' · ', h('span', { 'data-until': w.end, 'data-prefix': 'ends in ' }, 'ends in ' + S.duration(w.end - now))]
+      : w.start > now
+        ? ['Starts ', at(w.start, 'full'), utc(w.start) ? ` (${utc(w.start)})` : '', ', ends ', at(w.end, 'full'), ' · ', h('span', { 'data-until': w.start, 'data-prefix': 'in ' }, 'in ' + S.duration(w.start - now))]
+        : ['Ended ', at(w.end, 'full')];
+  }
+
+  function confidence(e, st) {
+    if (st.status === 'predicted' && st.part === 'time') return [h('strong', { text: 'Predicted time. ' }), 'The dates are confirmed; the start time in this region is not. ', st.basis || ''];
+    if (st.status === 'predicted') return [h('strong', { text: 'Predicted. ' }), st.basis || e.basis || 'A pattern Blizzard has not published.'];
+    const kinds = [...new Set(e.sources.map((s) => KIND[s.kind] || s.kind))];
+    return [h('strong', { text: 'Confirmed. ' }), `From ${kinds.join(' and ')}.`];
+  }
+
+  function coverage(e) {
+    const c = CATEGORY.get(e.category), until = c.knownUntil ? Date.parse(c.knownUntil[region()]) : null;
+    if (!until) return null;
+    // A limit at midnight UTC is a date ("through Mar 31, 2027"); one at a reset is a moment.
+    const d = new Date(until);
+    const when = d.getUTCHours() === 0 && d.getUTCMinutes() === 0 ? `through ${isoDay(new Date(until - S.DAY).toISOString().slice(0, 10))}` : `until ${at(until, 'full')}`;
+    return [`Known ${when}. After that: not known yet`, c.gap ? ` (${c.gap})` : '', '.'];
+  }
+
+  let detailsOpen = null; // { id, at, trigger }
+  function renderDetails() {
+    if (!detailsOpen) return;
+    const e = BY_ID.get(detailsOpen.id);
+    if (!e) return;
+    const now = nowMs(), r = region(), s = S.scheduleFor(e, r), st = statusFor(e), key = `details:${e.id}`;
+    const w = occurrence(s, detailsOpen.at, now);
+    const later = s && w ? S.windows(s, w.end, now + HORIZON_MS).filter((x) => x.start >= w.end).slice(0, 3) : [];
+    const other = DATA.regions.find((x) => x.id !== r);
+    const os = other && S.scheduleFor(e, other.id), ow = occurrence(os, w ? w.start : NaN, now);
+    const row = (label, ...value) => (value.flat().filter((v) => v !== null && v !== '').length ? [h('dt', { text: label }), h('dd', {}, ...value.flat())] : []);
+    const name = w && w.name ? w.name : e.name;
+    $('details').setAttribute('data-cat', e.category); // the category color, as on the cards
+    $('details-body').replaceChildren(
+      h('h2', { id: 'details-title' }, name),
+      h('div', { class: 'badges' }, badges(e)),
+      h('dl', { class: 'details-list' },
+        row('When', whenLine(w, now) || (s ? 'Nothing more of it is in the data for this region.' : 'It does not run in this region.')),
+        row('How long', durationText(s, w)),
+        row('Region', REGION.get(r).name, ` (${REGION.get(r).realms})`),
+        ow && other ? row(other.name, ow.start > now ? `Starts ${at(ow.start, 'full')}` : `On now, ends ${at(ow.end, 'full')}`,
+          os.status === 'predicted' ? (os.part === 'time' ? ' (Predicted time)' : ' (Predicted)') : e.status === 'predicted' ? ' (Predicted)' : '') : [],
+        row('Where', e.zone),
+        row('About', e.note || null),
+        row('Later', later.length ? h('ul', { class: 'details-later' }, later.map((x) => h('li', {}, x.name && x.name !== name ? `${x.name}: ` : '',
+          x.end - x.start < S.DAY ? at(x.start, 'full') : [span(x.start, x.end), ` (starts ${at(x.start, 'full')})`]))) : null),
+        row('How sure', confidence(e, st)),
+        row('Data', coverage(e)),
+        row('Sources', h('ul', { class: 'details-sources' }, e.sources.map((src) => h('li', {},
+          h('a', { href: src.url, target: '_blank', rel: 'noopener noreferrer' }, src.publisher, h('span', { class: 'sr-only', text: ' (opens a new tab)' })),
+          ` · ${KIND[src.kind] || src.kind}`))), h('span', { class: 'details-checked', text: `Checked ${isoDay(e.lastVerified)}.` }))),
+      h('div', { class: 'details-actions' }, star(e, key), h('span', { class: 'star-label', text: prefs.starred.includes(e.id) ? 'Starred' : 'Star' }),
+        e.link ? h('a', { class: 'btn small', href: e.link.url, target: '_blank', rel: 'noopener noreferrer', text: e.link.label }, h('span', { class: 'sr-only', text: ' (opens a new tab)' })) : null,
+        h('button', { type: 'button', class: 'btn small', 'data-hide': e.id, 'data-fkey': `${key}:hide`, 'aria-label': `Hide ${e.name}`, text: 'Hide' })));
+  }
+
+  function openDetails(id, atMs, trigger) {
+    detailsOpen = { id, at: atMs, trigger, fkey: trigger && trigger.getAttribute('data-fkey') };
+    renderDetails();
+    const d = $('details');
+    if (!d.open) d.showModal();
+  }
+  $('details').addEventListener('close', () => {
+    const t = detailsOpen && detailsOpen.trigger, fkey = detailsOpen && detailsOpen.fkey;
+    detailsOpen = null;
+    // Back to the name that opened it, or the same name after the lists were rebuilt.
+    const back = t && t.isConnected ? t : fkey ? document.querySelector(`[data-fkey="${CSS.escape(fkey)}"]`) : null;
+    if (back) back.focus();
+  });
 
   // ---- Footer, About and the untracked list ----
 
@@ -599,13 +752,16 @@
     } catch (e) { /* the news section never breaks the page */ }
   }
 
+  /** Only where config.js says news.json is passed through; elsewhere it would only ever be a 404. */
+  const newsHere = () => News.canAsk(location.protocol, location.hostname, CONFIG.newsHosts);
+
   /** The saved copy, shown before anything is asked for (it may be old; loadNews decides). */
   function seedNews() {
     try {
       const cache = News.sanitizeCache(Store.read(storage, 'news'));
       if (cache) newsState = { items: cache.items, fetchedAt: cache.fetchedAt, status: 'ok' };
       // With nothing saved, the first paint already holds the space the headlines will take.
-      else if (/^https?:$/.test(location.protocol)) newsState.status = 'loading';
+      else newsState.status = newsHere() ? 'loading' : 'failed';
     } catch (e) { /* no saved copy */ }
   }
 
@@ -627,7 +783,7 @@
       const cache = News.sanitizeCache(Store.read(storage, 'news'));
       if (cache) newsState = { items: cache.items, fetchedAt: cache.fetchedAt, status: 'ok' };
       if (cache && News.isFresh(cache, Date.now())) { renderNews(); return; }
-      if (!/^https?:$/.test(location.protocol)) { newsState.status = newsState.items.length ? 'stale' : 'failed'; renderNews(); return; }
+      if (!newsHere()) { newsState.status = newsState.items.length ? 'stale' : 'failed'; renderNews(); return; }
       newsState.status = newsState.items.length ? 'ok' : 'loading'; renderNews();
       const ctl = new AbortController();
       const timer = setTimeout(() => ctl.abort(), News.TIMEOUT_MS);

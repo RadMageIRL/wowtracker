@@ -8,8 +8,11 @@ import { readFileSync, existsSync, mkdirSync, mkdtempSync, cpSync, writeFileSync
 import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 import { launchChrome } from './lib/cdp.mjs';
 import { serve } from '../tools/serve.mjs';
+
+const require = createRequire(import.meta.url);
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
@@ -337,7 +340,144 @@ check('opened from a file: the page works, news links out, nothing errors', asyn
   const page = await open({ at: utc('2026-10-28T01:30:00Z'), url: pathToFileURL(join(DIR, 'index.html')).href, prefs: null });
   assert.ok((await cardNames(page)).length >= 3);
   await page.waitFor(`/cannot load/.test(document.getElementById('news-note').textContent)`);
+  assert.equal(newsAsked(page), 0, 'a file never asks for news.json');
   assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+// The page as it is published: Chrome answers for radmagelabs.com/wow/ and the GitHub Pages address from
+// this build (nothing is deployed), and news.json only where RadMage Labs would pass it through.
+async function asPublished(base, newsBody) {
+  const page = await chrome.newPage();
+  const root = new URL(base).pathname, asked = [];
+  page.on('Fetch.requestPaused', async (p) => {
+    const u = new URL(p.request.url);
+    let rel = decodeURIComponent(u.pathname.slice(root.length)) || 'index.html';
+    if (rel.endsWith('/')) rel += 'index.html';
+    let status = 200, body = Buffer.alloc(0), type = 'text/plain';
+    if (rel === 'news.json') { asked.push(u.href); if (newsBody) { body = Buffer.from(newsBody); type = 'application/json'; } else status = 404; }
+    else if (existsSync(join(DIR, rel))) { body = readFileSync(join(DIR, rel)); type = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' }[rel.slice(rel.lastIndexOf('.'))] || 'application/octet-stream'; }
+    else status = 404;
+    try {
+      await page.send('Fetch.fulfillRequest', { requestId: p.requestId, responseCode: status, responseHeaders: [{ name: 'Content-Type', value: type }, { name: 'Date', value: new Date().toUTCString() }], body: (p.request.method === 'HEAD' ? Buffer.alloc(0) : body).toString('base64') });
+    } catch (e) { /* the page went away */ }
+  });
+  await page.send('Fetch.enable', { patterns: [{ urlPattern: `${new URL(base).origin}/*` }] });
+  await page.emulate({ timezone: 'America/Chicago', locale: 'en-US' });
+  await page.viewport(1280, 900, false);
+  await page.startClockAt(utc('2026-10-28T01:30:00Z'));
+  await page.goto(base);
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  return { page, asked };
+}
+
+check('news.json is asked for only where config.js says it is passed through: radmagelabs.com yes, GitHub Pages never', async () => {
+  const labs = await asPublished('https://radmagelabs.com/wow/', FEED);
+  await labs.page.waitFor(`document.querySelectorAll('#news-list li a').length === 3`);
+  assert.deepEqual(labs.asked, ['https://radmagelabs.com/wow/news.json']);
+  assert.deepEqual(labs.page.problems, []);
+  await labs.page.close();
+  const pages = await asPublished('https://radmageirl.github.io/wowtracker/', null);
+  await pages.page.waitFor(`/cannot load/.test(document.getElementById('news-note').textContent)`);
+  await sleep(2500);
+  assert.deepEqual(pages.asked, [], 'GitHub Pages has no news.json, so it is never asked for');
+  assert.equal(await pages.page.eval(`document.querySelector('#news-note a').href`), 'https://news.blizzard.com/en-us/feed/world-of-warcraft');
+  assert.equal(await pages.page.eval(`document.querySelectorAll('#news-list li').length`), 0, 'no empty lines held for headlines that will not come');
+  assert.deepEqual(pages.page.problems, [], 'no 404, no console error');
+  await pages.page.close();
+});
+
+// ---- Search and details ----
+
+const typeSearch = async (page, q) => { await page.eval(`(() => { const i = document.getElementById('search'); i.value = ${JSON.stringify(q)}; i.dispatchEvent(new Event('input', { bubbles: true })); })()`); await sleep(400); };
+
+check('search narrows every list as you type, forgives spelling and aliases, says what it found, and Escape clears it without saving', async () => {
+  const page = await open({ at: utc('2026-10-28T01:30:00Z'), prefs: { hidden: ['world-boss-cragpine'] } });
+  const all = await cardNames(page);
+  await typeSearch(page, 'luashal');
+  assert.deepEqual(await cardNames(page), ["Lu'ashal"]);
+  assert.ok((await texts(page, '#calendar .agenda .name')).every((n) => n === "Lu'ashal"));
+  assert.equal(await text(page, '#search-status'), '1 event matches.');
+  await typeSearch(page, 'haloween'); // a letter short of the alias Halloween
+  assert.deepEqual(await cardNames(page), ["Hallow's End"]);
+  await typeSearch(page, 'cragpine'); // hidden: found, and the status says why it is not listed
+  assert.equal(await text(page, '#search-status'), 'No event you follow matches "cragpine". 1 more is hidden, not starred, or in a category you turned off.');
+  await typeSearch(page, 'xyzzy');
+  assert.match(await text(page, '#calendar'), /Nothing on the calendar matches your search\./);
+  assert.equal(await page.eval(`document.querySelectorAll('#calendar .gap').length > 0 && [...document.querySelectorAll('#calendar .gap')].every((g) => /^Nothing after/.test(g.textContent))`), true, 'no "Not known yet" for categories nothing matched');
+  await page.eval(`document.getElementById('search').focus()`);
+  await page.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+  await sleep(200);
+  assert.equal(await page.eval(`document.getElementById('search').value`), '');
+  assert.deepEqual(await cardNames(page), all);
+  await typeSearch(page, 'legion');
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  assert.equal(await page.eval(`document.getElementById('search').value`), '', 'a search is not saved');
+  assert.deepEqual(await cardNames(page), all);
+  await page.close();
+});
+
+check('a name opens its details from the data only: when, how long, both regions, how sure, coverage and sources; Escape returns focus', async () => {
+  const page = await open({ at: utc('2026-10-28T01:30:00Z') });
+  const DATA = require(join(DIR, 'events-data.js'));
+  // Keyboard: focus the name and press Enter.
+  await page.eval(`document.querySelector('#now-list [data-details="world-boss-luashal"]').focus()`);
+  await page.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, text: '\r', unmodifiedText: '\r' });
+  await page.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
+  await page.waitFor(`document.getElementById('details').open`);
+  const dl = await page.eval(`Object.fromEntries([...document.querySelectorAll('#details dt')].map((dt) => [dt.textContent, dt.nextElementSibling.textContent]))`);
+  const luashal = DATA.events.find((e) => e.id === 'world-boss-luashal');
+  assert.equal(await text(page, '#details-title'), "Lu'ashal");
+  assert.match(dl.When, /^On now, ends Tue, Nov 3, 9:00 AM · ends in 6d 13h/);
+  assert.equal(dl['How long'], '7 days, once every 28 days');
+  assert.equal(dl.Europe, 'Starts Tue, Oct 27, 11:00 PM (Predicted)', 'Europe is still in the week before (its reset is Wednesday 04:00 UTC)');
+  assert.equal(dl.Where, luashal.zone);
+  assert.equal(dl['How sure'], `Predicted. ${luashal.basis}`);
+  assert.match(dl.Data, /^Known until Tue, Dec 1, 9:00 AM\. After that: not known yet/);
+  assert.equal('About' in dl, false, 'no description where the data has none');
+  assert.deepEqual(await page.eval(`[...document.querySelectorAll('#details .details-sources a')].map((a) => a.href)`), luashal.sources.map((s) => s.url));
+  await page.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+  await page.waitFor(`!document.getElementById('details').open`);
+  await sleep(100);
+  assert.equal(await page.eval(`document.activeElement.getAttribute('data-details')`), 'world-boss-luashal', 'focus is back on the name');
+  // Starring from the dialog rebuilds the lists behind it; Escape still lands on the (new) name.
+  await click(page, '#now-list [data-details="world-boss-luashal"]');
+  await click(page, '#details [data-star]');
+  assert.equal(await page.eval(`document.activeElement.closest('#details') !== null`), true, 'focus stays in the dialog');
+  await page.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+  await page.waitFor(`!document.getElementById('details').open`);
+  await sleep(100);
+  assert.equal(await page.eval(`document.activeElement.getAttribute('data-details')`), 'world-boss-luashal', 'focus finds the rebuilt name');
+  await click(page, '#now-list [data-star="world-boss-luashal"]'); // unstar again
+  // From the Americas, the European line of a holiday says its start time there is Predicted time.
+  await click(page, '#calendar [data-details="wow-anniversary"]');
+  assert.match(await page.eval(`[...document.querySelectorAll('#details dt')].find((dt) => dt.textContent === 'Europe').nextElementSibling.textContent`), /^Starts Tue, Nov 17, 3:00 AM \(Predicted time\)$/);
+  await click(page, '#details [data-close]');
+  // A dated holiday from the calendar, in Europe: the start time is Predicted time, the dates are not.
+  await click(page, '[data-region="eu"]');
+  await click(page, '#calendar [data-details="wow-anniversary"]');
+  const eu = await page.eval(`Object.fromEntries([...document.querySelectorAll('#details dt')].map((dt) => [dt.textContent, dt.nextElementSibling.textContent]))`);
+  assert.match(eu['How sure'], /^Predicted time\. The dates are confirmed; the start time in this region is not\./);
+  assert.equal(eu['How long'], '21 days');
+  assert.match(eu.Data, /^Known through Mar 31, 2027\./);
+  assert.match(eu.Americas, /^Starts Tue, Nov 17, 12:00 PM$/);
+  // Star from the dialog stays in it; Hide closes it and hides the event.
+  await click(page, '#details [data-star]');
+  assert.equal(await page.eval(`document.getElementById('details').open`), true);
+  assert.equal(await text(page, '#details .star-label'), 'Starred');
+  await click(page, '#details [data-hide]');
+  assert.equal(await page.eval(`document.getElementById('details').open`), false);
+  assert.equal(await page.eval(`document.querySelectorAll('#calendar [data-details="wow-anniversary"]').length`), 0);
+  await page.close();
+});
+
+check('on a phone the details fit the screen without sideways scrolling, and Close is reachable', async () => {
+  const page = await open({ at: utc('2026-10-28T01:30:00Z'), width: 390, height: 844, mobile: true });
+  await click(page, '#now-list [data-details="hallows-end"]');
+  const box = await page.eval(`(() => { const d = document.getElementById('details').getBoundingClientRect(), c = document.querySelector('#details [data-close]').getBoundingClientRect(); return { left: d.left, right: d.right, h: d.height, sw: document.getElementById('details').scrollWidth, cw: document.getElementById('details').clientWidth, close: c.height, closeTop: c.top }; })()`);
+  assert.ok(box.left >= 0 && box.right <= 390 && box.sw <= box.cw, JSON.stringify(box));
+  assert.ok(box.close >= 28 && box.closeTop >= 0 && box.h <= 844, JSON.stringify(box));
   await page.close();
 });
 

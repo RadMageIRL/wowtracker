@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.3.1 (2026-11-09)
+
+Maintenance: the news header on phones. No schedule data or feature changes; settings saved by v0.3.0 and earlier carry over. v0.3.0 was tagged and on the site for part of November 9, 2026, and this release replaces it.
+
+- On screens 360 to 419 px wide, the "All versions" label under Latest news now always takes its own line. With fonts wider than Windows' (on Android and Linux), the title, the label and the news buttons did not fit on one line there, so Show all and Collapse dropped to a second line when the headlines arrived. Nothing else on the page moved.
+
+Schedule data:
+
+- Retail: r2, unchanged.
+- WoW: Forever: r1, unchanged.
+
 ## v0.3.0 (2026-11-09)
 
 World of Warcraft: Forever, as a second game version beside Retail. Retail's events, times, calendar files and backups are as in v0.2.0, and everything v0.2 saved carries over.

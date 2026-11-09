@@ -1440,17 +1440,42 @@ check('Latest news says "All versions" in both editions, and shows the same head
   assert.deepEqual(lists[1], lists[0]);
 });
 
-check('the "All versions" label never moves the news when the headlines arrive: the news head is as tall with "Show all" as without, at 320, 360, 390 and 1280 px', async () => {
-  for (const [w, mobile] of [[320, true], [360, true], [390, true], [1280, false]]) {
-    const page = await open({ at: utc('2026-11-10T18:00:00Z'), width: w, height: 800, mobile });
+// Font widths differ by system: v0.3.0 passed here on Windows and failed on Linux, where the head wrapped at
+// 360 px. So the same checks run with the page's own fonts and with two wider sets: Arial and Georgia (about
+// Android's Roboto and Noto Serif) and Verdana and Georgia (about Linux's DejaVu, the widest common fonts),
+// each falling back to its Linux equivalent where it is not installed, at every phone width from 320 to 430 px.
+check('the "All versions" label never moves the news when the headlines arrive: the news head is as tall with "Show all" as without, and Collapse stays on the title\'s line, from 320 to 1280 px with the page\'s fonts and with wider ones', async () => {
+  const SETS = [['page fonts', null], ['Arial + Georgia', ['Arial, "Liberation Sans", sans-serif', 'Georgia, "DejaVu Serif", serif']], ['Verdana + Georgia', ['Verdana, "DejaVu Sans", sans-serif', 'Georgia, "DejaVu Serif", serif']]];
+  let measured = 0;
+  for (const [fontsLabel, fonts] of SETS) {
+    // Set through the style API, which the page's Content-Security-Policy allows (a <style> element it refuses).
+    const before = fonts ? `document.addEventListener('readystatechange', () => { const r = document.documentElement; r.style.setProperty('--sans', ${JSON.stringify(fonts[0])}); r.style.setProperty('--serif', ${JSON.stringify(fonts[1])}); }, { once: true });` : null;
+    const page = await open({ at: utc('2026-11-10T18:00:00Z'), width: 360, height: 800, mobile: true, before });
     await page.waitFor(`document.querySelectorAll('#news-list li a').length === 3`, 8000);
-    const heights = await page.eval(`(() => { const b = document.getElementById('news-all'), head = document.querySelector('.news-head'); const out = []; for (const hide of [true, false]) { b.hidden = hide; out.push(Math.round(head.getBoundingClientRect().height)); } return out; })()`);
-    assert.equal(heights[0], heights[1], `${w} px: ${heights}`);
-    const top = await page.eval(`(() => { const t = document.getElementById('news-title').getBoundingClientRect(), c = document.getElementById('news-toggle').getBoundingClientRect(); return Math.abs((t.top + t.bottom) / 2 - (c.top + c.bottom) / 2) < 8; })()`);
-    assert.equal(top, true, `${w} px: Collapse stays on the title's line`);
+    if (fonts) assert.match(await page.eval(`getComputedStyle(document.getElementById('news-toggle')).fontFamily`), /^Arial|^Verdana/, `${fontsLabel} applied`);
+    for (const w of [320, 340, 360, 375, 390, 400, 412, 414, 419, 420, 430, 768, 1280]) {
+      await page.viewport(w, 800, w < 600);
+      await sleep(60);
+      const r = JSON.parse(await page.eval(`(() => { const b = document.getElementById('news-all'), head = document.querySelector('.news-head'); const heights = [];
+        for (const hide of [true, false]) { b.hidden = hide; heights.push(Math.round(head.getBoundingClientRect().height)); }
+        const box = (id) => document.getElementById(id).getBoundingClientRect(), mid = (id) => (box(id).top + box(id).bottom) / 2;
+        const label = Math.abs(mid('news-title') - mid('news-scope')) < 8;
+        // Room left on the title's line with Show all shown: from the label (or the title) to the buttons, less the 10 px gap.
+        const room = Math.round(document.querySelector('.news-tools').getBoundingClientRect().left - (label ? box('news-scope') : box('news-title')).right - 10);
+        return JSON.stringify({ heights, collapse: Math.abs(mid('news-title') - mid('news-toggle')) < 8, label, room, sw: document.documentElement.scrollWidth, iw: innerWidth }); })()`));
+      const at = `${fontsLabel}, ${w} px`;
+      assert.equal(r.heights[0], r.heights[1], `${at}: the head is ${r.heights[0]} px without "Show all" and ${r.heights[1]} px with it`);
+      assert.equal(r.collapse, true, `${at}: Collapse stays on the title's line`);
+      assert.equal(r.label, w >= 420, `${at}: the label ${w >= 420 ? 'shares the title\'s line' : 'has its own line'}`);
+      // Where the label shares the line, it is small enough to leave room for fonts a little wider than these.
+      if (r.label) assert.ok(r.room >= 8, `${at}: ${r.room} px to spare beside the label (at least 8)`);
+      assert.ok(r.sw <= r.iw, `${at}: nothing scrolls sideways`);
+      measured++;
+    }
     assert.deepEqual(page.problems, []);
     await page.close();
   }
+  assert.equal(measured, 39);
 });
 
 check('About in Forever names the game and its server clocks, and says every time is a Predicted time; Retail\'s About is as it was', async () => {

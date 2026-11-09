@@ -378,10 +378,11 @@ main > * { min-width: 0; }
 .news { padding: 9px 16px 6px; }
 .news-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 10px; }
 .news-head h2 { margin: 0; font: 600 16px/1.2 var(--serif); letter-spacing: 0.02em; }
-/* Small enough that the title, this label and both news buttons share one line from 360 px up; narrower,
-   the label always takes its own line, so the head never changes height when "Show all" appears. */
+/* From 420 px up the title, this label and both news buttons share one line, whatever the fonts; narrower,
+   the label always takes its own line, so the head never changes height when "Show all" appears. With wider
+   fonts than Windows' (Android, Linux) the four did not fit at 360 to 390 px, and the buttons wrapped. */
 .news-scope { align-self: center; padding: 0 6px; font-size: 10.5px; }
-@media (max-width: 359px) {
+@media (max-width: 419px) {
   .news-head::after { content: ''; flex-basis: 100%; order: 2; }
   .news-scope { order: 3; margin-top: 2px; }
 }

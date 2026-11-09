@@ -1,10 +1,10 @@
-# WoW Tracker v0.3.0
+# WoW Tracker v0.3.1
 
 My World of Warcraft dashboard for resets and scheduled events, in your local time, for Retail and for WoW: Forever. It is one plain HTML page: no install, no account, no ads, no server. Every time is worked out in your browser from schedule data kept in this repository.
 
 Use it online at **[radmagelabs.com/wow](https://radmagelabs.com/wow/)** (also at [radmageirl.github.io/wowtracker](https://radmageirl.github.io/wowtracker/)), or download it and open it from your own computer.
 
-![WoW Tracker in the dark theme, on Retail: the Retail and Forever switch beside the title, the daily and weekly reset countdowns and the Trading Post for the Americas, the three newest Blizzard News headlines labeled All versions, the category filters with the search box and Reminders, and Happening now cards for the Midnight Dungeon bonus event, Cragpine, the week's predicted world boss, and a predicted Curse Surge at The Broodmother's Nest](screenshots/wowtracker.png)
+![WoW Tracker in the dark theme, on Retail: the Retail and Forever switch beside the title, the daily and weekly reset countdowns and the Trading Post for the Americas, the three newest Blizzard News headlines labeled All versions, the category filters with the search box and Reminders, and Happening now cards for the Midnight Dungeon bonus event, Cragpine, the week's predicted world boss, and a predicted Curse Surge at Siege at the Whispering Marsh](screenshots/wowtracker.png)
 
 - **Retail or WoW: Forever:** a switch beside the title picks the game version. Each has its own events, stars, hidden events, filters and checklist; the region, theme and reminder settings are shared. A link ending in #forever opens WoW: Forever.
 - **Resets:** daily and weekly reset countdowns for the Americas and Europe, plus the monthly Trading Post change (Retail).

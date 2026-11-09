@@ -62,6 +62,7 @@ export function validate(src, edition = 'retail') {
       if (!validZone(z.zone)) err(`region ${r.id}`, 'serverZone.zone must be a time zone');
       if (!STATUSES.includes(z.status)) err(`region ${r.id}`, `serverZone.status must be one of ${STATUSES.join(', ')}`);
       if (!(typeof z.basis === 'string' && z.basis.length > 20)) err(`region ${r.id}`, 'serverZone.basis (the evidence for this clock) is required');
+      if (!retail && !(typeof z.name === 'string' && z.name.trim())) err(`region ${r.id}`, 'serverZone.name (the clock in words, such as US Central time) is required');
     }
   }
 
@@ -180,6 +181,8 @@ export function validate(src, edition = 'retail') {
     } else err(where, `unknown schedule type ${s.type}`);
   };
 
+  // A region whose server clock is itself predicted cannot have times more certain than that clock.
+  const clockPredicted = new Set((src.regions || []).filter((r) => r.serverZone && r.serverZone.status === 'predicted').map((r) => r.id));
   const ids = new Set();
   for (const e of src.events || []) {
     const where = `event ${e.id}`;
@@ -187,11 +190,14 @@ export function validate(src, edition = 'retail') {
     ids.add(e.id);
     if (!e.name) err(where, 'name is required');
     if (!categories.has(e.category)) err(where, `unknown category ${e.category}`);
-    if (!e.zone) err(where, 'zone (where it happens) is required');
+    // Where it happens; null says plainly that no source names a place (shown as such, never guessed).
+    if (e.zone !== null && !(typeof e.zone === 'string' && e.zone.trim())) err(where, 'zone (where it happens) is required, or null when no source names a place');
+    if (e.repeats !== undefined && !(typeof e.repeats === 'string' && e.repeats.length >= 10 && e.repeats.length <= 240)) err(where, 'repeats (how it recurs, in words) must be 10 to 240 characters');
     if (!e.schedules || typeof e.schedules !== 'object' || !Object.keys(e.schedules).length) err(where, 'schedules by region are required');
     else for (const [r, s] of Object.entries(e.schedules)) {
       if (!regions.has(r)) err(where, `unknown region ${r}`);
       checkSchedule(`${where} ${r}`, s, e);
+      if (s && clockPredicted.has(r) && (s.status || e.status) !== 'predicted') err(`${where} ${r}`, "the region's server clock is predicted, so its times must be labeled predicted");
       // Nothing may start where its category says schedules are no longer known.
       const k = knownUntil.get(`${e.category} ${r}`);
       if (k === undefined || !s) continue;
@@ -233,7 +239,7 @@ export function pageData(src) {
     categories: src.categories,
     events: src.events.map((e) => {
       const out = { id: e.id, name: e.name, category: e.category, zone: e.zone, status: e.status, schedules: e.schedules };
-      for (const k of ['aliases', 'note', 'basis', 'link', 'important']) if (e[k] !== undefined) out[k] = e[k];
+      for (const k of ['aliases', 'note', 'repeats', 'basis', 'link', 'important']) if (e[k] !== undefined) out[k] = e[k];
       out.sources = sourceLinks(e);
       out.lastVerified = e.lastVerified;
       return out;

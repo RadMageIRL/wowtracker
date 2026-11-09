@@ -1205,7 +1205,7 @@ check('storage isolation: switching to Forever and back, five times, leaves ever
   await click(page, '[data-filter="all"]');
   await click(page, '#cl-toggle');
   const forever = JSON.parse((await stored(page))['wowtracker:v1:forever:prefs']);
-  assert.deepEqual(forever, { filter: 'all', categories: ['darkmoon', 'minor'], starred: [], hidden: [], checklistOpen: true });
+  assert.deepEqual(forever, { filter: 'all', categories: ['darkmoon', 'outdoor', 'minor'], starred: [], hidden: [], checklistOpen: true });
   await page.reload();
   await page.waitFor("document.querySelector('#summary li') !== null");
   assert.equal(await pressedEdition(page), 'forever', 'remembered across a reload');
@@ -1304,6 +1304,155 @@ check('Forever at 390, 360 and 768 px: nothing scrolls sideways, every control c
     assert.deepEqual(page.problems, []);
     await page.close();
   }
+});
+
+// ---- Forever's events (the game's calendar data, on each region's server clock) ----
+
+const FOREVER = require(join(DIR, 'forever-data.js'));
+const RETAIL_ONLY = ['Timewalking', 'Trading Post', "Pilgrim's Bounty", "Lu'ashal", 'Curse Surge', 'Aqir Invasion', 'Day of the Dead', 'Bonus Event'];
+/** The details dialog as label: value lines. */
+const detailRows = (page) => page.eval(`[...document.querySelectorAll('#details .details-list dt')].map((dt) => dt.textContent + ': ' + dt.nextElementSibling.textContent)`);
+
+check('Forever shows its own events: the Darkmoon Faire on now, the fishing contest coming up and next, each "Predicted time", a year of calendar, and not one Retail event', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever`, prefs: { aheadHours: 168 } });
+  assert.deepEqual(await cardNames(page), ['Darkmoon Faire: Elwynn Forest']);
+  assert.deepEqual(await texts(page, '#now-list .event .badge'), ['Darkmoon Faire', 'Predicted time']);
+  assert.equal(await text(page, '#now-list .event .where'), 'Elwynn Forest, or at the foot of Thunder Bluff (it alternates)');
+  assert.deepEqual(await rowNames(page), ['Stranglethorn Fishing Extravaganza']);
+  assert.match(await text(page, '#next-list .row .line2'), /^The coasts of Stranglethorn Vale · 120 min$/);
+  assert.match(await text(page, '#summary .next'), /^Next eventStranglethorn Fishing Extravaganza Predicted timein 5d \d+h · Sun, Nov 15, 2:00 PM/);
+  // The fishing contest on Sunday 14:00 server time is 14:00 here (US Central), not 16:00 as a Pacific reading would put it.
+  assert.equal(await page.eval(`Number(document.querySelector('#next-list .row').dataset.start)`), utc('2026-11-15T20:00:00Z'));
+  assert.equal(await text(page, '#calendar-hint'), 'through Nov 7, 2027');
+  const months = await texts(page, '#calendar .month h3');
+  assert.equal(months.length, 13, months.join(', '));
+  assert.match(months[months.length - 1], /^November 2027/);
+  assert.match(await text(page, '#calendar'), /Midsummer Fire Festival[\s\S]*Fireworks Spectacular[\s\S]*Harvest Festival[\s\S]*Hallow's End[\s\S]*Nothing after Nov 7, 2027 is in the data yet\.$/);
+  const body = await page.eval('document.body.innerText');
+  for (const n of RETAIL_ONLY) assert.ok(!body.includes(n), `no Retail event: ${n}`);
+  assert.match(await text(page, '#untracked'), /^Not shown as times, because no verified schedule exists: Daily and weekly resets \(.+\); Call to Arms battleground weeks \(.+\); Noblegarden \(the game's calendar data starts it on March 29, 2027 at 10:00 server time but gives no end\); Raids opening \(Blizzard says Barrow Deeps, Hyjal Summit and Onyxia's Lair open on December 9, 2026, without a time\)/);
+  // Europe: the same server times on the Central European clock, and no July 4 fireworks (an Americas row).
+  await click(page, '[data-region="eu"]');
+  assert.equal(await page.eval(`Number(document.querySelector('#next-list .row').dataset.start)`), utc('2026-11-15T13:00:00Z'));
+  assert.ok(!(await text(page, '#calendar')).includes('Fireworks Spectacular'));
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('Forever details say what the game\'s data says and no more: when, how long, both regions, where, how it repeats, why the time is predicted, how far the data goes, sources and check date', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever` });
+  await click(page, '#now-list [data-details="darkmoon-faire"]');
+  assert.equal(await text(page, '#details-title'), 'Darkmoon Faire: Elwynn Forest');
+  const rows = await detailRows(page);
+  const row = (label) => rows.find((r) => r.startsWith(`${label}: `)) || '';
+  assert.deepEqual(rows.map((r) => r.split(': ')[0]), ['When', 'How long', 'Region', 'Europe', 'Where', 'Repeats', 'Later', 'How sure', 'Data', 'Sources']);
+  assert.match(row('When'), /^When: On now, ends Mon, Nov 16, 4:00 AM · ends in 5d \d+h/);
+  assert.equal(row('How long'), 'How long: 7 days');
+  assert.equal(row('Region'), 'Region: Americas (Americas and Oceania)');
+  assert.match(row('Europe'), /^Europe: On now, ends Sun, Nov 15, 9:00 PM \(Predicted time\)$/);
+  assert.equal(row('Where'), 'Where: Elwynn Forest, or at the foot of Thunder Bluff (it alternates)');
+  assert.equal(row('Repeats'), "Repeats: About once a month, on dates set in the game's calendar data: from a Monday at 04:00 server time, for 7 days. The place alternates between Elwynn Forest and Thunder Bluff.");
+  assert.match(row('Later'), /^Later: Darkmoon Faire: Thunder Bluff: Dec 7 - Dec 14 \(starts Mon, Dec 7, 4:00 AM\)Jan 4 - Jan 11 \(starts Mon, Jan 4, 4:00 AM\)Darkmoon Faire: Thunder Bluff: Feb 8 - Feb 15 \(starts Mon, Feb 8, 4:00 AM\)$/);
+  assert.match(row('How sure'), /^How sure: Predicted time\. The dates are confirmed; the start time in this region is not\. The dates and hours are the game's own calendar data, which gives them in server time\. The Americas server clock is read as US Central time: .+ Seen once; Blizzard has not said\. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do\.$/);
+  assert.equal(row('Data'), "Data: Known through Nov 7, 2027. After that: not known yet (only one year of the game's calendar data, from build 1.60.1.70862, is read so far).");
+  assert.equal(row('Sources'), 'Sources: Game calendar data (1.60.1.70862) (opens a new tab) · game dataGame calendar text (1.60.1.70862) (opens a new tab) · game dataChecked Nov 8, 2026.');
+  assert.deepEqual(await page.eval(`[...document.querySelectorAll('#details-body .details-sources a')].map((a) => a.href)`), ['https://wago.tools/db2/Holidays?build=1.60.1.70862', 'https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862']);
+  await page.eval(`document.getElementById('details').close()`);
+  // A place no source names says so, in the details and on the calendar card's line.
+  await typeSearch(page, 'midsummer');
+  await click(page, '#calendar [data-details="midsummer-fire-festival"]');
+  assert.ok((await detailRows(page)).includes('Where: Not stated in its sources'));
+  await page.eval(`document.getElementById('details').close()`);
+  // The July 4 fireworks are an Americas row: its details have no Europe line.
+  await typeSearch(page, 'fireworks');
+  await click(page, '#calendar [data-details="fireworks-spectacular"]');
+  const fw = await detailRows(page);
+  assert.ok(fw.includes('Repeats: Every year on July 4 from 06:00 server time, for 18 hours, on Americas realms only.') && !fw.some((r) => r.startsWith('Europe: ')), fw.join(' | '));
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('search in Forever finds its events by name, alias, place and Faire location, and nothing from Retail', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever` });
+  const found = async (q) => { await typeSearch(page, q); return [...new Set(await texts(page, '#calendar .agenda .name'))]; };
+  assert.deepEqual(await found('stv fishing'), ['Stranglethorn Fishing Extravaganza']);
+  assert.deepEqual(await found('stranglethorn'), ['Stranglethorn Fishing Extravaganza']);
+  // A place finds the event, so every Faire shows, in date order (Elwynn Forest is on now).
+  assert.deepEqual(await found('thunder bluff'), ['Darkmoon Faire: Elwynn Forest', 'Darkmoon Faire: Thunder Bluff']);
+  assert.deepEqual(await found('dmf'), ['Darkmoon Faire: Elwynn Forest', 'Darkmoon Faire: Thunder Bluff']);
+  assert.deepEqual(await found('winterveil'), ['Feast of Winter Veil']);
+  assert.deepEqual(await found('booty bay'), ['Fireworks Spectacular']);
+  await typeSearch(page, 'timewalking');
+  assert.match(await text(page, '#calendar'), /Nothing on the calendar matches your search\./);
+  assert.match(await text(page, '#search-status'), /^No event you follow matches "timewalking"\.$/);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('Forever\'s calendar export holds only Forever\'s windows, as the engine has them, each "(Predicted time)", with the place when one is known', async () => {
+  const at = utc('2026-11-10T18:00:00Z');
+  const page = await open({ at, url: `${BASE}#forever` });
+  await click(page, '#export-btn');
+  await page.eval(`(() => { const r = document.querySelector('input[name="export-range"][value="all"]'); r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  assert.match(await text(page, '#export-all-label'), /^Everything known, through Nov 7, 2027 \(\d+\)$/);
+  const file = await saved(page, () => click(page, '#export-go'));
+  const expected = FOREVER.events.flatMap((e) => (e.schedules.us ? Engine.windows(e.schedules.us, at, Date.parse('2027-11-07T23:59:59Z')).map((w) => `${Ics.stamp(w.start)} ${Ics.stamp(w.end)} ${w.name || e.name} (Predicted time)`) : [])).sort();
+  const got = icsEvents(file.text);
+  assert.deepEqual(got.map((x) => `${x.DTSTART} ${x.DTEND} ${x.SUMMARY}`).sort(), expected);
+  assert.equal(got.length, 71); // 52 Sundays, 12 Faires (the one on now included), 7 holidays and small events
+  assert.ok(got.every((x) => x.STATUS === 'TENTATIVE' && /^Predicted time: the dates are confirmed\\; the start time on Americas and Oceania is not\./.test(x.DESCRIPTION)));
+  assert.equal(got.find((x) => x.SUMMARY.startsWith('Midsummer')).LOCATION, 'World of Warcraft');
+  assert.equal(got.find((x) => x.SUMMARY.startsWith('Stranglethorn')).LOCATION, 'World of Warcraft: The coasts of Stranglethorn Vale');
+  assert.ok(!got.some((x) => RETAIL_ONLY.some((n) => x.SUMMARY.includes(n))));
+  await page.close();
+});
+
+check('Forever\'s coverage stays in sight: on November 6, 2027 the last contest is the last thing coming, then "Not known yet", never "nothing"', async () => {
+  const page = await open({ at: utc('2027-11-06T12:00:00Z'), url: `${BASE}#forever`, prefs: { aheadHours: 168 } });
+  assert.deepEqual(await rowNames(page), ['Stranglethorn Fishing Extravaganza']);
+  assert.match(await text(page, '#next-gap'), /^Not known yet from Sun, Nov 7, 6:00 PM: Holidays, Darkmoon Faire, Outdoor events, Small events\.$/);
+  assert.match(await text(page, '#week-grid'), /Not known yet/);
+  assert.doesNotMatch(await page.eval('document.body.innerText'), /Nothing you follow is scheduled/);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('Latest news says "All versions" in both editions, and shows the same headlines in each', async () => {
+  const lists = [];
+  for (const url of [BASE, `${BASE}#forever`]) {
+    const page = await open({ at: utc('2026-11-10T18:00:00Z'), url });
+    await page.waitFor(`document.querySelectorAll('#news-list li a').length === 3`, 8000);
+    assert.equal(await text(page, '#news-scope'), 'All versions');
+    assert.equal(await page.eval(`document.getElementById('news').getAttribute('aria-labelledby')`), 'news-title news-scope');
+    assert.equal(await text(page, '#news-title'), 'Latest news');
+    lists.push(await texts(page, '#news-list li a'));
+    assert.deepEqual(page.problems, []);
+    await page.close();
+  }
+  assert.deepEqual(lists[1], lists[0]);
+});
+
+check('the "All versions" label never moves the news when the headlines arrive: the news head is as tall with "Show all" as without, at 320, 360, 390 and 1280 px', async () => {
+  for (const [w, mobile] of [[320, true], [360, true], [390, true], [1280, false]]) {
+    const page = await open({ at: utc('2026-11-10T18:00:00Z'), width: w, height: 800, mobile });
+    await page.waitFor(`document.querySelectorAll('#news-list li a').length === 3`, 8000);
+    const heights = await page.eval(`(() => { const b = document.getElementById('news-all'), head = document.querySelector('.news-head'); const out = []; for (const hide of [true, false]) { b.hidden = hide; out.push(Math.round(head.getBoundingClientRect().height)); } return out; })()`);
+    assert.equal(heights[0], heights[1], `${w} px: ${heights}`);
+    const top = await page.eval(`(() => { const t = document.getElementById('news-title').getBoundingClientRect(), c = document.getElementById('news-toggle').getBoundingClientRect(); return Math.abs((t.top + t.bottom) / 2 - (c.top + c.bottom) / 2) < 8; })()`);
+    assert.equal(top, true, `${w} px: Collapse stays on the title's line`);
+    assert.deepEqual(page.problems, []);
+    await page.close();
+  }
+});
+
+check('About in Forever names the game and its server clocks, and says every time is a Predicted time; Retail\'s About is as it was', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever` });
+  assert.equal(await text(page, '#about-intro'), 'A World of Warcraft: Forever dashboard for scheduled events: what is in its scheduled window now and what starts next, in your local time. Its daily and weekly reset times are not published, so this page does not count down to them.');
+  assert.equal(await text(page, '#about-data'), "Schedule data r1, reviewed Nov 8, 2026 for patch 1.60.1 (game build 1.60.1.70862), covering dates through Nov 7, 2027. 9 events, on the dates and hours of the game's own calendar data, which gives them in server time. This page reads that as US Central time (Americas) and Central European time (Europe), from what players have seen; Blizzard has not said, so every time here is a Predicted time. Each event says why, names its source and the date it was last checked.");
+  await page.goto(BASE);
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  assert.match(await text(page, '#about-intro'), /^A World of Warcraft \(Retail\) dashboard for resets and scheduled events: /);
+  await page.close();
 });
 
 // ---- Footer ----

@@ -113,7 +113,7 @@
     const c = CATEGORY.get(e.category);
     // Window names (a Timewalking expansion) and rotation names (a Curse Surge location) find the event too.
     const windowNames = Object.values(e.schedules || {}).flatMap((s) => (!s ? [] : s.windows ? s.windows.map((w) => w.name).filter(Boolean) : s.names ? s.names.list : []));
-    return [e.id, Search.index([e.name, ...(e.aliases || []), ...windowNames, e.zone, c.name, c.short || ''])];
+    return [e.id, Search.index([e.name, ...(e.aliases || []), ...windowNames, e.zone || '', c.name, c.short || ''])];
   }));
   const found = (e) => Search.matches(SEARCH_INDEX.get(e.id), query);
 
@@ -147,6 +147,8 @@
   }
   const isFrequent = (e) => { const s = S.scheduleFor(e, region()); return Boolean(s && s.type === 'every' && s.periodMin < 1440); };
   const nameOf = (item) => item.name || item.event.name;
+  /** Where it happens; when no source names a place, the page says so instead of guessing one. */
+  const whereOf = (e) => e.zone || 'Not stated in its sources';
 
   /** An event's name, as the button that opens its details at this occurrence. */
   function nameButton(item, key) {
@@ -288,7 +290,7 @@
     return h('article', { class: 'event', 'data-cat': e.category, 'data-id': e.id },
       h('div', { class: 'event-head' }, star(e, key), h('h3', {}, nameButton(item, key)), h('span', { class: 'pill', text: 'Scheduled now' })),
       h('div', { class: 'badges' }, badges(e)),
-      h('p', { class: 'where', text: e.zone }),
+      h('p', { class: 'where', text: whereOf(e) }),
       h('p', { class: 'countdown' },
         h('span', { class: 'big', 'data-until': item.end, 'data-prefix': 'Ends in ' }, 'Ends in ' + S.duration(item.end - now)),
         h('span', { class: 'since' }, ` · ${span(item.start, item.end)}`)),
@@ -770,7 +772,8 @@
         ow && other ? row(other.name, ow.name && ow.name !== name ? `${ow.name.startsWith(`${e.name}: `) ? ow.name.slice(e.name.length + 2) : ow.name}: ` : '',
           ow.start > now ? `Starts ${at(ow.start, 'full')}` : ow.end > now ? `On now, ends ${at(ow.end, 'full')}` : `Ended ${at(ow.end, 'full')}`,
           os.status === 'predicted' ? (os.part === 'time' ? ' (Predicted time)' : ' (Predicted)') : e.status === 'predicted' ? ' (Predicted)' : '') : [],
-        row('Where', e.zone),
+        row('Where', whereOf(e)),
+        row('Repeats', e.repeats || null),
         row('In turn', rotationText(e, s, w)),
         row('About', e.note || null),
         row('Later', later.length ? h('ul', { class: 'details-later' }, later.map((x) => h('li', {}, x.name && x.name !== name ? `${x.name}: ` : '',
@@ -824,7 +827,7 @@
     return {
       uid: Ics.uid(`${e.id}|${r}|${w.start}`), start: w.start, end: w.end,
       summary: `${w.name || e.name}${predictedLabel(st)}`, description,
-      location: `World of Warcraft: ${e.zone}`, url: e.link ? e.link.url : e.sources[0].url,
+      location: e.zone ? `World of Warcraft: ${e.zone}` : 'World of Warcraft', url: e.link ? e.link.url : e.sources[0].url,
       tentative: st.status === 'predicted', categories: [CATEGORY.get(e.category).name],
     };
   }
@@ -1353,8 +1356,14 @@
     // Confirmed events whose start time is predicted in one region (Europe's holidays, one Americas bonus week).
     const timeIn = (r) => EVENTS.filter((e) => e.status === 'confirmed' && e.schedules[r] && e.schedules[r].status === 'predicted').length;
     const eu = timeIn('eu'), us = timeIn('us');
-    $('about-data').textContent = `Schedule data r${m.datasetRevision}, reviewed ${isoDay(m.reviewedOn)} for patch ${m.patch} (game build ${m.clientBuild}), covering dates through ${isoDay(m.coversUntil)}. `
-      + `${EVENTS.length} events: ${EVENTS.length - predicted} confirmed and ${predicted} predicted. For ${eu} of the confirmed ones the start time on European realms is predicted${us ? `, and for ${us} the start time on the Americas' realms` : ''}. Each one names its source and the date it was last checked.`;
+    const head = `Schedule data r${m.datasetRevision}, reviewed ${isoDay(m.reviewedOn)} for patch ${m.patch} (game build ${m.clientBuild}), covering dates through ${isoDay(m.coversUntil)}. `;
+    // An edition whose regions read the game's calendar on a server clock says which clock, and how sure that is.
+    const clocks = DATA.regions.filter((x) => x.serverZone && x.serverZone.name);
+    $('about-data').textContent = clocks.length
+      ? head + `${EVENTS.length} events, on the dates and hours of the game's own calendar data, which gives them in server time. This page reads that as ${clocks.map((x) => `${x.serverZone.name} (${x.name})`).join(' and ')}`
+        + `${clocks.every((x) => x.serverZone.status === 'predicted') ? ', from what players have seen; Blizzard has not said, so every time here is a Predicted time' : ''}. Each event says why, names its source and the date it was last checked.`
+      : head + `${EVENTS.length} events: ${EVENTS.length - predicted} confirmed and ${predicted} predicted. For ${eu} of the confirmed ones the start time on European realms is predicted${us ? `, and for ${us} the start time on the Americas' realms` : ''}. Each one names its source and the date it was last checked.`;
+    if (!RETAIL) $('about-intro').textContent = `A ${m.game} dashboard for scheduled events: what is in its scheduled window now and what starts next, in your local time. Its daily and weekly reset times are not published, so this page does not count down to them.`;
     $('untracked').textContent = DATA.untracked.length
       ? 'Not shown as times, because no verified schedule exists: ' + DATA.untracked.map((u) => `${u.name} (${u.reason})`).join('; ') + '.'
       : '';

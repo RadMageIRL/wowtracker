@@ -10,7 +10,7 @@
     "patch": "1.60.1",
     "clientBuild": "1.60.1.70862",
     "reviewedOn": "2026-11-08",
-    "coversUntil": "2026-11-08"
+    "coversUntil": "2027-11-07"
    },
    "regions": [
     {
@@ -19,6 +19,7 @@
      "realms": "Americas and Oceania",
      "serverZone": {
       "zone": "America/Chicago",
+      "name": "US Central time",
       "status": "predicted",
       "basis": "Players report the Americas server clock as US Central, and the weekly fishing contest (Sunday 14:00 in the game's calendar data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central time. Seen once; Blizzard has not said."
      }
@@ -29,6 +30,7 @@
      "realms": "European region",
      "serverZone": {
       "zone": "Europe/Paris",
+      "name": "Central European time",
       "status": "predicted",
       "basis": "The weekly fishing contest (Sunday 14:00 in the game's calendar data) began about 13:00 UTC on November 8, 2026 in Europe, which is 14:00 Central European time. Seen once; Blizzard has not said."
      }
@@ -66,36 +68,1031 @@
      "name": "Holidays",
      "short": "Holiday",
      "knownUntil": {
-      "us": "2026-11-08T00:00:00Z",
-      "eu": "2026-11-08T00:00:00Z"
+      "us": "2027-11-08T00:00:00Z",
+      "eu": "2027-11-08T00:00:00Z"
      },
-     "gap": "WoW: Forever schedules are not in this development build yet"
+     "gap": "only one year of the game's calendar data, from build 1.60.1.70862, is read so far"
     },
     {
      "id": "darkmoon",
      "name": "Darkmoon Faire",
      "knownUntil": {
-      "us": "2026-11-08T00:00:00Z",
-      "eu": "2026-11-08T00:00:00Z"
+      "us": "2027-11-08T00:00:00Z",
+      "eu": "2027-11-08T00:00:00Z"
      },
-     "gap": "WoW: Forever schedules are not in this development build yet"
+     "gap": "only one year of the game's calendar data, from build 1.60.1.70862, is read so far"
+    },
+    {
+     "id": "outdoor",
+     "name": "Outdoor events",
+     "short": "Outdoor",
+     "knownUntil": {
+      "us": "2027-11-08T00:00:00Z",
+      "eu": "2027-11-08T00:00:00Z"
+     },
+     "gap": "only one year of the game's calendar data, from build 1.60.1.70862, is read so far"
     },
     {
      "id": "minor",
      "name": "Small events",
      "short": "Small event",
      "knownUntil": {
-      "us": "2026-11-08T00:00:00Z",
-      "eu": "2026-11-08T00:00:00Z"
+      "us": "2027-11-08T00:00:00Z",
+      "eu": "2027-11-08T00:00:00Z"
      },
-     "gap": "WoW: Forever schedules are not in this development build yet"
+     "gap": "only one year of the game's calendar data, from build 1.60.1.70862, is read so far"
     }
    ],
-   "events": [],
+   "events": [
+    {
+     "id": "darkmoon-faire",
+     "name": "Darkmoon Faire",
+     "category": "darkmoon",
+     "zone": "Elwynn Forest, or at the foot of Thunder Bluff (it alternates)",
+     "status": "confirmed",
+     "schedules": {
+      "us": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2026-11-09T10:00:00Z",
+         "end": "2026-11-16T10:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2026-12-07T10:00:00Z",
+         "end": "2026-12-14T10:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        },
+        {
+         "start": "2027-01-04T10:00:00Z",
+         "end": "2027-01-11T10:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2027-02-08T10:00:00Z",
+         "end": "2027-02-15T10:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        },
+        {
+         "start": "2027-03-08T10:00:00Z",
+         "end": "2027-03-15T10:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2027-04-05T09:00:00Z",
+         "end": "2027-04-12T09:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        },
+        {
+         "start": "2027-05-03T09:00:00Z",
+         "end": "2027-05-10T09:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2027-06-07T09:00:00Z",
+         "end": "2027-06-14T09:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        },
+        {
+         "start": "2027-07-05T09:00:00Z",
+         "end": "2027-07-12T09:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2027-08-09T09:00:00Z",
+         "end": "2027-08-16T09:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        },
+        {
+         "start": "2027-09-06T09:00:00Z",
+         "end": "2027-09-13T09:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2027-10-04T09:00:00Z",
+         "end": "2027-10-11T09:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+      },
+      "eu": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2026-11-09T03:00:00Z",
+         "end": "2026-11-16T03:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2026-12-07T03:00:00Z",
+         "end": "2026-12-14T03:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        },
+        {
+         "start": "2027-01-04T03:00:00Z",
+         "end": "2027-01-11T03:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2027-02-08T03:00:00Z",
+         "end": "2027-02-15T03:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        },
+        {
+         "start": "2027-03-08T03:00:00Z",
+         "end": "2027-03-15T03:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2027-04-05T02:00:00Z",
+         "end": "2027-04-12T02:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        },
+        {
+         "start": "2027-05-03T02:00:00Z",
+         "end": "2027-05-10T02:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2027-06-07T02:00:00Z",
+         "end": "2027-06-14T02:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        },
+        {
+         "start": "2027-07-05T02:00:00Z",
+         "end": "2027-07-12T02:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2027-08-09T02:00:00Z",
+         "end": "2027-08-16T02:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        },
+        {
+         "start": "2027-09-06T02:00:00Z",
+         "end": "2027-09-13T02:00:00Z",
+         "name": "Darkmoon Faire: Elwynn Forest"
+        },
+        {
+         "start": "2027-10-04T02:00:00Z",
+         "end": "2027-10-11T02:00:00Z",
+         "name": "Darkmoon Faire: Thunder Bluff"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The European server clock is read as Central European time: the weekly fishing contest (Sunday 14:00 in that data) began about 13:00 UTC on November 8, 2026, which is 14:00 Central European time. Seen once; Blizzard has not said. Whether these servers change their clocks for summer time has not been seen yet; times from March 28, 2027 assume they do."
+      }
+     },
+     "aliases": [
+      "DMF"
+     ],
+     "repeats": "About once a month, on dates set in the game's calendar data: from a Monday at 04:00 server time, for 7 days. The place alternates between Elwynn Forest and Thunder Bluff.",
+     "sources": [
+      {
+       "url": "https://wago.tools/db2/Holidays?build=1.60.1.70862",
+       "publisher": "Game calendar data (1.60.1.70862)",
+       "kind": "client"
+      },
+      {
+       "url": "https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862",
+       "publisher": "Game calendar text (1.60.1.70862)",
+       "kind": "client"
+      }
+     ],
+     "lastVerified": "2026-11-08"
+    },
+    {
+     "id": "stranglethorn-fishing-extravaganza",
+     "name": "Stranglethorn Fishing Extravaganza",
+     "category": "outdoor",
+     "zone": "The coasts of Stranglethorn Vale",
+     "status": "confirmed",
+     "schedules": {
+      "us": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2026-11-08T20:00:00Z",
+         "end": "2026-11-08T22:00:00Z"
+        },
+        {
+         "start": "2026-11-15T20:00:00Z",
+         "end": "2026-11-15T22:00:00Z"
+        },
+        {
+         "start": "2026-11-22T20:00:00Z",
+         "end": "2026-11-22T22:00:00Z"
+        },
+        {
+         "start": "2026-11-29T20:00:00Z",
+         "end": "2026-11-29T22:00:00Z"
+        },
+        {
+         "start": "2026-12-06T20:00:00Z",
+         "end": "2026-12-06T22:00:00Z"
+        },
+        {
+         "start": "2026-12-13T20:00:00Z",
+         "end": "2026-12-13T22:00:00Z"
+        },
+        {
+         "start": "2026-12-20T20:00:00Z",
+         "end": "2026-12-20T22:00:00Z"
+        },
+        {
+         "start": "2026-12-27T20:00:00Z",
+         "end": "2026-12-27T22:00:00Z"
+        },
+        {
+         "start": "2027-01-03T20:00:00Z",
+         "end": "2027-01-03T22:00:00Z"
+        },
+        {
+         "start": "2027-01-10T20:00:00Z",
+         "end": "2027-01-10T22:00:00Z"
+        },
+        {
+         "start": "2027-01-17T20:00:00Z",
+         "end": "2027-01-17T22:00:00Z"
+        },
+        {
+         "start": "2027-01-24T20:00:00Z",
+         "end": "2027-01-24T22:00:00Z"
+        },
+        {
+         "start": "2027-01-31T20:00:00Z",
+         "end": "2027-01-31T22:00:00Z"
+        },
+        {
+         "start": "2027-02-07T20:00:00Z",
+         "end": "2027-02-07T22:00:00Z"
+        },
+        {
+         "start": "2027-02-14T20:00:00Z",
+         "end": "2027-02-14T22:00:00Z"
+        },
+        {
+         "start": "2027-02-21T20:00:00Z",
+         "end": "2027-02-21T22:00:00Z"
+        },
+        {
+         "start": "2027-02-28T20:00:00Z",
+         "end": "2027-02-28T22:00:00Z"
+        },
+        {
+         "start": "2027-03-07T20:00:00Z",
+         "end": "2027-03-07T22:00:00Z"
+        },
+        {
+         "start": "2027-03-14T19:00:00Z",
+         "end": "2027-03-14T21:00:00Z"
+        },
+        {
+         "start": "2027-03-21T19:00:00Z",
+         "end": "2027-03-21T21:00:00Z"
+        },
+        {
+         "start": "2027-03-28T19:00:00Z",
+         "end": "2027-03-28T21:00:00Z"
+        },
+        {
+         "start": "2027-04-04T19:00:00Z",
+         "end": "2027-04-04T21:00:00Z"
+        },
+        {
+         "start": "2027-04-11T19:00:00Z",
+         "end": "2027-04-11T21:00:00Z"
+        },
+        {
+         "start": "2027-04-18T19:00:00Z",
+         "end": "2027-04-18T21:00:00Z"
+        },
+        {
+         "start": "2027-04-25T19:00:00Z",
+         "end": "2027-04-25T21:00:00Z"
+        },
+        {
+         "start": "2027-05-02T19:00:00Z",
+         "end": "2027-05-02T21:00:00Z"
+        },
+        {
+         "start": "2027-05-09T19:00:00Z",
+         "end": "2027-05-09T21:00:00Z"
+        },
+        {
+         "start": "2027-05-16T19:00:00Z",
+         "end": "2027-05-16T21:00:00Z"
+        },
+        {
+         "start": "2027-05-23T19:00:00Z",
+         "end": "2027-05-23T21:00:00Z"
+        },
+        {
+         "start": "2027-05-30T19:00:00Z",
+         "end": "2027-05-30T21:00:00Z"
+        },
+        {
+         "start": "2027-06-06T19:00:00Z",
+         "end": "2027-06-06T21:00:00Z"
+        },
+        {
+         "start": "2027-06-13T19:00:00Z",
+         "end": "2027-06-13T21:00:00Z"
+        },
+        {
+         "start": "2027-06-20T19:00:00Z",
+         "end": "2027-06-20T21:00:00Z"
+        },
+        {
+         "start": "2027-06-27T19:00:00Z",
+         "end": "2027-06-27T21:00:00Z"
+        },
+        {
+         "start": "2027-07-04T19:00:00Z",
+         "end": "2027-07-04T21:00:00Z"
+        },
+        {
+         "start": "2027-07-11T19:00:00Z",
+         "end": "2027-07-11T21:00:00Z"
+        },
+        {
+         "start": "2027-07-18T19:00:00Z",
+         "end": "2027-07-18T21:00:00Z"
+        },
+        {
+         "start": "2027-07-25T19:00:00Z",
+         "end": "2027-07-25T21:00:00Z"
+        },
+        {
+         "start": "2027-08-01T19:00:00Z",
+         "end": "2027-08-01T21:00:00Z"
+        },
+        {
+         "start": "2027-08-08T19:00:00Z",
+         "end": "2027-08-08T21:00:00Z"
+        },
+        {
+         "start": "2027-08-15T19:00:00Z",
+         "end": "2027-08-15T21:00:00Z"
+        },
+        {
+         "start": "2027-08-22T19:00:00Z",
+         "end": "2027-08-22T21:00:00Z"
+        },
+        {
+         "start": "2027-08-29T19:00:00Z",
+         "end": "2027-08-29T21:00:00Z"
+        },
+        {
+         "start": "2027-09-05T19:00:00Z",
+         "end": "2027-09-05T21:00:00Z"
+        },
+        {
+         "start": "2027-09-12T19:00:00Z",
+         "end": "2027-09-12T21:00:00Z"
+        },
+        {
+         "start": "2027-09-19T19:00:00Z",
+         "end": "2027-09-19T21:00:00Z"
+        },
+        {
+         "start": "2027-09-26T19:00:00Z",
+         "end": "2027-09-26T21:00:00Z"
+        },
+        {
+         "start": "2027-10-03T19:00:00Z",
+         "end": "2027-10-03T21:00:00Z"
+        },
+        {
+         "start": "2027-10-10T19:00:00Z",
+         "end": "2027-10-10T21:00:00Z"
+        },
+        {
+         "start": "2027-10-17T19:00:00Z",
+         "end": "2027-10-17T21:00:00Z"
+        },
+        {
+         "start": "2027-10-24T19:00:00Z",
+         "end": "2027-10-24T21:00:00Z"
+        },
+        {
+         "start": "2027-10-31T19:00:00Z",
+         "end": "2027-10-31T21:00:00Z"
+        },
+        {
+         "start": "2027-11-07T20:00:00Z",
+         "end": "2027-11-07T22:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+      },
+      "eu": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2026-11-08T13:00:00Z",
+         "end": "2026-11-08T15:00:00Z"
+        },
+        {
+         "start": "2026-11-15T13:00:00Z",
+         "end": "2026-11-15T15:00:00Z"
+        },
+        {
+         "start": "2026-11-22T13:00:00Z",
+         "end": "2026-11-22T15:00:00Z"
+        },
+        {
+         "start": "2026-11-29T13:00:00Z",
+         "end": "2026-11-29T15:00:00Z"
+        },
+        {
+         "start": "2026-12-06T13:00:00Z",
+         "end": "2026-12-06T15:00:00Z"
+        },
+        {
+         "start": "2026-12-13T13:00:00Z",
+         "end": "2026-12-13T15:00:00Z"
+        },
+        {
+         "start": "2026-12-20T13:00:00Z",
+         "end": "2026-12-20T15:00:00Z"
+        },
+        {
+         "start": "2026-12-27T13:00:00Z",
+         "end": "2026-12-27T15:00:00Z"
+        },
+        {
+         "start": "2027-01-03T13:00:00Z",
+         "end": "2027-01-03T15:00:00Z"
+        },
+        {
+         "start": "2027-01-10T13:00:00Z",
+         "end": "2027-01-10T15:00:00Z"
+        },
+        {
+         "start": "2027-01-17T13:00:00Z",
+         "end": "2027-01-17T15:00:00Z"
+        },
+        {
+         "start": "2027-01-24T13:00:00Z",
+         "end": "2027-01-24T15:00:00Z"
+        },
+        {
+         "start": "2027-01-31T13:00:00Z",
+         "end": "2027-01-31T15:00:00Z"
+        },
+        {
+         "start": "2027-02-07T13:00:00Z",
+         "end": "2027-02-07T15:00:00Z"
+        },
+        {
+         "start": "2027-02-14T13:00:00Z",
+         "end": "2027-02-14T15:00:00Z"
+        },
+        {
+         "start": "2027-02-21T13:00:00Z",
+         "end": "2027-02-21T15:00:00Z"
+        },
+        {
+         "start": "2027-02-28T13:00:00Z",
+         "end": "2027-02-28T15:00:00Z"
+        },
+        {
+         "start": "2027-03-07T13:00:00Z",
+         "end": "2027-03-07T15:00:00Z"
+        },
+        {
+         "start": "2027-03-14T13:00:00Z",
+         "end": "2027-03-14T15:00:00Z"
+        },
+        {
+         "start": "2027-03-21T13:00:00Z",
+         "end": "2027-03-21T15:00:00Z"
+        },
+        {
+         "start": "2027-03-28T12:00:00Z",
+         "end": "2027-03-28T14:00:00Z"
+        },
+        {
+         "start": "2027-04-04T12:00:00Z",
+         "end": "2027-04-04T14:00:00Z"
+        },
+        {
+         "start": "2027-04-11T12:00:00Z",
+         "end": "2027-04-11T14:00:00Z"
+        },
+        {
+         "start": "2027-04-18T12:00:00Z",
+         "end": "2027-04-18T14:00:00Z"
+        },
+        {
+         "start": "2027-04-25T12:00:00Z",
+         "end": "2027-04-25T14:00:00Z"
+        },
+        {
+         "start": "2027-05-02T12:00:00Z",
+         "end": "2027-05-02T14:00:00Z"
+        },
+        {
+         "start": "2027-05-09T12:00:00Z",
+         "end": "2027-05-09T14:00:00Z"
+        },
+        {
+         "start": "2027-05-16T12:00:00Z",
+         "end": "2027-05-16T14:00:00Z"
+        },
+        {
+         "start": "2027-05-23T12:00:00Z",
+         "end": "2027-05-23T14:00:00Z"
+        },
+        {
+         "start": "2027-05-30T12:00:00Z",
+         "end": "2027-05-30T14:00:00Z"
+        },
+        {
+         "start": "2027-06-06T12:00:00Z",
+         "end": "2027-06-06T14:00:00Z"
+        },
+        {
+         "start": "2027-06-13T12:00:00Z",
+         "end": "2027-06-13T14:00:00Z"
+        },
+        {
+         "start": "2027-06-20T12:00:00Z",
+         "end": "2027-06-20T14:00:00Z"
+        },
+        {
+         "start": "2027-06-27T12:00:00Z",
+         "end": "2027-06-27T14:00:00Z"
+        },
+        {
+         "start": "2027-07-04T12:00:00Z",
+         "end": "2027-07-04T14:00:00Z"
+        },
+        {
+         "start": "2027-07-11T12:00:00Z",
+         "end": "2027-07-11T14:00:00Z"
+        },
+        {
+         "start": "2027-07-18T12:00:00Z",
+         "end": "2027-07-18T14:00:00Z"
+        },
+        {
+         "start": "2027-07-25T12:00:00Z",
+         "end": "2027-07-25T14:00:00Z"
+        },
+        {
+         "start": "2027-08-01T12:00:00Z",
+         "end": "2027-08-01T14:00:00Z"
+        },
+        {
+         "start": "2027-08-08T12:00:00Z",
+         "end": "2027-08-08T14:00:00Z"
+        },
+        {
+         "start": "2027-08-15T12:00:00Z",
+         "end": "2027-08-15T14:00:00Z"
+        },
+        {
+         "start": "2027-08-22T12:00:00Z",
+         "end": "2027-08-22T14:00:00Z"
+        },
+        {
+         "start": "2027-08-29T12:00:00Z",
+         "end": "2027-08-29T14:00:00Z"
+        },
+        {
+         "start": "2027-09-05T12:00:00Z",
+         "end": "2027-09-05T14:00:00Z"
+        },
+        {
+         "start": "2027-09-12T12:00:00Z",
+         "end": "2027-09-12T14:00:00Z"
+        },
+        {
+         "start": "2027-09-19T12:00:00Z",
+         "end": "2027-09-19T14:00:00Z"
+        },
+        {
+         "start": "2027-09-26T12:00:00Z",
+         "end": "2027-09-26T14:00:00Z"
+        },
+        {
+         "start": "2027-10-03T12:00:00Z",
+         "end": "2027-10-03T14:00:00Z"
+        },
+        {
+         "start": "2027-10-10T12:00:00Z",
+         "end": "2027-10-10T14:00:00Z"
+        },
+        {
+         "start": "2027-10-17T12:00:00Z",
+         "end": "2027-10-17T14:00:00Z"
+        },
+        {
+         "start": "2027-10-24T12:00:00Z",
+         "end": "2027-10-24T14:00:00Z"
+        },
+        {
+         "start": "2027-10-31T13:00:00Z",
+         "end": "2027-10-31T15:00:00Z"
+        },
+        {
+         "start": "2027-11-07T13:00:00Z",
+         "end": "2027-11-07T15:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The European server clock is read as Central European time: the weekly fishing contest (Sunday 14:00 in that data) began about 13:00 UTC on November 8, 2026, which is 14:00 Central European time. Seen once; Blizzard has not said. Whether these servers change their clocks for summer time has not been seen yet; times from March 28, 2027 assume they do."
+      }
+     },
+     "aliases": [
+      "STV fishing",
+      "Fishing tournament"
+     ],
+     "repeats": "Every Sunday, 14:00 to 16:00 server time.",
+     "sources": [
+      {
+       "url": "https://wago.tools/db2/Holidays?build=1.60.1.70862",
+       "publisher": "Game calendar data (1.60.1.70862)",
+       "kind": "client"
+      },
+      {
+       "url": "https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862",
+       "publisher": "Game calendar text (1.60.1.70862)",
+       "kind": "client"
+      },
+      {
+       "url": "https://www.icy-veins.com/wow-forever/fishing",
+       "publisher": "Icy Veins",
+       "kind": "guide"
+      }
+     ],
+     "lastVerified": "2026-11-08"
+    },
+    {
+     "id": "feast-of-winter-veil",
+     "name": "Feast of Winter Veil",
+     "category": "holiday",
+     "zone": "Ironforge and Orgrimmar, and throughout Azeroth",
+     "status": "confirmed",
+     "schedules": {
+      "us": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2026-12-15T12:00:00Z",
+         "end": "2027-01-02T12:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+      },
+      "eu": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2026-12-15T05:00:00Z",
+         "end": "2027-01-02T05:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The European server clock is read as Central European time: the weekly fishing contest (Sunday 14:00 in that data) began about 13:00 UTC on November 8, 2026, which is 14:00 Central European time. Seen once; Blizzard has not said. Whether these servers change their clocks for summer time has not been seen yet; times from March 28, 2027 assume they do."
+      }
+     },
+     "aliases": [
+      "Winterveil",
+      "Christmas"
+     ],
+     "repeats": "Every year from December 15 at 06:00 server time, for 18 days.",
+     "sources": [
+      {
+       "url": "https://wago.tools/db2/Holidays?build=1.60.1.70862",
+       "publisher": "Game calendar data (1.60.1.70862)",
+       "kind": "client"
+      },
+      {
+       "url": "https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862",
+       "publisher": "Game calendar text (1.60.1.70862)",
+       "kind": "client"
+      }
+     ],
+     "lastVerified": "2026-11-08"
+    },
+    {
+     "id": "lunar-festival",
+     "name": "Lunar Festival",
+     "category": "holiday",
+     "zone": "Moonglade",
+     "status": "confirmed",
+     "schedules": {
+      "us": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-02-02T16:00:00Z",
+         "end": "2027-02-16T16:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+      },
+      "eu": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-02-02T09:00:00Z",
+         "end": "2027-02-16T09:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The European server clock is read as Central European time: the weekly fishing contest (Sunday 14:00 in that data) began about 13:00 UTC on November 8, 2026, which is 14:00 Central European time. Seen once; Blizzard has not said. Whether these servers change their clocks for summer time has not been seen yet; times from March 28, 2027 assume they do."
+      }
+     },
+     "aliases": [
+      "Lunar New Year"
+     ],
+     "repeats": "On a date set each year in the game's calendar data; in 2027 from February 2 at 10:00 server time, for 14 days.",
+     "sources": [
+      {
+       "url": "https://wago.tools/db2/Holidays?build=1.60.1.70862",
+       "publisher": "Game calendar data (1.60.1.70862)",
+       "kind": "client"
+      },
+      {
+       "url": "https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862",
+       "publisher": "Game calendar text (1.60.1.70862)",
+       "kind": "client"
+      }
+     ],
+     "lastVerified": "2026-11-08"
+    },
+    {
+     "id": "love-is-in-the-air",
+     "name": "Love is in the Air",
+     "category": "holiday",
+     "zone": "The major cities of Azeroth",
+     "status": "confirmed",
+     "schedules": {
+      "us": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-02-11T12:00:00Z",
+         "end": "2027-02-16T12:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+      },
+      "eu": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-02-11T05:00:00Z",
+         "end": "2027-02-16T05:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The European server clock is read as Central European time: the weekly fishing contest (Sunday 14:00 in that data) began about 13:00 UTC on November 8, 2026, which is 14:00 Central European time. Seen once; Blizzard has not said. Whether these servers change their clocks for summer time has not been seen yet; times from March 28, 2027 assume they do."
+      }
+     },
+     "aliases": [
+      "Valentine's Day"
+     ],
+     "repeats": "Every year from February 11 at 06:00 server time, for 5 days.",
+     "sources": [
+      {
+       "url": "https://wago.tools/db2/Holidays?build=1.60.1.70862",
+       "publisher": "Game calendar data (1.60.1.70862)",
+       "kind": "client"
+      },
+      {
+       "url": "https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862",
+       "publisher": "Game calendar text (1.60.1.70862)",
+       "kind": "client"
+      }
+     ],
+     "lastVerified": "2026-11-08"
+    },
+    {
+     "id": "midsummer-fire-festival",
+     "name": "Midsummer Fire Festival",
+     "category": "holiday",
+     "zone": null,
+     "status": "confirmed",
+     "schedules": {
+      "us": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-06-21T09:00:00Z",
+         "end": "2027-07-05T09:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+      },
+      "eu": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-06-21T02:00:00Z",
+         "end": "2027-07-05T02:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The European server clock is read as Central European time: the weekly fishing contest (Sunday 14:00 in that data) began about 13:00 UTC on November 8, 2026, which is 14:00 Central European time. Seen once; Blizzard has not said. Whether these servers change their clocks for summer time has not been seen yet; times from March 28, 2027 assume they do."
+      }
+     },
+     "repeats": "Every year from June 21 at 04:00 server time, for 14 days.",
+     "sources": [
+      {
+       "url": "https://wago.tools/db2/Holidays?build=1.60.1.70862",
+       "publisher": "Game calendar data (1.60.1.70862)",
+       "kind": "client"
+      },
+      {
+       "url": "https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862",
+       "publisher": "Game calendar text (1.60.1.70862)",
+       "kind": "client"
+      }
+     ],
+     "lastVerified": "2026-11-08"
+    },
+    {
+     "id": "fireworks-spectacular",
+     "name": "Fireworks Spectacular",
+     "category": "minor",
+     "zone": "Any capital city or Booty Bay",
+     "status": "confirmed",
+     "schedules": {
+      "us": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-07-04T11:00:00Z",
+         "end": "2027-07-05T05:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+      }
+     },
+     "repeats": "Every year on July 4 from 06:00 server time, for 18 hours, on Americas realms only.",
+     "sources": [
+      {
+       "url": "https://wago.tools/db2/Holidays?build=1.60.1.70862",
+       "publisher": "Game calendar data (1.60.1.70862)",
+       "kind": "client"
+      },
+      {
+       "url": "https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862",
+       "publisher": "Game calendar text (1.60.1.70862)",
+       "kind": "client"
+      }
+     ],
+     "lastVerified": "2026-11-08"
+    },
+    {
+     "id": "harvest-festival",
+     "name": "Harvest Festival",
+     "category": "holiday",
+     "zone": "Outside Orgrimmar and Ironforge",
+     "status": "confirmed",
+     "schedules": {
+      "us": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-09-11T15:00:00Z",
+         "end": "2027-09-18T15:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+      },
+      "eu": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-09-11T08:00:00Z",
+         "end": "2027-09-18T08:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The European server clock is read as Central European time: the weekly fishing contest (Sunday 14:00 in that data) began about 13:00 UTC on November 8, 2026, which is 14:00 Central European time. Seen once; Blizzard has not said. Whether these servers change their clocks for summer time has not been seen yet; times from March 28, 2027 assume they do."
+      }
+     },
+     "repeats": "On a date set each year in the game's calendar data; in 2027 from September 11 at 10:00 server time, for 7 days.",
+     "sources": [
+      {
+       "url": "https://wago.tools/db2/Holidays?build=1.60.1.70862",
+       "publisher": "Game calendar data (1.60.1.70862)",
+       "kind": "client"
+      },
+      {
+       "url": "https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862",
+       "publisher": "Game calendar text (1.60.1.70862)",
+       "kind": "client"
+      }
+     ],
+     "lastVerified": "2026-11-08"
+    },
+    {
+     "id": "hallows-end",
+     "name": "Hallow's End",
+     "category": "holiday",
+     "zone": "Innkeepers across Azeroth",
+     "status": "confirmed",
+     "schedules": {
+      "us": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-10-18T09:00:00Z",
+         "end": "2027-11-02T09:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+      },
+      "eu": {
+       "type": "dates",
+       "windows": [
+        {
+         "start": "2027-10-18T02:00:00Z",
+         "end": "2027-11-02T02:00:00Z"
+        }
+       ],
+       "status": "predicted",
+       "part": "time",
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The European server clock is read as Central European time: the weekly fishing contest (Sunday 14:00 in that data) began about 13:00 UTC on November 8, 2026, which is 14:00 Central European time. Seen once; Blizzard has not said. Whether these servers change their clocks for summer time has not been seen yet; times from March 28, 2027 assume they do."
+      }
+     },
+     "aliases": [
+      "Halloween"
+     ],
+     "repeats": "Every year from October 18 at 04:00 server time, for 15 days.",
+     "sources": [
+      {
+       "url": "https://wago.tools/db2/Holidays?build=1.60.1.70862",
+       "publisher": "Game calendar data (1.60.1.70862)",
+       "kind": "client"
+      },
+      {
+       "url": "https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862",
+       "publisher": "Game calendar text (1.60.1.70862)",
+       "kind": "client"
+      }
+     ],
+     "lastVerified": "2026-11-08"
+    }
+   ],
    "untracked": [
     {
      "name": "Daily and weekly resets",
      "reason": "Blizzard has not published them for WoW: Forever, and they have not been observed reliably in either region"
+    },
+    {
+     "name": "Call to Arms battleground weeks",
+     "reason": "the game's calendar data repeats Arathi Basin, Warsong Gulch and the Darkspear Islands in turn, but how that repeat runs has not been seen in the game yet"
+    },
+    {
+     "name": "Noblegarden",
+     "reason": "the game's calendar data starts it on March 29, 2027 at 10:00 server time but gives no end"
+    },
+    {
+     "name": "Raids opening",
+     "reason": "Blizzard says Barrow Deeps, Hyjal Summit and Onyxia's Lair open on December 9, 2026, without a time"
+    },
+    {
+     "name": "WoW: Forever Launch Celebration",
+     "reason": "Blizzard says it ends in early December, without a date or time"
+    },
+    {
+     "name": "Children's Week",
+     "reason": "the game's calendar data has no date for it after 2025"
     }
    ]
   };

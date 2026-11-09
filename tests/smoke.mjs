@@ -1503,7 +1503,7 @@ check('the "All versions" label never moves the news when the headlines arrive: 
 check('About in Forever names the game and its server clocks, and says every time is a Predicted time; Retail\'s About is as it was', async () => {
   const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever` });
   assert.equal(await text(page, '#about-intro'), 'A World of Warcraft: Forever dashboard for scheduled events: what is in its scheduled window now and what starts next, in your local time. Its daily and weekly reset times are not published, so this page does not count down to them.');
-  assert.equal(await text(page, '#about-data'), "Schedule data r1, reviewed Nov 8, 2026 for patch 1.60.1 (game build 1.60.1.70862), covering dates through Nov 7, 2027. 9 events, on the dates and hours of the game's own calendar data, which gives them in server time. This page reads that as US Central time (Americas) and Central European time (Europe), from what players have seen; Blizzard has not said, so every time here is a Predicted time. Each event says why, names its source and the date it was last checked.");
+  assert.equal(await text(page, '#about-data'), "Schedule data r2, reviewed Nov 9, 2026 for patch 1.60.1 (game build 1.60.1.70862), covering dates through Nov 7, 2027. 9 events, on the dates and hours of the game's own calendar data, which gives them in server time. This page reads that as US Central time (Americas) and Central European time (Europe), from what players have seen; Blizzard has not said, so every time here is a Predicted time. Each event says why, names its source and the date it was last checked.");
   await page.goto(BASE);
   await page.waitFor("document.querySelector('#summary li') !== null");
   assert.match(await text(page, '#about-intro'), /^A World of Warcraft \(Retail\) dashboard for resets and scheduled events: /);
@@ -1625,7 +1625,7 @@ check('calendar files never mix editions: Forever\'s file names, calendar name a
     'Server time: Sunday 14:00, read as US Central time (predicted).',
     'Repeats: Every Sunday, 14:00 to 16:00 server time.',
     "Known through Nov 7, 2027. After that: not known yet (only one year of the game's calendar data, from build 1.60.1.70862, is read so far).",
-    "A scheduled time from WoW Tracker's World of Warcraft: Forever schedule data r1, checked 2026-11-08. It is not read from the game; a realm can open early or late around maintenance.",
+    "A scheduled time from WoW Tracker's World of Warcraft: Forever schedule data r2, checked 2026-11-08. It is not read from the game; a realm can open early or late around maintenance.",
     'Sources: Game calendar data (1.60.1.70862) https://wago.tools/db2/Holidays?build=1.60.1.70862 ; Game calendar text (1.60.1.70862) https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862 ; Icy Veins https://www.icy-veins.com/wow-forever/fishing',
     'WoW Tracker: https://radmagelabs.com/wow/#forever']);
   // Things the data does not time (Noblegarden without an end, Call to Arms, the raids) are never in a file.

@@ -317,7 +317,8 @@ export function crossCheck(snapshot, zones, fixture) {
   const from = fixture.from ? Date.parse(fixture.from) : Math.min(...starts), until = fixture.until ? Date.parse(fixture.until) : Math.max(...starts) + 1;
   const z = (ms) => new Date(ms).toISOString().replace('.000Z', 'Z');
   const mine = new Set(occurrences(snapshot, zones, from, until).filter((o) => ids.has(o.holidayId)).map((o) => `${o.region} ${o.holidayId} ${z(o.start)} ${o.end == null ? '-' : z(o.end)}`));
-  const theirs = new Set(rows.map((x) => `${x.region} ${x.holidayId} ${x.startUtc} ${x.endUtc || '-'}`));
+  // A row with no duration has no end; the Retail script wrote its end as its start (start + 0 hours).
+  const theirs = new Set(rows.map((x) => `${x.region} ${x.holidayId} ${x.startUtc} ${Array.isArray(x.durationsH) && !x.durationsH.length ? '-' : x.endUtc || '-'}`));
   return { from: isoMin(from), until: isoMin(until), agree: [...theirs].filter((k) => mine.has(k)).length, onlyTool: [...mine].filter((k) => !theirs.has(k)).sort(), onlyFixture: [...theirs].filter((k) => !mine.has(k)).sort() };
 }
 

@@ -224,6 +224,17 @@ export function calendarTests(test) {
     assert.ok(!dashes.test(r.markdown + m.markdown), 'no em or en dashes in a report');
   });
 
+  test('calendar tool: the cross-check compares what the other decoder decoded, reads its zero-length rows as having no end, and lists every disagreement', () => {
+    const s = snap([row(9001, { dates: [SUNDAY_14], dur: [2], mask: 1 }), row(9002, { dates: [pack({ y: 27, mo: 1, d: 5 })], dur: [], mask: 1 }), row(9003, { dates: [SUNDAY_14], mask: 1 })]);
+    const fixture = { from: '2027-01-01T00:00:00Z', until: '2027-01-11T00:00:00Z', rows: [
+      { region: 'us', holidayId: 9001, startUtc: '2027-01-03T20:00:00Z', endUtc: '2027-01-03T22:00:00Z', durationsH: [2] },
+      { region: 'us', holidayId: 9001, startUtc: '2027-01-10T20:00:00Z', endUtc: '2027-01-10T23:00:00Z', durationsH: [2] },
+      { region: 'us', holidayId: 9002, startUtc: '2027-01-05T06:00:00Z', endUtc: '2027-01-05T06:00:00Z', durationsH: [] },
+    ] };
+    const c = crossCheck(s, FZ, fixture);
+    assert.deepEqual([c.agree, c.onlyTool, c.onlyFixture], [2, ['us 9001 2027-01-10T20:00:00Z 2027-01-10T22:00:00Z'], ['us 9001 2027-01-10T20:00:00Z 2027-01-10T23:00:00Z']], 'row 9003 is not in the fixture, so it is not compared');
+  });
+
   // ---- The real data of both editions ----
 
   for (const [label, fixture, data, agree] of [

@@ -35,7 +35,7 @@ export async function foreverTests(test) {
   const { validate, pageData } = await import('../tools/build-data.mjs');
 
   test('Forever data r1: nine events from the game\'s calendar (six holidays, the Darkmoon Faire, the fishing contest, one small event), covering dates through November 7, 2027', () => {
-    assert.equal(DATA.meta.datasetRevision, 1);
+    assert.deepEqual([DATA.meta.datasetRevision, DATA.meta.reviewedOn], [2, '2026-11-09'], 'r2: the second sighting of the Americas clock, wording only');
     assert.deepEqual([DATA.meta.edition, DATA.meta.product, DATA.meta.clientBuild, DATA.meta.coversUntil], ['forever', 'wowf', FIX.build, '2027-11-07']);
     assert.deepEqual(DATA.events.map((e) => [e.id, e.category]), [
       ['darkmoon-faire', 'darkmoon'], ['stranglethorn-fishing-extravaganza', 'outdoor'], ['feast-of-winter-veil', 'holiday'], ['lunar-festival', 'holiday'],
@@ -180,17 +180,22 @@ export async function foreverTests(test) {
 
   // ---- Labels, sources and places ----
 
-  test('Predicted time: every Forever time is labeled, in each region, with the reason (its server clock, seen once, Blizzard silent, daylight saving unseen); the page gets the reason', () => {
+  test('Predicted time: every Forever time is labeled, in each region, with the reason (its server clock: the Americas seen twice in standard time, Europe once; Blizzard silent; daylight saving unseen); nothing claims a clock is confirmed; the page gets the reason', () => {
     const page = pageData(SOURCE);
     for (const e of page.events) {
       assert.equal(e.status, 'confirmed', `${e.id}: the dates are the game's own`);
       for (const [r, s] of Object.entries(e.schedules)) {
         assert.deepEqual([s.status, s.part], ['predicted', 'time'], `${e.id} ${r}`);
         assert.match(s.basis, r === 'us' ? /read as US Central time/ : /read as Central European time/);
-        assert.match(s.basis, /Seen once; Blizzard has not said\. Whether these servers change their clocks/);
+        assert.match(s.basis, r === 'us'
+          ? /it has been seen twice, both in standard time: .+ on November 8, 2026, .+ on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs \(UTC-6\)\. Blizzard has not said\. Whether these servers change their clocks/
+          : /Seen once; Blizzard has not said\. Whether these servers change their clocks/);
+        assert.doesNotMatch(s.basis, /confirm|verif/i, `${e.id} ${r}: a clock is never called confirmed`);
       }
     }
     assert.deepEqual(DATA.regions.map((r) => [r.serverZone.name, r.serverZone.status]), [['US Central time', 'predicted'], ['Central European time', 'predicted']]);
+    assert.match(DATA.regions[0].serverZone.basis, /seen twice, both in standard time: .+ Blizzard has not said, and daylight saving time has not been seen\.$/);
+    assert.match(DATA.regions[1].serverZone.basis, /Seen once; Blizzard has not said\.$/);
     // A time labeled confirmed in a region whose clock is predicted is refused.
     const s = copy(SOURCE); delete s.events[0].schedules.us.status; delete s.events[0].schedules.us.part; delete s.events[0].schedules.us.basis;
     assert.ok(validate(s, 'forever').some((x) => x.includes("server clock is predicted, so its times must be labeled predicted")));

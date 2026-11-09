@@ -79,9 +79,12 @@ test('the changelog opens with this version, which names the schedule data revis
   }
 });
 
-test('the page loads the schedule data with ?r= set to the dataset revision', () => {
-  const DATA = require('../events-data.js');
-  assert.ok(html.includes(`<script defer src="events-data.js?r=${DATA.meta.datasetRevision}"></script>`));
+// Each data file's address names its revision, so a browser never keeps an older copy after a data change.
+test('the page loads each edition\'s schedule data with ?r= set to that dataset\'s revision', () => {
+  for (const f of ['events-data.js', 'forever-data.js']) {
+    const DATA = require(`../${f}`);
+    assert.ok(html.includes(`<script defer src="${f}?r=${DATA.meta.datasetRevision}"></script>`), f);
+  }
 });
 
 // The page draws once, complete: every script loads deferred from the head (in this order, the data before the

@@ -11,6 +11,10 @@ Schedule data:
 - Retail: r2, unchanged.
 - WoW: Forever: r1, unchanged.
 
+Not released yet (in development for v0.4.0; it moves into that version's entry when it ships):
+
+- WoW: Forever r2 (2026-11-09), wording only, no time changed: the Americas server clock (US Central time) has now been seen twice, both in standard time: the fishing contest on November 8, 2026, and a player's in-game clock on November 7, 2026 (two hours ahead of Pacific time, UTC-6). Blizzard has not said, daylight saving time and the resets have not been seen, and every WoW: Forever time is still labeled Predicted time.
+
 ## v0.3.0 (2026-11-09)
 
 World of Warcraft: Forever, as a second game version beside Retail. Retail's events, times, calendar files and backups are as in v0.2.0, and everything v0.2 saved carries over.

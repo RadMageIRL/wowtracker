@@ -5,11 +5,11 @@
    "meta": {
     "edition": "forever",
     "product": "wowf",
-    "datasetRevision": 1,
+    "datasetRevision": 2,
     "game": "World of Warcraft: Forever",
     "patch": "1.60.1",
     "clientBuild": "1.60.1.70862",
-    "reviewedOn": "2026-11-08",
+    "reviewedOn": "2026-11-09",
     "coversUntil": "2027-11-07"
    },
    "regions": [
@@ -21,7 +21,7 @@
       "zone": "America/Chicago",
       "name": "US Central time",
       "status": "predicted",
-      "basis": "Players report the Americas server clock as US Central, and the weekly fishing contest (Sunday 14:00 in the game's calendar data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central time. Seen once; Blizzard has not said."
+      "basis": "Players report the Americas server clock as US Central, and it has been seen twice, both in standard time: the weekly fishing contest (Sunday 14:00 in the game's calendar data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central time, and on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs (11:22 against 9:22 PM, UTC-6). Blizzard has not said, and daylight saving time has not been seen."
      }
     },
     {
@@ -177,7 +177,7 @@
        ],
        "status": "predicted",
        "part": "time",
-       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and it has been seen twice, both in standard time: the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central, and on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs (UTC-6). Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
       },
       "eu": {
        "type": "dates",
@@ -491,7 +491,7 @@
        ],
        "status": "predicted",
        "part": "time",
-       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and it has been seen twice, both in standard time: the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central, and on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs (UTC-6). Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
       },
       "eu": {
        "type": "dates",
@@ -755,7 +755,7 @@
        ],
        "status": "predicted",
        "part": "time",
-       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and it has been seen twice, both in standard time: the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central, and on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs (UTC-6). Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
       },
       "eu": {
        "type": "dates",
@@ -806,7 +806,7 @@
        ],
        "status": "predicted",
        "part": "time",
-       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and it has been seen twice, both in standard time: the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central, and on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs (UTC-6). Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
       },
       "eu": {
        "type": "dates",
@@ -856,7 +856,7 @@
        ],
        "status": "predicted",
        "part": "time",
-       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and it has been seen twice, both in standard time: the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central, and on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs (UTC-6). Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
       },
       "eu": {
        "type": "dates",
@@ -906,7 +906,7 @@
        ],
        "status": "predicted",
        "part": "time",
-       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and it has been seen twice, both in standard time: the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central, and on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs (UTC-6). Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
       },
       "eu": {
        "type": "dates",
@@ -953,7 +953,7 @@
        ],
        "status": "predicted",
        "part": "time",
-       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and it has been seen twice, both in standard time: the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central, and on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs (UTC-6). Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
       }
      },
      "repeats": "Every year on July 4 from 06:00 server time, for 18 hours, on Americas realms only.",
@@ -988,7 +988,7 @@
        ],
        "status": "predicted",
        "part": "time",
-       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and it has been seen twice, both in standard time: the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central, and on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs (UTC-6). Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
       },
       "eu": {
        "type": "dates",
@@ -1035,7 +1035,7 @@
        ],
        "status": "predicted",
        "part": "time",
-       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central. Seen once; Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
+       "basis": "The dates and hours are the game's own calendar data, which gives them in server time. The Americas server clock is read as US Central time: players say so, and it has been seen twice, both in standard time: the weekly fishing contest (Sunday 14:00 in that data) began about 20:00 UTC on November 8, 2026, which is 14:00 Central, and on November 7 a player in Pacific time saw the game's clock two hours ahead of theirs (UTC-6). Blizzard has not said. Whether these servers change their clocks for daylight saving time has not been seen yet; times from March 14, 2027 assume they do."
       },
       "eu": {
        "type": "dates",

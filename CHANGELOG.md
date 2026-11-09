@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.3.0 (2026-11-09)
+
+World of Warcraft: Forever, as a second game version beside Retail. Retail's events, times, calendar files and backups are as in v0.2.0, and everything v0.2 saved carries over.
+
+- A Retail / Forever switch beside the title picks the game version. The page shows one at a time and remembers your choice; a link ending in #forever opens WoW: Forever.
+- WoW: Forever events from the game's own calendar data, through November 7, 2027: the Darkmoon Faire (Elwynn Forest and Thunder Bluff in turn), the Stranglethorn Fishing Extravaganza every Sunday, the Feast of Winter Veil, the Lunar Festival, Love is in the Air, the Midsummer Fire Festival, the Fireworks Spectacular (Americas only), the Harvest Festival and Hallow's End.
+- Each region on its own server clock. The calendar data gives server time, which I read as US Central time in the Americas (Oceanic realms included) and Central European time in Europe, from what players saw at the first fishing contest. Blizzard has not said, so every WoW: Forever time is labeled Predicted time, and its details say why.
+- WoW: Forever's daily and weekly reset times are not published, so the page says "Not published" instead of counting down, the weekly overview uses calendar weeks, and the checklist is off there. Nothing borrows Retail's reset times.
+- What the data does not time is listed under the calendar instead: the resets, the Call to Arms battleground weeks, Noblegarden (no end), the raids opening on December 9 (no hour), the Launch Celebration and Children's Week.
+- Each game version keeps its own stars, hidden events, categories, Starred view and checklist. The region, theme, time display, how far ahead Coming up looks, the news settings and the reminder settings are shared.
+- Reminders come from the game version on screen. What has been shown is kept per game version, so an event at the same moment in both (the Lunar Festival in Europe) reminds you once in each. WoW: Forever notices name the game and keep "(Predicted time)".
+- Calendar files from WoW: Forever have their own file names (wowtracker-forever-...), calendar name and identifiers, and each entry adds its server time, how it repeats and how far the data reaches. Retail's file names, calendar names, identifiers and text are as in v0.2.0, and one file never mixes the two.
+- Back up settings keeps both game versions apart, with the shared settings. Restoring shows, part by part, what would change and what stays, and changes nothing until Replace; a game version the backup does not hold stays as it is, and the game version on screen never changes. Backups from v0.1 and v0.2 restore Retail and the shared settings. v0.2.0 refuses a v0.3 backup and changes nothing.
+- Latest news is labeled "All versions": Blizzard's list mixes Retail and WoW: Forever posts and gives no way to tell them apart.
+- In WoW: Forever, Export to calendar does not offer to leave predicted events out (every time there is Predicted time), and Reminders does not offer hourly events (it has none).
+
+Schedule data:
+
+- Retail: r2, unchanged.
+- WoW: Forever r1 (2026-11-08), first dataset: 9 events through November 7, 2027, from the game's calendar data in build 1.60.1.70862. Every start time is Predicted time; times from March 2027 assume the servers change their clocks for daylight saving time, which has not been seen yet.
+
 ## v0.2.0 (2026-11-08)
 
 Search, event details, calendar export, reminders and a checklist, with the news at the top. Settings, stars and hidden events saved by v0.1 carry over.

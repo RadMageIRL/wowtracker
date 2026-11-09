@@ -17,7 +17,7 @@
   const ED = EDITIONS.find((e) => e.id === EDITION);
   const RETAIL = EDITION === EDITIONS[0].id;
   const DATA = window[ED.data];
-  /** This page's version, from its own script address (app.js?v=0.2.0), for backups. */
+  /** This page's version, from its own script address (app.js?v=0.3.0), for backups. */
   const APP_VERSION = (() => { try { return new URL(document.currentScript.src).searchParams.get('v') || ''; } catch (e) { return ''; } })();
   const $ = (id) => document.getElementById(id);
   // Without the schedule data there is nothing to count down: say so instead of showing a broken page.
@@ -868,6 +868,16 @@
   }
   const fileDay = (ms) => new Date(ms).toISOString().slice(0, 10);
   const regionSlug = () => REGION.get(region()).name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+  // Whether this edition has an event that is predicted as a whole (not only its start time) and can go in a bulk file.
+  // WoW: Forever has none: each of its times is "Predicted time", always exported, so the choice to leave predicted
+  // events out would do nothing there and is not offered.
+  const HAS_PREDICTED = EVENTS.some((e) => DATA.regions.some(({ id }) => {
+    const s = S.scheduleFor(e, id);
+    if (!s || (s.type === 'every' && s.periodMin < 1440)) return false;
+    return s.status ? s.status === 'predicted' && s.part !== 'time' : e.status === 'predicted';
+  }));
+  $('export-predicted').closest('label').hidden = !HAS_PREDICTED;
 
   /** What a bulk export holds: windows of what the filters show, from now to the end of the range. */
   function exportPlan(range, withPredicted) {

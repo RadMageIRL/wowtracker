@@ -39,7 +39,7 @@ await foreverTests(test);
 // ---- The page ----
 
 const html = file('index.html');
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 
 test('the version is the same in the title, header, About, README and every asset link', () => {
   assert.ok(html.includes(`<title>WoW Tracker v${VERSION} - `));
@@ -51,24 +51,30 @@ test('the version is the same in the title, header, About, README and every asse
   for (const a of assets) assert.ok(a.endsWith(`?v=${VERSION}`), a);
 });
 
-// The schedule data revision comes from the data source (data/events.source.json), never from where a line
-// happens to sit in the changelog: each revision is listed once, in the entry of the version that first
-// shipped it, and the newest entry names the revision it ships, either as its own line or, for a release
-// with no data change, as "Schedule data: rN, unchanged."
-test('the changelog opens with this version, which names the schedule data revision of the data source', () => {
+// The schedule data revision comes from each data source (data/events.source.json for Retail,
+// data/forever.source.json for WoW: Forever), never from where a line happens to sit in the changelog: each
+// revision is listed once, in the entry of the version that first shipped it, and the newest entry names the
+// revision it ships, either as its own line or, for a release with no change to that data, as unchanged.
+// Retail's lines are "- rN (date)"; WoW: Forever's are "- WoW: Forever rN (date)".
+test('the changelog opens with this version, which names the schedule data revision of each data source', () => {
   const log = file('CHANGELOG.md');
-  const src = JSON.parse(file('data/events.source.json')).meta;
-  const DATA = require('../events-data.js');
-  assert.deepEqual([DATA.meta.datasetRevision, DATA.meta.reviewedOn], [src.datasetRevision, src.reviewedOn], 'events-data.js is built from the current source');
   assert.ok(log.startsWith(`# Changelog\n\n## v${VERSION} (`), 'the newest entry is this version');
   assert.match(log.split('\n')[2], /^## v\d+\.\d+\.\d+ \(\d{4}-\d{2}-\d{2}\)$/);
-  const entries = log.split(/^(?=## v)/m).slice(1).map((e) => [...e.matchAll(/^- r(\d+) \((\d{4}-\d{2}-\d{2})\)/gm)].map((m) => Number(m[1])));
-  const listed = entries.flat();
-  assert.deepEqual([...listed].sort((a, b) => a - b), Array.from({ length: src.datasetRevision }, (_, i) => i + 1), 'r1 to the current revision, each once');
-  entries.forEach((revs, i) => { for (const older of entries.slice(i + 1).flat()) assert.ok(revs.every((r) => r > older), `entry ${i + 1} lists r${revs} after an older entry's r${older}`); });
-  const newest = log.split(/^(?=## v)/m)[1];
-  assert.ok(newest.includes(`\n- r${src.datasetRevision} (${src.reviewedOn})`) || newest.includes(`Schedule data: r${src.datasetRevision}, unchanged.`),
-    `the v${VERSION} entry names schedule data r${src.datasetRevision}`);
+  const parts = log.split(/^(?=## v)/m).slice(1);
+  for (const [source, built, line, unchanged] of [
+    ['data/events.source.json', '../events-data.js', '- r', (r) => [`\n- Retail: r${r}, unchanged.`, `Schedule data: r${r}, unchanged.`]],
+    ['data/forever.source.json', '../forever-data.js', '- WoW: Forever r', (r) => [`\n- WoW: Forever: r${r}, unchanged.`]],
+  ]) {
+    const src = JSON.parse(file(source)).meta;
+    const DATA = require(built);
+    assert.deepEqual([DATA.meta.datasetRevision, DATA.meta.reviewedOn], [src.datasetRevision, src.reviewedOn], `${built} is built from the current source`);
+    const re = new RegExp(`^${line.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\d+) \\((\\d{4}-\\d{2}-\\d{2})\\)`, 'gm');
+    const entries = parts.map((e) => [...e.matchAll(re)].map((m) => Number(m[1])));
+    assert.deepEqual(entries.flat().sort((a, b) => a - b), Array.from({ length: src.datasetRevision }, (_, i) => i + 1), `${source}: r1 to the current revision, each once`);
+    entries.forEach((revs, i) => { for (const older of entries.slice(i + 1).flat()) assert.ok(revs.every((r) => r > older), `${source}: entry ${i + 1} lists r${revs} after an older entry's r${older}`); });
+    assert.ok(parts[0].includes(`\n${line}${src.datasetRevision} (${src.reviewedOn})`) || unchanged(src.datasetRevision).some((x) => parts[0].includes(x)),
+      `the v${VERSION} entry names ${source}'s revision r${src.datasetRevision}`);
+  }
 });
 
 test('the page loads the schedule data with ?r= set to the dataset revision', () => {

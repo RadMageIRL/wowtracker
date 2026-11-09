@@ -1545,13 +1545,16 @@ check('calendar files never mix editions: Forever\'s file names, calendar name a
   const exportAll = async (page) => {
     await click(page, '#export-btn');
     await page.eval(`(() => { const r = document.querySelector('input[name="export-range"][value="all"]'); r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); })()`);
-    return saved(page, () => click(page, '#export-go'));
+    const predictedChoice = await page.eval(`document.getElementById('export-predicted').closest('label').checkVisibility()`);
+    return { ...(await saved(page, () => click(page, '#export-go'))), predictedChoice };
   };
   const retail = await open({ at });
   const rf = await exportAll(retail);
   const forever = await open({ at, url: `${BASE}#forever` });
   const ff = await exportAll(forever);
   assert.deepEqual([rf.name, ff.name], ['wowtracker-americas-2026-11-10.ics', 'wowtracker-forever-americas-2026-11-10.ics']);
+  // Retail keeps its choice to leave predicted events out; Forever, where every time is "Predicted time", is not offered one.
+  assert.deepEqual([rf.predictedChoice, ff.predictedChoice], [true, false], 'the predicted events choice shows in Retail only');
   assert.deepEqual([calName(rf.text), calName(ff.text)], ['WoW Tracker (Americas)', 'WoW Tracker\\, WoW: Forever (Americas)']);
   const R = checkedIcs(rf.text), F = checkedIcs(ff.text);
   const RETAIL_DATA = require(join(DIR, 'events-data.js'));
@@ -1559,6 +1562,7 @@ check('calendar files never mix editions: Forever\'s file names, calendar name a
   const retailUids = uidsOf(RETAIL_DATA), foreverUids = uidsOf(FOREVER, 'forever');
   assert.ok(R.every((x) => retailUids.has(x.UID)), 'every Retail UID is v0.2\'s formula');
   assert.ok(F.every((x) => foreverUids.has(x.UID)), 'every Forever UID names the edition');
+  assert.ok(F.length > 50 && F.every((x) => x.SUMMARY.endsWith(' (Predicted time)') && x.STATUS === 'TENTATIVE'), 'every Forever entry keeps its Predicted time warning');
   assert.ok(R.some((x) => x.UID === '35f65e968686e357@radmagelabs.com'), 'the Retail Darkmoon Faire of December 6 keeps its v0.2.0 UID');
   assert.equal(F.filter((x) => R.some((y) => y.UID === x.UID)).length, 0, 'no entry in both files');
   assert.ok(!F.some((x) => RETAIL_ONLY.some((n) => x.SUMMARY.includes(n))) && !R.some((x) => x.SUMMARY.startsWith('Stranglethorn')));
@@ -1612,6 +1616,7 @@ check('a backup made on the Forever page holds Retail and Forever apart; restore
   const copy = await page.eval(`document.getElementById('backup-out').value`);
   const raw = JSON.parse(copy);
   assert.deepEqual([raw.format, Object.keys(raw.editions)], [2, ['retail', 'forever']]);
+  assert.equal(raw.version, /<span class="tag">v(\d+\.\d+\.\d+) /.exec(readFileSync(join(DIR, 'index.html'), 'utf8'))[1], 'the backup names the version of the page that made it');
   assert.deepEqual(raw.editions.forever, { prefs: { filter: 'all', categories: ['holiday', 'darkmoon', 'outdoor'], starred: FOREVER_OWN.starred, hidden: FOREVER_OWN.hidden, checklistOpen: false }, checklist: FOREVER_LIST }, "Forever's checklist exactly as stored: no reset is known, so no tick expires");
   assert.equal(raw.editions.retail.prefs.starred.join(), RETAIL_PREFS.starred.join());
   assert.equal(raw.shared.prefs.starred, undefined, 'the shared part holds no edition\'s stars');

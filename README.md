@@ -70,6 +70,17 @@ Opening index.html straight from disk works too; news then links to Blizzard New
 
 I keep the schedule data in [data/events.source.json](data/events.source.json) (Retail) and [data/forever.source.json](data/forever.source.json) (WoW: Forever), with the verbatim source quote behind every time. `node tools/build-data.mjs` checks both against the data rules and writes events-data.js and forever-data.js.
 
+When a new game build comes out, I compare its calendar with what the page publishes before changing anything:
+
+```
+node tools/calendar/fetch.mjs --latest --check     # is there a new build of wow, wowt or wowf?
+node tools/calendar/fetch.mjs --product wowf --build <version>   # its calendar tables, into local/ only
+node tools/calendar/extract.mjs local/calendar/wowf/<version>    # a snapshot (no game text, only fingerprints)
+node tools/calendar/compare.mjs --old <older snapshot> --new <snapshot> --data data/forever.source.json
+```
+
+The report lists rows and dates added, removed, renamed and moved, matches every published window to the client rows its sources cite, and says how sure each time is and how far each event's data goes. It never edits the data: changes go through me, the data rules and the tests. The client's tables give wall times without a time zone, so they can confirm dates but never a time on a server clock nobody has confirmed.
+
 ## Feedback
 
 Found a wrong time or a missing event? Open an issue at [github.com/RadMageIRL/wowtracker/issues](https://github.com/RadMageIRL/wowtracker/issues). If you saw an event start in game, the game version, the realm region and the time you saw help most. For WoW: Forever, the daily and weekly reset times and the time zone of the in-game Calendar would settle the biggest open questions.

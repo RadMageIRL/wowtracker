@@ -15,6 +15,7 @@ import { reminderTests } from './reminders.mjs';
 import { checklistTests } from './checklist.mjs';
 import { editionTests } from './editions.mjs';
 import { foreverTests } from './forever.mjs';
+import { calendarTests } from './calendar.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
@@ -35,6 +36,7 @@ reminderTests(test);
 checklistTests(test);
 await editionTests(test);
 await foreverTests(test);
+calendarTests(test);
 
 // ---- The page ----
 

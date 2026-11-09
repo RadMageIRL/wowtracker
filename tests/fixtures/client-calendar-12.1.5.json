@@ -1,5 +1,6 @@
 {
- "note": "Rows of the game client Holidays table (live build 12.1.5.70783; its Holidays table is byte-identical to 12.1.5.70575, which data r1 used) for every holiday the data cites, decoded by an independent Python script with hand-written US and EU daylight-saving rules. Source: https://wago.tools/db2/Holidays/csv?build=12.1.5.70783",
+ "note": "Rows of the game client Holidays table (live build 12.1.5.70783; its Holidays table is byte-identical to 12.1.5.70575, which data r1 used) for every holiday the data cites. \"rows\": their windows decoded by an independent Python script with hand-written US and EU daylight-saving rules. \"table\": the rows themselves (dates, durations, region masks, flags; the description only as its SHA-256), read by tools/calendar for its checks. Source: https://wago.tools/db2/Holidays/csv?build=12.1.5.70783",
+ "product": "wow",
  "build": "12.1.5.70783",
  "rows": [
   {
@@ -897,6 +898,984 @@
    "packed": 455555712,
    "startUtc": "2027-03-29T17:00:00Z",
    "endUtc": "2027-04-05T17:00:00Z"
+  }
+ ],
+ "table": [
+  {
+   "holidayId": 141,
+   "name": "Feast of Winter Veil",
+   "kind": "annual",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    432
+   ],
+   "dates": [
+    531872384
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 13,
+   "descriptionSha256": "5aa7c7902c0cc72f1abc5a6f56b188f24c5db4f7eafecd126337ccbc41fee8d0"
+  },
+  {
+   "holidayId": 181,
+   "name": "Noblegarden",
+   "kind": "dated",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    168
+   ],
+   "dates": [
+    120715264,
+    136689664,
+    154564608,
+    170981376,
+    188086272,
+    204601344,
+    221264512,
+    238369408,
+    254900864,
+    270989952,
+    288635520,
+    305166976,
+    322271872,
+    338901632,
+    355547776,
+    372537984,
+    389184128,
+    405813888,
+    422918784,
+    439450240,
+    455555712,
+    473184896,
+    489716352,
+    506821248
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 14,
+   "descriptionSha256": "10a27c1b8c903855b3063b8173b9f6e1b825963fbd7777c084da843a464ba4c6"
+  },
+  {
+   "holidayId": 324,
+   "name": "Hallow's End",
+   "kind": "annual",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    337
+   ],
+   "dates": [
+    529840768
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 15,
+   "descriptionSha256": "11e8bb3b66682eb72adc1608cf8c2bb7566c427f2a786622c87a03fd54139138"
+  },
+  {
+   "holidayId": 327,
+   "name": "Lunar Festival",
+   "kind": "dated",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    336
+   ],
+   "dates": [
+    101104000,
+    118749568,
+    135346560,
+    151386496,
+    169048448,
+    184924160,
+    201684992,
+    218544128,
+    235207296,
+    252967552,
+    269499008,
+    285555328,
+    303315584,
+    319224448,
+    335936128,
+    353450624,
+    369588864,
+    386267776,
+    403749504,
+    419887744,
+    437516928,
+    454064768
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 17,
+   "descriptionSha256": "93902969ecad0cd010b1fed9dff0f0e5d87669cc934f73dbb4ef7afe8e004a69"
+  },
+  {
+   "holidayId": 404,
+   "name": "Pilgrim's Bounty",
+   "kind": "dated",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    161839168,
+    178600000,
+    195360832,
+    212105280,
+    228997760,
+    245758592,
+    262519424,
+    279263872,
+    296024704,
+    312785536,
+    329661056,
+    346405504,
+    363182720,
+    379910784,
+    396671616,
+    413530752,
+    430291584,
+    447052416,
+    463813248,
+    480574080
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 101,
+   "descriptionSha256": "09b132a8d5984f6d00c823ce6c3d11a26bf2a7d51267626199524ef84a3fcace"
+  },
+  {
+   "holidayId": 409,
+   "name": "Day of the Dead",
+   "kind": "annual",
+   "regionMask": 1999,
+   "looping": false,
+   "durationsH": [
+    48
+   ],
+   "dates": [
+    530594432
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 81,
+   "descriptionSha256": "b0097cbbbfa4753b6d45cc094b33e079d49f86e50b6d9e7d4adffb2f0850d2f6"
+  },
+  {
+   "holidayId": 423,
+   "name": "Love is in the Air",
+   "kind": "dated",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    336
+   ],
+   "dates": [
+    168933376,
+    185694208,
+    202455040,
+    219314176,
+    236092032,
+    252738176,
+    269728384,
+    286374528,
+    303069824,
+    320010880,
+    336722560,
+    353499776,
+    370260608,
+    387021440,
+    403782272,
+    420526720,
+    437402240,
+    454163072
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 9,
+   "descriptionSha256": "62a20fe5cb21cfda75d4d32e1446effe011ccce1312dbbd0c4af41471d9dd6a1"
+  },
+  {
+   "holidayId": 479,
+   "name": "Darkmoon Faire",
+   "kind": "dated",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    48,
+    168
+   ],
+   "dates": [
+    452999168,
+    454113280,
+    455161856,
+    456161280,
+    456620032,
+    458291200,
+    459307008,
+    459765760,
+    461420544,
+    462436352,
+    463550464,
+    464566272,
+    436238336,
+    436697088,
+    437696512,
+    439400448,
+    440416256,
+    441530368,
+    442546176,
+    443004928,
+    444659712,
+    445675520,
+    446134272,
+    447805440
+   ],
+   "flags": 1,
+   "calendarFilterType": 1,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 201,
+   "descriptionSha256": "242a1a4ae91ef8f9232844d568ebeee8fa79bb72b1af03dffc78ba6041e15cbf"
+  },
+  {
+   "holidayId": 561,
+   "name": "Arena Skirmish Bonus Event",
+   "kind": "dated",
+   "regionMask": 961,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    412563968,
+    414579136,
+    420657600,
+    422705664,
+    424065536,
+    425736704,
+    426850816,
+    428308992,
+    430209472,
+    436419008,
+    439581184,
+    441596416,
+    442956288,
+    444955136,
+    446855616
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 221,
+   "descriptionSha256": "1b081051662e19478658487b9660758dc6d3deb8763869b313dcaa5d88494aa5"
+  },
+  {
+   "holidayId": 563,
+   "name": "Battleground Bonus Event",
+   "kind": "dated",
+   "regionMask": 961,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    411433472,
+    413448640,
+    419658176,
+    421591488,
+    423049728,
+    424835584,
+    425966080,
+    427194880,
+    429210112,
+    431110592,
+    437303744,
+    438581760,
+    440482304,
+    441825792,
+    443841024,
+    445856256,
+    447756800
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 219,
+   "descriptionSha256": "dcc4783829187342131c1d1f13f021e324bd3c2a2d267aaa97db15aa16ad9059"
+  },
+  {
+   "holidayId": 565,
+   "name": "Pet Battle Bonus Event",
+   "kind": "dated",
+   "regionMask": 961,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    412219904,
+    413563328,
+    419658176,
+    421591488,
+    422935040,
+    424835584,
+    426195456,
+    428079616,
+    429980096,
+    431339968,
+    437418432,
+    438811136,
+    440711680,
+    442612224,
+    443955712,
+    445856256,
+    447756736
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 217,
+   "descriptionSha256": "baf1906d128e5a92faedd5eae67f01c03fc9e8761c1ee0710e6bd7907ff44946"
+  },
+  {
+   "holidayId": 592,
+   "name": "World Quest Bonus Event",
+   "kind": "dated",
+   "regionMask": 961,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    411204096,
+    413333952,
+    414693824,
+    420886976,
+    422820352,
+    424065536,
+    425851392,
+    427080192,
+    428980736,
+    430995904,
+    436533696,
+    439810560,
+    441711104,
+    443726336,
+    445069824,
+    447084992
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 226,
+   "descriptionSha256": "65c9378e4cac7be9ac82994108cfcb597999b42a912443d45ff501bdbf85bdc5"
+  },
+  {
+   "holidayId": 599,
+   "name": "Pet Battle Bonus Event",
+   "kind": "dated",
+   "regionMask": 4,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    412236160,
+    413579584,
+    419674432,
+    421607808,
+    422951296,
+    424851840,
+    426211712,
+    428095872,
+    429996352,
+    431356224,
+    437434688,
+    439368064,
+    440727936,
+    442628480,
+    443971968,
+    445872512,
+    447772992
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 217,
+   "descriptionSha256": "baf1906d128e5a92faedd5eae67f01c03fc9e8761c1ee0710e6bd7907ff44946"
+  },
+  {
+   "holidayId": 602,
+   "name": "Battleground Bonus Event",
+   "kind": "dated",
+   "regionMask": 4,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    411449728,
+    413464896,
+    419674432,
+    421607744,
+    423065984,
+    424851840,
+    425982336,
+    427211136,
+    429226368,
+    431126848,
+    437320000,
+    438597952,
+    440498560,
+    441842048,
+    443857280,
+    445872512,
+    447772992
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 219,
+   "descriptionSha256": "dcc4783829187342131c1d1f13f021e324bd3c2a2d267aaa97db15aa16ad9059"
+  },
+  {
+   "holidayId": 610,
+   "name": "Arena Skirmish Bonus Event",
+   "kind": "dated",
+   "regionMask": 4,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    412580160,
+    414595392,
+    420673856,
+    422721920,
+    424081792,
+    425752960,
+    426867072,
+    428882304,
+    430225728,
+    436435264,
+    439597440,
+    441612672,
+    442972544,
+    444971392,
+    446871872
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 221,
+   "descriptionSha256": "1b081051662e19478658487b9660758dc6d3deb8763869b313dcaa5d88494aa5"
+  },
+  {
+   "holidayId": 613,
+   "name": "World Quest Bonus Event",
+   "kind": "dated",
+   "regionMask": 4,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    411220352,
+    413350208,
+    419445056,
+    420903232,
+    422836608,
+    424081792,
+    425867648,
+    427096448,
+    428996992,
+    431012160,
+    436549952,
+    439826816,
+    441727360,
+    443742592,
+    445086080,
+    447101248
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 226,
+   "descriptionSha256": "65c9378e4cac7be9ac82994108cfcb597999b42a912443d45ff501bdbf85bdc5"
+  },
+  {
+   "holidayId": 634,
+   "name": "Hatching of the Hippogryphs",
+   "kind": "annual",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    24
+   ],
+   "dates": [
+    521517056
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 230,
+   "descriptionSha256": "c44204834874f9193b5c1782774abba14cf7d6da582244704132129a3406c13a"
+  },
+  {
+   "holidayId": 638,
+   "name": "Call of the Scarab",
+   "kind": "annual",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    72
+   ],
+   "dates": [
+    520435712
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 229,
+   "descriptionSha256": "cb8611be6c8310d077e65484236e6912d98054ef38b8e7c6cfe661ab8fff7db5"
+  },
+  {
+   "holidayId": 644,
+   "name": "Un'Goro Madness",
+   "kind": "annual",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    72
+   ],
+   "dates": [
+    522467328
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 232,
+   "descriptionSha256": "4b3ff6653b82e1a6f33a8f69b2c623b4dcf380cf80d1ac0a44f81d8245d4b949"
+  },
+  {
+   "holidayId": 658,
+   "name": "Fireworks Celebration",
+   "kind": "annual",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    12
+   ],
+   "dates": [
+    532135040
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 2,
+   "descriptionSha256": "661d27811483c2726c9c39702a868d0ca8aa31662b5c1fcebf3026953c331843"
+  },
+  {
+   "holidayId": 691,
+   "name": "Trial of Style",
+   "kind": "annual",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    168
+   ],
+   "dates": [
+    527448704,
+    522517120
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 241,
+   "descriptionSha256": "d9b3d900fb2e9296bb0eafe27acec836a48158fb53dbf95c59d8440632758428"
+  },
+  {
+   "holidayId": 694,
+   "name": "Moonkin Festival",
+   "kind": "annual",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    24
+   ],
+   "dates": [
+    530774016
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 243,
+   "descriptionSha256": "d3b76875cf0496695d6349936fbc92b1a5f386055dda1e8ebc1ce57d9a1d59cf"
+  },
+  {
+   "holidayId": 1052,
+   "name": "Wanderer's Festival",
+   "kind": "annual",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    24
+   ],
+   "dates": [
+    531740672
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 379,
+   "descriptionSha256": "d132741d46d0209935720e2c42f2b1a5a963e7bc40cd1cba309969814bf65aa1"
+  },
+  {
+   "holidayId": 1056,
+   "name": "Timewalking Dungeon Event",
+   "kind": "dated",
+   "regionMask": 961,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    419658240,
+    422590976,
+    425851392,
+    429095424,
+    436419008,
+    440596992,
+    446085632
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 382,
+   "descriptionSha256": "254d79ea94d6793e7457bb7d31e596237dc6da8be6def4fcb4b220e48606bc83"
+  },
+  {
+   "holidayId": 1063,
+   "name": "Timewalking Dungeon Event",
+   "kind": "dated",
+   "regionMask": 4,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    419674432,
+    422607232,
+    425867648,
+    429111680,
+    436435264,
+    440613248,
+    446101824
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 382,
+   "descriptionSha256": "254d79ea94d6793e7457bb7d31e596237dc6da8be6def4fcb4b220e48606bc83"
+  },
+  {
+   "holidayId": 1263,
+   "name": "Timewalking Dungeon Event",
+   "kind": "dated",
+   "regionMask": 961,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    419772864,
+    422935040,
+    425966080,
+    429980096,
+    431339968,
+    441481728,
+    446970304
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 417,
+   "descriptionSha256": "625787ed42638d9a04d8dfe47df526bd1d35ffa2177933e6cd6a6b099569f104"
+  },
+  {
+   "holidayId": 1265,
+   "name": "Timewalking Dungeon Event",
+   "kind": "dated",
+   "regionMask": 4,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    419789120,
+    422951296,
+    425982336,
+    429996352,
+    431356224,
+    441497984,
+    446986560
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 417,
+   "descriptionSha256": "625787ed42638d9a04d8dfe47df526bd1d35ffa2177933e6cd6a6b099569f104"
+  },
+  {
+   "holidayId": 1395,
+   "name": "Kalimdor Cup",
+   "kind": "dated",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    336
+   ],
+   "dates": [
+    393459712,
+    420886528,
+    454408192,
+    488028160
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 440,
+   "descriptionSha256": "a3caf16872164b521308a0538d359e6edabf61365f01ae62c6d94451755ab9be"
+  },
+  {
+   "holidayId": 1559,
+   "name": "Delves Bonus Event",
+   "kind": "dated",
+   "regionMask": 961,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    412105216,
+    414235072,
+    419772864,
+    421820928,
+    423721472,
+    424950272,
+    426080768,
+    427964928,
+    429324800,
+    431339968,
+    437418432,
+    438696448,
+    440711680,
+    442612224,
+    444611072,
+    445970944,
+    447986112
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 467,
+   "descriptionSha256": "c62fe0a31ed132475bc203de53f7742e0fbb1dcd97a047e3e850d9cd8fc05013"
+  },
+  {
+   "holidayId": 1560,
+   "name": "Delves Bonus Event",
+   "kind": "dated",
+   "regionMask": 4,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    412121472,
+    414251328,
+    419789120,
+    421837120,
+    423737728,
+    424966528,
+    426097024,
+    427981184,
+    429341056,
+    431356224,
+    437434688,
+    438712640,
+    440727936,
+    442628480,
+    444627328,
+    445987200,
+    448002368
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 467,
+   "descriptionSha256": "c62fe0a31ed132475bc203de53f7742e0fbb1dcd97a047e3e850d9cd8fc05013"
+  },
+  {
+   "holidayId": 1802,
+   "name": "Midnight Dungeon Event",
+   "kind": "dated",
+   "regionMask": 961,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    412334592,
+    414349760,
+    420542912,
+    421935616,
+    423950848,
+    425064960,
+    426195456,
+    428079616,
+    430094784,
+    431454656,
+    439466496,
+    440826368,
+    442841600,
+    444725760,
+    446740928,
+    448100800
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 510,
+   "descriptionSha256": "7c1b4fe7b8a77aac2715ce3280e01e2f4370110b7ef9c550828370f3dece357e"
+  },
+  {
+   "holidayId": 1803,
+   "name": "Midnight Dungeon Event",
+   "kind": "dated",
+   "regionMask": 4,
+   "looping": false,
+   "durationsH": [
+    167
+   ],
+   "dates": [
+    412350848,
+    414366016,
+    420559168,
+    421951808,
+    423967104,
+    425081216,
+    426211712,
+    428095872,
+    430111040,
+    431470912,
+    439482752,
+    440842624,
+    442857856,
+    444742016,
+    446757184,
+    448117056
+   ],
+   "flags": 13,
+   "calendarFilterType": 0,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 510,
+   "descriptionSha256": "7c1b4fe7b8a77aac2715ce3280e01e2f4370110b7ef9c550828370f3dece357e"
+  },
+  {
+   "holidayId": 1808,
+   "name": "WoW's 22nd Anniversary",
+   "kind": "dated",
+   "regionMask": 0,
+   "looping": false,
+   "durationsH": [
+    504
+   ],
+   "dates": [
+    446970496
+   ],
+   "flags": 1,
+   "calendarFilterType": 255,
+   "calendarFlags": [
+    3
+   ],
+   "descriptionId": 188,
+   "descriptionSha256": "1a2a1fd0f2dd2c286348312a27c8e8f9a31345f2ab0306c9b9f7f2dc373c5aa2"
   }
  ]
 }

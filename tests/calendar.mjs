@@ -207,6 +207,8 @@ export function calendarTests(test) {
     assert.match(r.markdown, /- Americas: US Central time \(America\/Chicago\), predicted/);
     assert.match(r.markdown, /never an instant on a clock that is not known/);
     assert.match(r.markdown, /\| Test event 1 \| 9001 \| us \| Predicted time \| 5 \| matches \|/);
+    // Coverage dates and source references for every event, not only those that need a review.
+    assert.match(r.markdown, /^- Test event 1 \(ev-1\), checked 2026-11-01: us last window ends 2027-01-31 22:00Z, known until 2027-02-01 00:00Z, client data after that: repeats with no end; eu last window ends 2027-01-31 15:00Z, known until 2027-02-01 00:00Z, client data after that: repeats with no end\. Sources: Game calendar data \(9\.9\.9\.1\): "ID 9001, Region 0, Duration 24 h, Date 1"$/m);
     assert.match(r.markdown, /Result: nothing published is affected\. Nothing was changed\.$/m);
     const moved = snap([row(9001, { dates: [pack({ wd: 0, h: 15 })], dur: [2] })]);
     const m = compare({ ...args, newSnap: moved });

@@ -391,6 +391,12 @@ export function compare({ oldSnap = null, newSnap, source, fromMs, untilMs, cros
     }
     md.push(`- sources: ${e.sources.map((s) => (s.quote ? `${s.publisher}: "${s.quote}"` : `${s.publisher} ${s.url}`)).join('; ')}`, `- last verified ${e.lastVerified}`, '');
   }
+  md.push('## Coverage and sources', '', 'Per event: the end of its last published window and the date its data is known until, in each region; how far the client data reaches after that; its sources (client rows quoted); when it was last checked.', '');
+  for (const e of imp.events) {
+    const reach = REGIONS.map((r) => `${r} last window ends ${isoMin(e.regions[r].lastPublishedEnd)}, known until ${isoMin(e.regions[r].knownUntil)}${e.rows.length ? `, client data after that: ${e.regions[r].clientAfterKnown}` : ''}`).join('; ');
+    md.push(`- ${e.name} (${e.id}), checked ${e.lastVerified}: ${reach}. Sources: ${e.sources.map((s) => (s.quote ? `${s.publisher}: "${s.quote}"` : `${s.publisher} ${s.url}`)).join('; ')}`);
+  }
+  md.push('');
   const active = imp.uncited.filter((u) => u.inRange.length);
   md.push('## Rows no event cites', '', `${active.length} with a window in the data's range (listed); ${imp.uncited.length - active.length} more with none.`, '');
   for (const u of active) md.push(`- ${u.holidayId} "${u.name || '(no name)'}" ${u.kind}: ${u.dates.join('; ') || 'no dates'}${u.more ? ` and ${u.more} more` : ''}; in range for ${u.inRange.join(', ')}`);

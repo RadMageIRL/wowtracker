@@ -12,6 +12,7 @@ import { dataTests } from './data.mjs';
 import { searchTests } from './search.mjs';
 import { icsTests } from './ics.mjs';
 import { entryTests } from './entries.mjs';
+import { feedTests } from './feeds.mjs';
 import { reminderTests } from './reminders.mjs';
 import { checklistTests } from './checklist.mjs';
 import { editionTests } from './editions.mjs';
@@ -21,6 +22,7 @@ import { calendarTests } from './calendar.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
 const { SITE_FILES } = await import('../tools/build.mjs');
+const { FEEDS } = await import('../tools/feeds.mjs');
 
 let passed = 0, failed = 0;
 function test(name, fn) {
@@ -34,6 +36,7 @@ await dataTests(test);
 searchTests(test);
 icsTests(test);
 entryTests(test);
+feedTests(test);
 reminderTests(test);
 checklistTests(test);
 await editionTests(test);
@@ -123,6 +126,12 @@ test('the only network calls in the page code are news.json and the same-origin 
   assert.deepEqual(calls.sort(), ['app.js: News.NEWS_PATH', 'app.js: url']);
 });
 
+// The feeds are published as files, but nothing offers them until a real calendar app has been seen to subscribe,
+// pick up a change and keep its entries (the v0.4 real-client test). Offering them is a deliberate later change.
+test('no subscription controls yet: the page and its code never name a feed address or webcal:', () => {
+  for (const f of ['index.html', ...readdirSync(join(ROOT, 'js')).map((n) => `js/${n}`)]) assert.ok(!/calendar\/[a-z-]+\.ics|webcal:|Subscribe/.test(file(f)), f);
+});
+
 test('no innerHTML, outerHTML, insertAdjacentHTML, document.write or eval in the page code', () => {
   for (const f of readdirSync(join(ROOT, 'js'))) assert.ok(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write|\beval\(|new Function/.test(file(`js/${f}`)), f);
 });
@@ -193,9 +202,23 @@ test('no em dashes in any project file', () => {
   assert.deepEqual(bad, []);
 });
 
-test('every project file uses LF line endings', () => {
-  const bad = projectFiles().filter((p) => readFileSync(p).includes(13)).map((p) => relative(ROOT, p));
+// RFC 5545 requires CRLF in calendar files, so the generated feeds, and nothing else, are exempt from the LF
+// rule: exactly the files tools/feeds.mjs lists (not a folder or an extension), each held to CRLF instead.
+const FEED_FILES = new Set(FEEDS.map((f) => join(ROOT, f.file)));
+
+test('every project file uses LF line endings, except the generated calendar feeds', () => {
+  const bad = projectFiles().filter((p) => !FEED_FILES.has(p) && readFileSync(p).includes(13)).map((p) => relative(ROOT, p));
   assert.deepEqual(bad, []);
+});
+
+test('the generated calendar feeds use CRLF on every line and nothing else, git stores them as written, and calendar/ holds only them', () => {
+  for (const f of FEEDS) {
+    const text = readFileSync(join(ROOT, f.file), 'latin1');
+    assert.ok(text.endsWith('\r\n') && text.split('\r\n').length > 100, f.file);
+    assert.equal(text.replace(/\r\n/g, '').search(/[\r\n]/), -1, `${f.file}: a line break that is not CRLF`);
+  }
+  assert.deepEqual(readdirSync(join(ROOT, 'calendar')).map((n) => `calendar/${n}`).sort(), FEEDS.map((f) => f.file).sort());
+  assert.deepEqual(file('.gitattributes').split('\n'), ['* text=auto eol=lf', '*.png binary', 'calendar/*.ics -text', '']);
 });
 
 test('the project has no package.json and no dependencies', () => {

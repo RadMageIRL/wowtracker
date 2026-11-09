@@ -61,4 +61,14 @@ test('calendar files hold the same UTC times in every device zone', () => {
   assert.ok(text.includes('\r\nDTSTART:20261206T080000Z\r\nDTEND:20261213T080000Z\r\n') && text.includes('\r\nDTSTAMP:20261109T120000Z\r\n'), text);
 });
 
+// The subscription feeds are made at build time: whatever zone the building machine is in, the same bytes.
+const { feeds } = await import('../tools/feeds.mjs');
+const { pageData } = await import('../tools/build-data.mjs');
+test('the calendar feeds are the same bytes in every device zone', () => {
+  const { readFileSync } = require('node:fs');
+  const root = new URL('..', import.meta.url);
+  const src = (name) => JSON.parse(readFileSync(new URL(`data/${name}.source.json`, root), 'utf8'));
+  for (const f of feeds({ retail: pageData(src('events')), forever: pageData(src('forever')) })) assert.equal(f.text, readFileSync(new URL(f.file, root), 'utf8'), f.file);
+});
+
 if (failed) process.exit(1);

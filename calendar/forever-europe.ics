@@ -1,0 +1,1988 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//RadMage Labs//WoW Tracker//EN
+CALSCALE:GREGORIAN
+X-WR-CALNAME:WoW Tracker\, WoW: Forever (Europe)
+NAME:WoW Tracker\, WoW: Forever (Europe)
+X-WR-CALDESC:World of Warcraft: Forever holidays and events for the Europe 
+ region (European region)\, from WoW Tracker's schedule data r2\, reviewed 
+ 2026-11-09. Scheduled times\, not read from the game. A title that ends in
+  (Predicted) or (Predicted time) is a prediction. Resets and events that r
+ epeat every hour or more often are not included. WoW Tracker updates this 
+ calendar when its schedule data changes\; your calendar app decides how of
+ ten it looks. https://radmagelabs.com/wow/#forever
+REFRESH-INTERVAL;VALUE=DURATION:P1D
+X-PUBLISHED-TTL:P1D
+SOURCE;VALUE=URI:https://radmagelabs.com/wow/calendar/forever-europe.ics
+BEGIN:VEVENT
+UID:d769bbd64ba187065c7639a766d40123
+DTSTAMP:20261109T000000Z
+DTSTART:20261108T130000Z
+DTEND:20261108T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:4b97e352b8e0f062974596c5808fdfa1
+DTSTAMP:20261109T000000Z
+DTSTART:20261109T030000Z
+DTEND:20261116T030000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:807c29ffad483b098fa587a4a641c350
+DTSTAMP:20261109T000000Z
+DTSTART:20261115T130000Z
+DTEND:20261115T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:09562ecd1582e6616393729f91c1de91
+DTSTAMP:20261109T000000Z
+DTSTART:20261122T130000Z
+DTEND:20261122T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fba5122b2ac0be8b29c447a7843b850b
+DTSTAMP:20261109T000000Z
+DTSTART:20261129T130000Z
+DTEND:20261129T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:4798fde6060c287679d97b82bf4e0b87
+DTSTAMP:20261109T000000Z
+DTSTART:20261206T130000Z
+DTEND:20261206T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7285c6a83229440585de00bc8eaf9fe0
+DTSTAMP:20261109T000000Z
+DTSTART:20261207T030000Z
+DTEND:20261214T030000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:85170ae8fa8fe555ef6f52b9c9eb61fd
+DTSTAMP:20261109T000000Z
+DTSTART:20261213T130000Z
+DTEND:20261213T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:240789cd121aae85ff9609b4b90abd6c
+DTSTAMP:20261109T000000Z
+DTSTART:20261215T050000Z
+DTEND:20270102T050000Z
+SUMMARY:Feast of Winter Veil (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Tu
+ esday 06:00\, read as Central European time (predicted).\nRepeats: Every y
+ ear from December 15 at 06:00 server time\, for 18 days.\nKnown through No
+ v 7\, 2027. After that: not known yet (only one year of the game's calenda
+ r data\, from build 1.60.1.70862\, is read so far).\nA scheduled time from
+  WoW Tracker's World of Warcraft: Forever schedule data r2\, checked 2026-
+ 11-08. It is not read from the game\; a realm can open early or late aroun
+ d maintenance.\nDetails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Ironforge and Orgrimmar\, and throughout Azerot
+ h
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fd0b68daff5ae8ba5cabbace9aeb5fda
+DTSTAMP:20261109T000000Z
+DTSTART:20261220T130000Z
+DTEND:20261220T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:79d92d6ea148f4e0d7a32bfa02624cef
+DTSTAMP:20261109T000000Z
+DTSTART:20261227T130000Z
+DTEND:20261227T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0ca3411bb67e035c28a6871d4866a1e0
+DTSTAMP:20261109T000000Z
+DTSTART:20270103T130000Z
+DTEND:20270103T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d486ed99e11b23dfeef10711ee5b92a4
+DTSTAMP:20261109T000000Z
+DTSTART:20270104T030000Z
+DTEND:20270111T030000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:f42660b9f7f27ca08f644ee185ade2f6
+DTSTAMP:20261109T000000Z
+DTSTART:20270110T130000Z
+DTEND:20270110T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:8bf2525a6c1bfb0c61d7d137b0e01b25
+DTSTAMP:20261109T000000Z
+DTSTART:20270117T130000Z
+DTEND:20270117T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:6d7d3bdb3386cb4cdc563e51b0b24ab8
+DTSTAMP:20261109T000000Z
+DTSTART:20270124T130000Z
+DTEND:20270124T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:544d9c64ccf1ab782e1ee61b81c97ecf
+DTSTAMP:20261109T000000Z
+DTSTART:20270131T130000Z
+DTEND:20270131T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:50515889ad6106759c00a467a6444ac5
+DTSTAMP:20261109T000000Z
+DTSTART:20270202T090000Z
+DTEND:20270216T090000Z
+SUMMARY:Lunar Festival (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Tu
+ esday 10:00\, read as Central European time (predicted).\nRepeats: On a da
+ te set each year in the game's calendar data\; in 2027 from February 2 at 
+ 10:00 server time\, for 14 days.\nKnown through Nov 7\, 2027. After that: 
+ not known yet (only one year of the game's calendar data\, from build 1.60
+ .1.70862\, is read so far).\nA scheduled time from WoW Tracker's World of 
+ Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read fr
+ om the game\; a realm can open early or late around maintenance.\nDetails 
+ and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Moonglade
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:101691f95dea22f7842b11a6aa0488ea
+DTSTAMP:20261109T000000Z
+DTSTART:20270207T130000Z
+DTEND:20270207T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fc8985219df25600e78b7f1a89f8d7b3
+DTSTAMP:20261109T000000Z
+DTSTART:20270208T030000Z
+DTEND:20270215T030000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e5ec9795872487561f7134f9db5489bc
+DTSTAMP:20261109T000000Z
+DTSTART:20270211T050000Z
+DTEND:20270216T050000Z
+SUMMARY:Love is in the Air (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Th
+ ursday 06:00\, read as Central European time (predicted).\nRepeats: Every 
+ year from February 11 at 06:00 server time\, for 5 days.\nKnown through No
+ v 7\, 2027. After that: not known yet (only one year of the game's calenda
+ r data\, from build 1.60.1.70862\, is read so far).\nA scheduled time from
+  WoW Tracker's World of Warcraft: Forever schedule data r2\, checked 2026-
+ 11-08. It is not read from the game\; a realm can open early or late aroun
+ d maintenance.\nDetails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The major cities of Azeroth
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:c172893a088f843d08d68606b636c268
+DTSTAMP:20261109T000000Z
+DTSTART:20270214T130000Z
+DTEND:20270214T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2c30cdd43af3bdb95aa5c826871d72e3
+DTSTAMP:20261109T000000Z
+DTSTART:20270221T130000Z
+DTEND:20270221T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cbf6d900a6f76d15b848b901634c9fb3
+DTSTAMP:20261109T000000Z
+DTSTART:20270228T130000Z
+DTEND:20270228T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2cc2e2a0a372b65e83103c188c36d820
+DTSTAMP:20261109T000000Z
+DTSTART:20270307T130000Z
+DTEND:20270307T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0be22868800a84b2bb8d9edaea3a743f
+DTSTAMP:20261109T000000Z
+DTSTART:20270308T030000Z
+DTEND:20270315T030000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cefa1c9bd835c2ce951a892752f35c93
+DTSTAMP:20261109T000000Z
+DTSTART:20270314T130000Z
+DTEND:20270314T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:28461ba7f796380afc2db96a69c85f0c
+DTSTAMP:20261109T000000Z
+DTSTART:20270321T130000Z
+DTEND:20270321T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:9dbcb20a2293504f1018a9bea24bbc8c
+DTSTAMP:20261109T000000Z
+DTSTART:20270328T120000Z
+DTEND:20270328T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2a1f37c98daeb3580d65d4668741485c
+DTSTAMP:20261109T000000Z
+DTSTART:20270404T120000Z
+DTEND:20270404T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:9126ed2538d2c2c3c64553cdc01313c7
+DTSTAMP:20261109T000000Z
+DTSTART:20270405T020000Z
+DTEND:20270412T020000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:1fa44caa55bb9ee63c131f9458a35de1
+DTSTAMP:20261109T000000Z
+DTSTART:20270411T120000Z
+DTEND:20270411T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:bf479b4bab32f695ae95e7b14c054500
+DTSTAMP:20261109T000000Z
+DTSTART:20270418T120000Z
+DTEND:20270418T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:68f4e3fa6b49e992871f584d934d0521
+DTSTAMP:20261109T000000Z
+DTSTART:20270425T120000Z
+DTEND:20270425T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ade77920c458692d4e30a7952b16d2ee
+DTSTAMP:20261109T000000Z
+DTSTART:20270502T120000Z
+DTEND:20270502T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cd6ebe6ae0bf2c31be440bafabaf4f0a
+DTSTAMP:20261109T000000Z
+DTSTART:20270503T020000Z
+DTEND:20270510T020000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7a56690ad12d4b77c48b75333e6c1818
+DTSTAMP:20261109T000000Z
+DTSTART:20270509T120000Z
+DTEND:20270509T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0d33ba89e68fc8f9001d3b6ac6820a81
+DTSTAMP:20261109T000000Z
+DTSTART:20270516T120000Z
+DTEND:20270516T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:dd328d261126f4b2b0ca0bdd72f9c16d
+DTSTAMP:20261109T000000Z
+DTSTART:20270523T120000Z
+DTEND:20270523T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:640a5c8d0568f5b61a4c78c833f8f501
+DTSTAMP:20261109T000000Z
+DTSTART:20270530T120000Z
+DTEND:20270530T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:c60f78ee9255c19ee9e1e891fee8e1d7
+DTSTAMP:20261109T000000Z
+DTSTART:20270606T120000Z
+DTEND:20270606T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2a115996b33fce54db7d9ebc7377b87e
+DTSTAMP:20261109T000000Z
+DTSTART:20270607T020000Z
+DTEND:20270614T020000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:9eb95021314efce71de96125ab1fb9be
+DTSTAMP:20261109T000000Z
+DTSTART:20270613T120000Z
+DTEND:20270613T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:5b717d52e3b909cf2ce706581d13cce9
+DTSTAMP:20261109T000000Z
+DTSTART:20270620T120000Z
+DTEND:20270620T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2615220739631cb04614bb7c10d0fb3a
+DTSTAMP:20261109T000000Z
+DTSTART:20270621T020000Z
+DTEND:20270705T020000Z
+SUMMARY:Midsummer Fire Festival (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: Every ye
+ ar from June 21 at 04:00 server time\, for 14 days.\nKnown through Nov 7\,
+  2027. After that: not known yet (only one year of the game's calendar dat
+ a\, from build 1.60.1.70862\, is read so far).\nA scheduled time from WoW 
+ Tracker's World of Warcraft: Forever schedule data r2\, checked 2026-11-08
+ . It is not read from the game\; a realm can open early or late around mai
+ ntenance.\nDetails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2a000dc16dec333f445e05eae6de3635
+DTSTAMP:20261109T000000Z
+DTSTART:20270627T120000Z
+DTEND:20270627T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ef54bae9b3b47f41cfb8926eb6739aa4
+DTSTAMP:20261109T000000Z
+DTSTART:20270704T120000Z
+DTEND:20270704T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:56390c60d120a0d263c929446f809058
+DTSTAMP:20261109T000000Z
+DTSTART:20270705T020000Z
+DTEND:20270712T020000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:f02e4da5d1ff5ec76fe6b1de803371de
+DTSTAMP:20261109T000000Z
+DTSTART:20270711T120000Z
+DTEND:20270711T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:01c6b1f2b36ae8a06e21c22389bdd5f3
+DTSTAMP:20261109T000000Z
+DTSTART:20270718T120000Z
+DTEND:20270718T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:3a661c28e8fba96813d8ac9b4ead3da4
+DTSTAMP:20261109T000000Z
+DTSTART:20270725T120000Z
+DTEND:20270725T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:6faa20bfc4e8326e6ff482d108a9f46c
+DTSTAMP:20261109T000000Z
+DTSTART:20270801T120000Z
+DTEND:20270801T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:21d1a8c39527c5b48424f37b8ec86031
+DTSTAMP:20261109T000000Z
+DTSTART:20270808T120000Z
+DTEND:20270808T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:b6bd3e47a3e255122cbf195dc60a0f48
+DTSTAMP:20261109T000000Z
+DTSTART:20270809T020000Z
+DTEND:20270816T020000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:4898ed444ca79c8bbae8ec0dde8e922d
+DTSTAMP:20261109T000000Z
+DTSTART:20270815T120000Z
+DTEND:20270815T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:f2e7729443a825746fb410134fdfb0b9
+DTSTAMP:20261109T000000Z
+DTSTART:20270822T120000Z
+DTEND:20270822T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:3402a93bc03c1e57f4c8f217adf6b03e
+DTSTAMP:20261109T000000Z
+DTSTART:20270829T120000Z
+DTEND:20270829T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:a2098fb1f59df218f76cd49d89092ce1
+DTSTAMP:20261109T000000Z
+DTSTART:20270905T120000Z
+DTEND:20270905T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:9477021d396ceb2b4ba2fae4ff9fed6f
+DTSTAMP:20261109T000000Z
+DTSTART:20270906T020000Z
+DTEND:20270913T020000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:6da00d2d71cbd52c264b85e2840200ce
+DTSTAMP:20261109T000000Z
+DTSTART:20270911T080000Z
+DTEND:20270918T080000Z
+SUMMARY:Harvest Festival (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Sa
+ turday 10:00\, read as Central European time (predicted).\nRepeats: On a d
+ ate set each year in the game's calendar data\; in 2027 from September 11 
+ at 10:00 server time\, for 7 days.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Outside Orgrimmar and Ironforge
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e7dc8714c5cc20971a27de931c62b089
+DTSTAMP:20261109T000000Z
+DTSTART:20270912T120000Z
+DTEND:20270912T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:220b68b6bed85ff27abe63afdb549ed3
+DTSTAMP:20261109T000000Z
+DTSTART:20270919T120000Z
+DTEND:20270919T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:1a001d8606e25a72f00d113d62c26d66
+DTSTAMP:20261109T000000Z
+DTSTART:20270926T120000Z
+DTEND:20270926T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0be0ee80be0da05d347c260a8c000c2e
+DTSTAMP:20261109T000000Z
+DTSTART:20271003T120000Z
+DTEND:20271003T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:c738fb3145693b55b4808a25205955b1
+DTSTAMP:20261109T000000Z
+DTSTART:20271004T020000Z
+DTEND:20271011T020000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: About on
+ ce a month\, on dates set in the game's calendar data: from a Monday at 04
+ :00 server time\, for 7 days. The place alternates between Elwynn Forest a
+ nd Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known yet (
+ only one year of the game's calendar data\, from build 1.60.1.70862\, is r
+ ead so far).\nA scheduled time from WoW Tracker's World of Warcraft: Forev
+ er schedule data r2\, checked 2026-11-08. It is not read from the game\; a
+  realm can open early or late around maintenance.\nDetails and sources: ht
+ tps://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:758526f5c60d1c27bf470742bb87df90
+DTSTAMP:20261109T000000Z
+DTSTART:20271010T120000Z
+DTEND:20271010T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:096db62d80002d423ddf5b25b0c5e2f1
+DTSTAMP:20261109T000000Z
+DTSTART:20271017T120000Z
+DTEND:20271017T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:4eb209f9f50c91e44a7495b42573a745
+DTSTAMP:20261109T000000Z
+DTSTART:20271018T020000Z
+DTEND:20271102T020000Z
+SUMMARY:Hallow's End (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Mo
+ nday 04:00\, read as Central European time (predicted).\nRepeats: Every ye
+ ar from October 18 at 04:00 server time\, for 15 days.\nKnown through Nov 
+ 7\, 2027. After that: not known yet (only one year of the game's calendar 
+ data\, from build 1.60.1.70862\, is read so far).\nA scheduled time from W
+ oW Tracker's World of Warcraft: Forever schedule data r2\, checked 2026-11
+ -08. It is not read from the game\; a realm can open early or late around 
+ maintenance.\nDetails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Innkeepers across Azeroth
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7b70e264fd3b9994d531d294c29d1c1a
+DTSTAMP:20261109T000000Z
+DTSTART:20271024T120000Z
+DTEND:20271024T140000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2217f22423d651e12c58e9387288173c
+DTSTAMP:20261109T000000Z
+DTSTART:20271031T130000Z
+DTEND:20271031T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:1a05e2e692ed85e56ac05941af8d2d5d
+DTSTAMP:20261109T000000Z
+DTSTART:20271107T130000Z
+DTEND:20271107T150000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Eur
+ opean region is not. The dates and hours are the game's own calendar data\
+ , which gives them in server time. The European server clock is read as Ce
+ ntral European time: the weekly fishing contest (Sunday 14:00 in that data
+ ) began about 13:00 UTC on November 8\, 2026\, which is 14:00 Central Euro
+ pean time. Seen once\; Blizzard has not said. Whether these servers change
+  their clocks for summer time has not been seen yet\; times from March 28\
+ , 2027 assume they do.\nRegion: Europe (European region).\nServer time: Su
+ nday 14:00\, read as Central European time (predicted).\nRepeats: Every Su
+ nday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After that
+ : not known yet (only one year of the game's calendar data\, from build 1.
+ 60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World o
+ f Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not read 
+ from the game\; a realm can open early or late around maintenance.\nDetail
+ s and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:f0ccac2b3d1bb67a8c70abdba96ef625
+DTSTAMP:20261109T000000Z
+DTSTART;VALUE=DATE:20271108
+DTEND;VALUE=DATE:20271109
+SUMMARY:Not known yet from here: Holidays\, Darkmoon Faire\, Outdoor events
+DESCRIPTION:Holidays\, Darkmoon Faire\, Outdoor events: Known through Nov 7
+ \, 2027. After that: not known yet (only one year of the game's calendar d
+ ata\, from build 1.60.1.70862\, is read so far).\nThis calendar gains entr
+ ies when WoW Tracker's schedule data is updated. A day with nothing after 
+ this is not known to be empty. https://radmagelabs.com/wow/#forever
+URL:https://radmagelabs.com/wow/#forever
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

@@ -56,26 +56,38 @@
    * Retail UID ever exported stays the same; another edition names itself first ("forever|id|region|start"),
    * so the same event at the same moment in two editions is two calendar entries, never one.
    */
-  const eventUid = (id, region, start, edition) => uid(`${!edition || edition === 'retail' ? '' : `${edition}|`}${id}|${region}|${start}`);
+  const uidInput = (id, region, start, edition) => `${!edition || edition === 'retail' ? '' : `${edition}|`}${id}|${region}|${start}`;
+  const eventUid = (id, region, start, edition) => uid(uidInput(id, region, start, edition));
 
   const httpsUrl = (u) => { try { return new URL(u).protocol === 'https:'; } catch (e) { return false; } };
+  /** A download's UID (v0.2's form, with the domain it has always had), or a feed's: 32 hex digits, no domain (RFC 7986). */
+  const UID = /^(?:[0-9a-f]{16}@radmagelabs\.com|[0-9a-f]{32})$/;
+  const atMidnight = (ms) => ms % 86400000 === 0;
 
   /** Refuses an event that would make a wrong or broken entry, saying why. */
   function check(e, i) {
     const where = `event ${i + 1}${e && e.summary ? ` (${e.summary})` : ''}`;
     if (!e || typeof e !== 'object') throw new Error(`${where}: not an event`);
-    if (typeof e.uid !== 'string' || !/^[0-9a-f]{16}@radmagelabs\.com$/.test(e.uid)) throw new Error(`${where}: bad uid`);
+    if (typeof e.uid !== 'string' || !UID.test(e.uid)) throw new Error(`${where}: bad uid`);
     if (typeof e.summary !== 'string' || !e.summary.trim()) throw new Error(`${where}: no summary`);
     if (typeof e.start !== 'number' || !Number.isFinite(e.start) || typeof e.end !== 'number' || !Number.isFinite(e.end)) throw new Error(`${where}: start and end must be times`);
     if (e.end <= e.start) throw new Error(`${where}: ends before it starts`);
+    if (e.allDay && !(atMidnight(e.start) && atMidnight(e.end))) throw new Error(`${where}: a whole-day entry starts and ends at midnight UTC`);
+    if (e.stampMs !== undefined) stamp(e.stampMs);
     if (e.url !== undefined && e.url !== null && !httpsUrl(e.url)) throw new Error(`${where}: url must be https`);
   }
+  /** A whole day as a DATE value: 2026-12-01T00:00Z as 20261201. */
+  const day = (ms) => stamp(ms).slice(0, 8);
 
   /**
    * A whole calendar: { name, stampMs, events: [{ uid, start, end, summary, description?, location?,
-   * url?, tentative?, categories? }] }. Every event is checked first; one bad event refuses the file.
+   * url?, tentative?, categories?, stampMs?, allDay? }], feed? }. Every event is checked first; one bad event
+   * refuses the file. An event's own stampMs is its DTSTAMP (a feed's are the data's, so the file is the same
+   * on every build); allDay writes its dates without times. feed: { description, source, refresh } adds what a
+   * subscription needs: the calendar's description (X-WR-CALDESC), NAME, its own address (SOURCE) and how often
+   * to look again (REFRESH-INTERVAL, and X-PUBLISHED-TTL for Outlook). A download has none of these.
    */
-  function calendar({ name, stampMs, events }) {
+  function calendar({ name, stampMs, events, feed }) {
     if (!Array.isArray(events) || !events.length) throw new Error('no events');
     if (events.length > MAX_EVENTS) throw new Error(`too many events (${events.length})`);
     events.forEach(check);
@@ -84,8 +96,17 @@
     const now = stamp(stampMs);
     const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', `PRODID:${PRODID}`, 'CALSCALE:GREGORIAN'];
     if (name) lines.push(`X-WR-CALNAME:${escapeText(name)}`);
+    if (feed) {
+      if (!name) throw new Error('a feed needs a name');
+      if (!httpsUrl(feed.source)) throw new Error('a feed needs its own https address');
+      if (!/^P(\d+D|T\d+H)$/.test(feed.refresh || '')) throw new Error('a feed needs a refresh interval such as P1D');
+      lines.push(`NAME:${escapeText(name)}`);
+      if (feed.description) lines.push(`X-WR-CALDESC:${escapeText(feed.description)}`);
+      lines.push(`REFRESH-INTERVAL;VALUE=DURATION:${feed.refresh}`, `X-PUBLISHED-TTL:${feed.refresh}`, `SOURCE;VALUE=URI:${feed.source}`);
+    }
     for (const e of events) {
-      lines.push('BEGIN:VEVENT', `UID:${e.uid}`, `DTSTAMP:${now}`, `DTSTART:${stamp(e.start)}`, `DTEND:${stamp(e.end)}`, `SUMMARY:${escapeText(e.summary.trim())}`);
+      const when = e.allDay ? [`DTSTART;VALUE=DATE:${day(e.start)}`, `DTEND;VALUE=DATE:${day(e.end)}`] : [`DTSTART:${stamp(e.start)}`, `DTEND:${stamp(e.end)}`];
+      lines.push('BEGIN:VEVENT', `UID:${e.uid}`, `DTSTAMP:${e.stampMs !== undefined ? stamp(e.stampMs) : now}`, ...when, `SUMMARY:${escapeText(e.summary.trim())}`);
       if (e.description) lines.push(`DESCRIPTION:${escapeText(e.description)}`);
       if (e.location) lines.push(`LOCATION:${escapeText(e.location)}`);
       if (e.url) lines.push(`URL:${e.url}`);
@@ -97,7 +118,7 @@
     return `${lines.map(fold).join('\r\n')}\r\n`;
   }
 
-  const Ics = { PRODID, MAX_EVENTS, stamp, escapeText, fold, uid, eventUid, calendar };
+  const Ics = { PRODID, MAX_EVENTS, stamp, escapeText, fold, uid, uidInput, eventUid, calendar };
   if (typeof module === 'object' && module.exports) module.exports = Ics;
   else root.WoWIcs = Ics;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

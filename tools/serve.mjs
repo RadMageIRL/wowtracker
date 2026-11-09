@@ -9,7 +9,7 @@ import { join, normalize, extname, resolve, sep } from 'node:path';
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8',
+  '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8', '.ics': 'text/calendar; charset=utf-8',
 };
 const UPSTREAM = 'https://news.blizzard.com/en-us/api/feed/world-of-warcraft';
 const NEWS_CACHE_MS = 5 * 60000;

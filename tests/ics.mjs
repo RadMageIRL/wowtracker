@@ -121,6 +121,28 @@ export function icsTests(test) {
     assert.deepEqual(write('arena-skirmish-bonus', 'us', '2026-11-01T00:00:00Z', '2026-11-30T00:00:00Z'), ['20261110T150000Z 20261117T140000Z']);
     assert.deepEqual(write('arena-skirmish-bonus', 'eu', '2026-11-01T00:00:00Z', '2026-11-30T00:00:00Z'), ['20261111T040000Z 20261118T030000Z']);
   });
+  test('feed options: an entry\'s own DTSTAMP, whole-day dates only at midnight UTC, 32-digit UIDs, and the calendar lines a subscription needs; a download has none of them', () => {
+    const plainFile = Ics.calendar({ stampMs: T, name: 'N', events: [ev()] });
+    assert.ok(!/^(NAME|X-WR-CALDESC|REFRESH-INTERVAL|X-PUBLISHED-TTL|SOURCE)/m.test(plainFile), 'a download is as before');
+    const text = Ics.calendar({ name: 'WoW Tracker, WoW: Forever (Europe)', stampMs: T, feed: { description: 'Holidays; and events', source: 'https://radmagelabs.com/wow/calendar/forever-europe.ics', refresh: 'P1D' }, events: [
+      ev({ uid: 'a'.repeat(32), stampMs: Date.parse('2026-11-09T00:00:00Z') }),
+      ev({ uid: 'b'.repeat(32), allDay: true, start: Date.parse('2027-11-08T00:00:00Z'), end: Date.parse('2027-11-09T00:00:00Z'), summary: 'Not known yet' }),
+    ] });
+    const lines = unfold(text);
+    assert.deepEqual(lines.slice(4, 10), ['X-WR-CALNAME:WoW Tracker\\, WoW: Forever (Europe)', 'NAME:WoW Tracker\\, WoW: Forever (Europe)', 'X-WR-CALDESC:Holidays\\; and events',
+      'REFRESH-INTERVAL;VALUE=DURATION:P1D', 'X-PUBLISHED-TTL:P1D', 'SOURCE;VALUE=URI:https://radmagelabs.com/wow/calendar/forever-europe.ics']);
+    const [a, b] = events(text);
+    assert.deepEqual([a.UID, a.DTSTAMP, a.DTSTART], ['a'.repeat(32), '20261109T000000Z', '20261110T150000Z']);
+    assert.deepEqual([b.DTSTAMP, b['DTSTART;VALUE=DATE'], b['DTEND;VALUE=DATE'], b.DTSTART], ['20261108T170000Z', '20271108', '20271109', undefined]);
+    const make = (over, feed) => () => Ics.calendar({ name: 'N', stampMs: T, events: [ev(over)], feed });
+    for (const bad of ['a'.repeat(31), 'A'.repeat(32), 'a'.repeat(33), `${'a'.repeat(32)}@radmagelabs.com`, `${'a'.repeat(16)}@example.com`]) assert.throws(make({ uid: bad }), /bad uid/, bad);
+    assert.throws(make({ allDay: true }), /whole-day entry starts and ends at midnight UTC/);
+    assert.throws(make({ stampMs: NaN }), /not a time/);
+    assert.throws(make({}, { source: 'http://radmagelabs.com/x.ics', refresh: 'P1D' }), /https address/);
+    assert.throws(make({}, { source: 'https://radmagelabs.com/x.ics', refresh: '1 day' }), /refresh interval/);
+    assert.throws(() => Ics.calendar({ stampMs: T, events: [ev()], feed: { source: 'https://radmagelabs.com/x.ics', refresh: 'P1D' } }), /needs a name/);
+  });
+
   test('event UIDs: Retail\'s are v0.2.0\'s, byte for byte (golden values from v0.2.0\'s own code); Forever\'s differ for the same event, region and start', () => {
     const golden = [['hallows-end', 'eu', '2026-10-19T08:00:00Z', 'a0c920f285165891@radmagelabs.com'], ['darkmoon-faire', 'us', '2026-12-06T08:00:00Z', '35f65e968686e357@radmagelabs.com'], ['lunar-festival', 'eu', '2027-02-02T09:00:00Z', '5525d0b80ad53e61@radmagelabs.com']];
     for (const [id, r, iso, uid] of golden) {

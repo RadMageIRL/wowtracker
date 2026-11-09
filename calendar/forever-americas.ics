@@ -1,0 +1,2165 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//RadMage Labs//WoW Tracker//EN
+CALSCALE:GREGORIAN
+X-WR-CALNAME:WoW Tracker\, WoW: Forever (Americas)
+NAME:WoW Tracker\, WoW: Forever (Americas)
+X-WR-CALDESC:World of Warcraft: Forever holidays and events for the America
+ s region (Americas and Oceania)\, from WoW Tracker's schedule data r2\, re
+ viewed 2026-11-09. Scheduled times\, not read from the game. A title that 
+ ends in (Predicted) or (Predicted time) is a prediction. Resets and events
+  that repeat every hour or more often are not included. WoW Tracker update
+ s this calendar when its schedule data changes\; your calendar app decides
+  how often it looks. https://radmagelabs.com/wow/#forever
+REFRESH-INTERVAL;VALUE=DURATION:P1D
+X-PUBLISHED-TTL:P1D
+SOURCE;VALUE=URI:https://radmagelabs.com/wow/calendar/forever-americas.ics
+BEGIN:VEVENT
+UID:73930bed629e78701c9225380a2a7fde
+DTSTAMP:20261109T000000Z
+DTSTART:20261108T200000Z
+DTEND:20261108T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:95a66de137b6d08b73b105d73156b014
+DTSTAMP:20261109T000000Z
+DTSTART:20261109T100000Z
+DTEND:20261116T100000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:19c061d89811cb1c426617af9bdeffd2
+DTSTAMP:20261109T000000Z
+DTSTART:20261115T200000Z
+DTEND:20261115T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e3c5f2744f27f4c8d872bb864bd22955
+DTSTAMP:20261109T000000Z
+DTSTART:20261122T200000Z
+DTEND:20261122T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:3c343368da228d63658084a47e927d58
+DTSTAMP:20261109T000000Z
+DTSTART:20261129T200000Z
+DTEND:20261129T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:58c8486aff009f8bf8279d3976fb8155
+DTSTAMP:20261109T000000Z
+DTSTART:20261206T200000Z
+DTEND:20261206T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:048f7ab10cb08edd044fed9b326496b1
+DTSTAMP:20261109T000000Z
+DTSTART:20261207T100000Z
+DTEND:20261214T100000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:8715271f8e34416452b502f7099f52f3
+DTSTAMP:20261109T000000Z
+DTSTART:20261213T200000Z
+DTEND:20261213T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:f639d825b817a0115103549a30d063b5
+DTSTAMP:20261109T000000Z
+DTSTART:20261215T120000Z
+DTEND:20270102T120000Z
+SUMMARY:Feast of Winter Veil (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Tuesday 06:00\, read as US Central time (predicted).\nRepeats: Eve
+ ry year from December 15 at 06:00 server time\, for 18 days.\nKnown throug
+ h Nov 7\, 2027. After that: not known yet (only one year of the game's cal
+ endar data\, from build 1.60.1.70862\, is read so far).\nA scheduled time 
+ from WoW Tracker's World of Warcraft: Forever schedule data r2\, checked 2
+ 026-11-08. It is not read from the game\; a realm can open early or late a
+ round maintenance.\nDetails and sources: https://radmagelabs.com/wow/#fore
+ ver
+LOCATION:World of Warcraft: Ironforge and Orgrimmar\, and throughout Azerot
+ h
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d3297c9e59d32cca86b0d5556db8517c
+DTSTAMP:20261109T000000Z
+DTSTART:20261220T200000Z
+DTEND:20261220T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:9c3d48eb9f4551b32da8cb0a8a7c0657
+DTSTAMP:20261109T000000Z
+DTSTART:20261227T200000Z
+DTEND:20261227T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:92715c751e39bd3258ac7a4848c9ca2d
+DTSTAMP:20261109T000000Z
+DTSTART:20270103T200000Z
+DTEND:20270103T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:4117a96d0cf5b5fd5f070a65cf2cd180
+DTSTAMP:20261109T000000Z
+DTSTART:20270104T100000Z
+DTEND:20270111T100000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:bcae0a884589d241aedbfca8fe036541
+DTSTAMP:20261109T000000Z
+DTSTART:20270110T200000Z
+DTEND:20270110T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7f720bb410fd06058e9e02d799087512
+DTSTAMP:20261109T000000Z
+DTSTART:20270117T200000Z
+DTEND:20270117T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:a71bd06d7b51c717851aa08a4045c6a7
+DTSTAMP:20261109T000000Z
+DTSTART:20270124T200000Z
+DTEND:20270124T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:c425812159d8161b121b47f4172b312a
+DTSTAMP:20261109T000000Z
+DTSTART:20270131T200000Z
+DTEND:20270131T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:09960e73721a5f0dc0e2fee32cae4a6d
+DTSTAMP:20261109T000000Z
+DTSTART:20270202T160000Z
+DTEND:20270216T160000Z
+SUMMARY:Lunar Festival (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Tuesday 10:00\, read as US Central time (predicted).\nRepeats: On 
+ a date set each year in the game's calendar data\; in 2027 from February 2
+  at 10:00 server time\, for 14 days.\nKnown through Nov 7\, 2027. After th
+ at: not known yet (only one year of the game's calendar data\, from build 
+ 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's World
+  of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not rea
+ d from the game\; a realm can open early or late around maintenance.\nDeta
+ ils and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Moonglade
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:3521c8fb2260dfe05cf9588dde4ca819
+DTSTAMP:20261109T000000Z
+DTSTART:20270207T200000Z
+DTEND:20270207T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:f7872dd531b96ad8ef28c63a652d7ea0
+DTSTAMP:20261109T000000Z
+DTSTART:20270208T100000Z
+DTEND:20270215T100000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:11eefd45a7e34cf0f533ab3e7edcba3e
+DTSTAMP:20261109T000000Z
+DTSTART:20270211T120000Z
+DTEND:20270216T120000Z
+SUMMARY:Love is in the Air (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Thursday 06:00\, read as US Central time (predicted).\nRepeats: Ev
+ ery year from February 11 at 06:00 server time\, for 5 days.\nKnown throug
+ h Nov 7\, 2027. After that: not known yet (only one year of the game's cal
+ endar data\, from build 1.60.1.70862\, is read so far).\nA scheduled time 
+ from WoW Tracker's World of Warcraft: Forever schedule data r2\, checked 2
+ 026-11-08. It is not read from the game\; a realm can open early or late a
+ round maintenance.\nDetails and sources: https://radmagelabs.com/wow/#fore
+ ver
+LOCATION:World of Warcraft: The major cities of Azeroth
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:5a4cc4ddb26d852df9e1e5734821330b
+DTSTAMP:20261109T000000Z
+DTSTART:20270214T200000Z
+DTEND:20270214T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:95256307bd77057b04649cc45318207a
+DTSTAMP:20261109T000000Z
+DTSTART:20270221T200000Z
+DTEND:20270221T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:73936312cebc862c5803d6f32f307631
+DTSTAMP:20261109T000000Z
+DTSTART:20270228T200000Z
+DTEND:20270228T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0da4dc047adb4e5ce2535bffcfd07e81
+DTSTAMP:20261109T000000Z
+DTSTART:20270307T200000Z
+DTEND:20270307T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:50a976c5307c1a6240aa6cf49aedf27c
+DTSTAMP:20261109T000000Z
+DTSTART:20270308T100000Z
+DTEND:20270315T100000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7985dddb04e436df2834f022eb42bf84
+DTSTAMP:20261109T000000Z
+DTSTART:20270314T190000Z
+DTEND:20270314T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7578897d082d82a96764dbaa5bb95a15
+DTSTAMP:20261109T000000Z
+DTSTART:20270321T190000Z
+DTEND:20270321T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:05689755016e59d0f714549840300414
+DTSTAMP:20261109T000000Z
+DTSTART:20270328T190000Z
+DTEND:20270328T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e1c75af768b5f51fef5f9d66c966c9cd
+DTSTAMP:20261109T000000Z
+DTSTART:20270404T190000Z
+DTEND:20270404T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:a9a0f4d70ef8466bbc315fd79b160a56
+DTSTAMP:20261109T000000Z
+DTSTART:20270405T090000Z
+DTEND:20270412T090000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:a7a20d453cdbe235a10460590170cb7a
+DTSTAMP:20261109T000000Z
+DTSTART:20270411T190000Z
+DTEND:20270411T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d445426b7bd0fc0af72055eb68e770bb
+DTSTAMP:20261109T000000Z
+DTSTART:20270418T190000Z
+DTEND:20270418T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:5eec567334af0192f4d9fd581dab70ce
+DTSTAMP:20261109T000000Z
+DTSTART:20270425T190000Z
+DTEND:20270425T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0320877645d9bc42895ac2b952972c2a
+DTSTAMP:20261109T000000Z
+DTSTART:20270502T190000Z
+DTEND:20270502T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ef6fc28a1fa5791d36c1b1fe4b2e5a33
+DTSTAMP:20261109T000000Z
+DTSTART:20270503T090000Z
+DTEND:20270510T090000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:c4cb6ad91a69f566206126809fda0bda
+DTSTAMP:20261109T000000Z
+DTSTART:20270509T190000Z
+DTEND:20270509T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:65f9cdef0701b96e16b1fd0d798217f2
+DTSTAMP:20261109T000000Z
+DTSTART:20270516T190000Z
+DTEND:20270516T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ec0ba292ee3244d516875c74648c8101
+DTSTAMP:20261109T000000Z
+DTSTART:20270523T190000Z
+DTEND:20270523T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:00d9878328651c44225337165dc71aa3
+DTSTAMP:20261109T000000Z
+DTSTART:20270530T190000Z
+DTEND:20270530T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d846f55f76a099642389700e954e47c1
+DTSTAMP:20261109T000000Z
+DTSTART:20270606T190000Z
+DTEND:20270606T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7a3bc2bf638569864e47430a3a4d64f8
+DTSTAMP:20261109T000000Z
+DTSTART:20270607T090000Z
+DTEND:20270614T090000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:10d2e8f2c126f3bb6ed01e0739c6fc83
+DTSTAMP:20261109T000000Z
+DTSTART:20270613T190000Z
+DTEND:20270613T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7ee3e2fe82752feb43d88a1047e898ed
+DTSTAMP:20261109T000000Z
+DTSTART:20270620T190000Z
+DTEND:20270620T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:8cbe7dd4b47115c64a4061ba4e1c1354
+DTSTAMP:20261109T000000Z
+DTSTART:20270621T090000Z
+DTEND:20270705T090000Z
+SUMMARY:Midsummer Fire Festival (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Ever
+ y year from June 21 at 04:00 server time\, for 14 days.\nKnown through Nov
+  7\, 2027. After that: not known yet (only one year of the game's calendar
+  data\, from build 1.60.1.70862\, is read so far).\nA scheduled time from 
+ WoW Tracker's World of Warcraft: Forever schedule data r2\, checked 2026-1
+ 1-08. It is not read from the game\; a realm can open early or late around
+  maintenance.\nDetails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d156f193390fc87b81efd35219617691
+DTSTAMP:20261109T000000Z
+DTSTART:20270627T190000Z
+DTEND:20270627T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:a8c99ee2c19febe0c3eb30cd40b37b06
+DTSTAMP:20261109T000000Z
+DTSTART:20270704T110000Z
+DTEND:20270705T050000Z
+SUMMARY:Fireworks Spectacular (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 06:00\, read as US Central time (predicted).\nRepeats: Ever
+ y year on July 4 from 06:00 server time\, for 18 hours\, on Americas realm
+ s only.\nKnown through Nov 7\, 2027. After that: not known yet (only one y
+ ear of the game's calendar data\, from build 1.60.1.70862\, is read so far
+ ).\nA scheduled time from WoW Tracker's World of Warcraft: Forever schedul
+ e data r2\, checked 2026-11-08. It is not read from the game\; a realm can
+  open early or late around maintenance.\nDetails and sources: https://radm
+ agelabs.com/wow/#forever
+LOCATION:World of Warcraft: Any capital city or Booty Bay
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Small events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:aa44e8c194669fa783fe4f583a24d915
+DTSTAMP:20261109T000000Z
+DTSTART:20270704T190000Z
+DTEND:20270704T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:8f647a64c0626b4916fa130788482523
+DTSTAMP:20261109T000000Z
+DTSTART:20270705T090000Z
+DTEND:20270712T090000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:6d06986de4ad5acfe17dc76498c3c285
+DTSTAMP:20261109T000000Z
+DTSTART:20270711T190000Z
+DTEND:20270711T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d6ad3127cbf8fa69931b791b8f957443
+DTSTAMP:20261109T000000Z
+DTSTART:20270718T190000Z
+DTEND:20270718T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:c48cc156341a0331982210bccb2e42b6
+DTSTAMP:20261109T000000Z
+DTSTART:20270725T190000Z
+DTEND:20270725T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:4b43c66e9125c44696470bcca6508d6e
+DTSTAMP:20261109T000000Z
+DTSTART:20270801T190000Z
+DTEND:20270801T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d2834a64434207038a5c6e20681aa771
+DTSTAMP:20261109T000000Z
+DTSTART:20270808T190000Z
+DTEND:20270808T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:53ce032be48676fe14d4d82bcdc07795
+DTSTAMP:20261109T000000Z
+DTSTART:20270809T090000Z
+DTEND:20270816T090000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:10a0ecc0f3f5985a8ab5f6a38c7a31f4
+DTSTAMP:20261109T000000Z
+DTSTART:20270815T190000Z
+DTEND:20270815T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e43fe6f4cae9961e13ef01aa7127164e
+DTSTAMP:20261109T000000Z
+DTSTART:20270822T190000Z
+DTEND:20270822T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:640e136630eeffcc40e171d18eda2190
+DTSTAMP:20261109T000000Z
+DTSTART:20270829T190000Z
+DTEND:20270829T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:f3b79deb555fc6708d1f4c007f137411
+DTSTAMP:20261109T000000Z
+DTSTART:20270905T190000Z
+DTEND:20270905T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:c0f8e9a6677027f76a547c7e5b0c8e87
+DTSTAMP:20261109T000000Z
+DTSTART:20270906T090000Z
+DTEND:20270913T090000Z
+SUMMARY:Darkmoon Faire: Elwynn Forest (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:db74b4ff06a9fce9dfb12e6876687850
+DTSTAMP:20261109T000000Z
+DTSTART:20270911T150000Z
+DTEND:20270918T150000Z
+SUMMARY:Harvest Festival (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Saturday 10:00\, read as US Central time (predicted).\nRepeats: On
+  a date set each year in the game's calendar data\; in 2027 from September
+  11 at 10:00 server time\, for 7 days.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Outside Orgrimmar and Ironforge
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:5b862ca20af5a5d941d29474e884d694
+DTSTAMP:20261109T000000Z
+DTSTART:20270912T190000Z
+DTEND:20270912T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:8e0cd73febf61ed9215658082498ead3
+DTSTAMP:20261109T000000Z
+DTSTART:20270919T190000Z
+DTEND:20270919T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:201454532a6192c210e748f5fd58e99f
+DTSTAMP:20261109T000000Z
+DTSTART:20270926T190000Z
+DTEND:20270926T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:07940f78627a800a0ae6455b03649f40
+DTSTAMP:20261109T000000Z
+DTSTART:20271003T190000Z
+DTEND:20271003T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:21d5c0316355b5bf930839cf03f6cfff
+DTSTAMP:20261109T000000Z
+DTSTART:20271004T090000Z
+DTEND:20271011T090000Z
+SUMMARY:Darkmoon Faire: Thunder Bluff (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Abou
+ t once a month\, on dates set in the game's calendar data: from a Monday a
+ t 04:00 server time\, for 7 days. The place alternates between Elwynn Fore
+ st and Thunder Bluff.\nKnown through Nov 7\, 2027. After that: not known y
+ et (only one year of the game's calendar data\, from build 1.60.1.70862\, 
+ is read so far).\nA scheduled time from WoW Tracker's World of Warcraft: F
+ orever schedule data r2\, checked 2026-11-08. It is not read from the game
+ \; a realm can open early or late around maintenance.\nDetails and sources
+ : https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: Elwynn Forest\, or at the foot of Thunder Bluff
+  (it alternates)
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Darkmoon Faire
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:1958a6647ef987cdf154cc44c035b3b5
+DTSTAMP:20261109T000000Z
+DTSTART:20271010T190000Z
+DTEND:20271010T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:5fed423b59d9aecdd7a9bd9d9eadfa3d
+DTSTAMP:20261109T000000Z
+DTSTART:20271017T190000Z
+DTEND:20271017T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7d5a4b90e4a5c57765a94ceb3c0187f6
+DTSTAMP:20261109T000000Z
+DTSTART:20271018T090000Z
+DTEND:20271102T090000Z
+SUMMARY:Hallow's End (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Monday 04:00\, read as US Central time (predicted).\nRepeats: Ever
+ y year from October 18 at 04:00 server time\, for 15 days.\nKnown through 
+ Nov 7\, 2027. After that: not known yet (only one year of the game's calen
+ dar data\, from build 1.60.1.70862\, is read so far).\nA scheduled time fr
+ om WoW Tracker's World of Warcraft: Forever schedule data r2\, checked 202
+ 6-11-08. It is not read from the game\; a realm can open early or late aro
+ und maintenance.\nDetails and sources: https://radmagelabs.com/wow/#foreve
+ r
+LOCATION:World of Warcraft: Innkeepers across Azeroth
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Holidays
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0638416241f703a8f20fbec08882cfe6
+DTSTAMP:20261109T000000Z
+DTSTART:20271024T190000Z
+DTEND:20271024T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:1c5ea23e410bb172778ed98cedb49a80
+DTSTAMP:20261109T000000Z
+DTSTART:20271031T190000Z
+DTEND:20271031T210000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:a4f5956bb0b16ccde396db7cee42bdb6
+DTSTAMP:20261109T000000Z
+DTSTART:20271107T200000Z
+DTEND:20271107T220000Z
+SUMMARY:Stranglethorn Fishing Extravaganza (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on Ame
+ ricas and Oceania is not. The dates and hours are the game's own calendar 
+ data\, which gives them in server time. The Americas server clock is read 
+ as US Central time: players say so\, and it has been seen twice\, both in 
+ standard time: the weekly fishing contest (Sunday 14:00 in that data) bega
+ n about 20:00 UTC on November 8\, 2026\, which is 14:00 Central\, and on N
+ ovember 7 a player in Pacific time saw the game's clock two hours ahead of
+  theirs (UTC-6). Blizzard has not said. Whether these servers change their
+  clocks for daylight saving time has not been seen yet\; times from March 
+ 14\, 2027 assume they do.\nRegion: Americas (Americas and Oceania).\nServe
+ r time: Sunday 14:00\, read as US Central time (predicted).\nRepeats: Ever
+ y Sunday\, 14:00 to 16:00 server time.\nKnown through Nov 7\, 2027. After 
+ that: not known yet (only one year of the game's calendar data\, from buil
+ d 1.60.1.70862\, is read so far).\nA scheduled time from WoW Tracker's Wor
+ ld of Warcraft: Forever schedule data r2\, checked 2026-11-08. It is not r
+ ead from the game\; a realm can open early or late around maintenance.\nDe
+ tails and sources: https://radmagelabs.com/wow/#forever
+LOCATION:World of Warcraft: The coasts of Stranglethorn Vale
+URL:https://wago.tools/db2/Holidays?build=1.60.1.70862
+CATEGORIES:Outdoor events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0ece532dc496ad11b0634e7673d2c5b2
+DTSTAMP:20261109T000000Z
+DTSTART;VALUE=DATE:20271108
+DTEND;VALUE=DATE:20271109
+SUMMARY:Not known yet from here: Holidays\, Darkmoon Faire\, Outdoor events
+ \, Small events
+DESCRIPTION:Holidays\, Darkmoon Faire\, Outdoor events\, Small events: Know
+ n through Nov 7\, 2027. After that: not known yet (only one year of the ga
+ me's calendar data\, from build 1.60.1.70862\, is read so far).\nThis cale
+ ndar gains entries when WoW Tracker's schedule data is updated. A day with
+  nothing after this is not known to be empty. https://radmagelabs.com/wow/
+ #forever
+URL:https://radmagelabs.com/wow/#forever
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

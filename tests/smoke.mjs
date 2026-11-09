@@ -673,6 +673,18 @@ check('at the moment a bonus week ends it is not exported, and the next one is',
   await page.close();
 });
 
+check('the built site serves the four calendar feeds next to the page as text/calendar, byte for byte with CRLF, and nothing on the page links to them yet', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z') });
+  for (const f of ['retail-americas', 'retail-europe', 'forever-americas', 'forever-europe']) {
+    const got = await page.eval(`fetch('calendar/${f}.ics').then(async (r) => ({ status: r.status, type: r.headers.get('content-type'), text: await r.text() }))`);
+    assert.deepEqual([got.status, got.type], [200, 'text/calendar; charset=utf-8'], f);
+    assert.equal(got.text, readFileSync(join(DIR, 'calendar', `${f}.ics`), 'utf8'), f);
+    assert.ok(got.text.startsWith('BEGIN:VCALENDAR\r\n') && !/[^\r]\n/.test(got.text), `${f}: CRLF`);
+  }
+  assert.equal(await page.eval(`[...document.querySelectorAll('a[href]')].filter((a) => /calendar\\/|webcal:/.test(a.getAttribute('href'))).length`), 0, 'no subscribe link until the real-client test passes');
+  await page.close();
+});
+
 // ---- Reminders ----
 
 const REM_ON = { on: true, lead: 15, notify: false, hourly: false };

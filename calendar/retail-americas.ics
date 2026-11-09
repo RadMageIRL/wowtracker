@@ -1,0 +1,729 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//RadMage Labs//WoW Tracker//EN
+CALSCALE:GREGORIAN
+X-WR-CALNAME:WoW Tracker (Americas)
+NAME:WoW Tracker (Americas)
+X-WR-CALDESC:World of Warcraft (Retail) holidays and events for the America
+ s region (US\, Latin American and Oceanic realms)\, from WoW Tracker's sch
+ edule data r2\, reviewed 2026-11-08. Scheduled times\, not read from the g
+ ame. A title that ends in (Predicted) or (Predicted time) is a prediction.
+  Resets and events that repeat every hour or more often are not included. 
+ WoW Tracker updates this calendar when its schedule data changes\; your ca
+ lendar app decides how often it looks. https://radmagelabs.com/wow/
+REFRESH-INTERVAL;VALUE=DURATION:P1D
+X-PUBLISHED-TTL:P1D
+SOURCE;VALUE=URI:https://radmagelabs.com/wow/calendar/retail-americas.ics
+BEGIN:VEVENT
+UID:a9b5bd92b7bab7f076c53318dad0b3ca
+DTSTAMP:20261108T000000Z
+DTSTART:20261019T170000Z
+DTEND:20261102T180000Z
+SUMMARY:Hallow's End
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Inns and capital cities
+URL:https://news.blizzard.com/en-us/article/24310656/hallow-s-end-brings-fr
+ ights-delights-and-haunting-rewards
+CATEGORIES:Holidays
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0ea208f92c45e366efa1b8a77baba103
+DTSTAMP:20261108T000000Z
+DTSTART:20261020T150000Z
+DTEND:20261027T140000Z
+SUMMARY:Delves Bonus Event
+DESCRIPTION:Confirmed: from game data and wiki.\nRegion: Americas (US\, Lat
+ in American and Oceanic realms).\nA scheduled time from WoW Tracker schedu
+ le data r2\, checked 2026-11-08. It is not read from the game\; a realm ca
+ n open early or late around maintenance.\nDetails and sources: https://rad
+ magelabs.com/wow/
+LOCATION:World of Warcraft: Delves and the Labyrinth of Kindo'jan
+URL:https://warcraft.wiki.gg/wiki/Bonus_Event
+CATEGORIES:Bonus events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d738435efa7846ff87f5831fafaacf0a
+DTSTAMP:20261108T000000Z
+DTSTART:20261020T150000Z
+DTEND:20261027T150000Z
+SUMMARY:Predaxas (Predicted)
+DESCRIPTION:Predicted: Blizzard has not published the order. The four Midni
+ ght world bosses have come up one per week in the same order since Season 
+ 1 opened on 2026-03-17 (Lu'ashal\, Cragpine\, Thorm'belan\, Predaxas)\, in
+  guides and dated player reports through October 2026.\nRegion: Americas (
+ US\, Latin American and Oceanic realms).\nA scheduled time from WoW Tracke
+ r schedule data r2\, checked 2026-11-08. It is not read from the game\; a 
+ realm can open early or late around maintenance.\nDetails and sources: htt
+ ps://radmagelabs.com/wow/
+LOCATION:World of Warcraft: Gorging Pit\, Voidstorm
+URL:https://warcraft.wiki.gg/wiki/Predaxas
+CATEGORIES:World bosses
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e4c7e5fade4a2be8eca7af81a146a57e
+DTSTAMP:20261108T000000Z
+DTSTART:20261027T150000Z
+DTEND:20261103T150000Z
+SUMMARY:Lu'ashal (Predicted)
+DESCRIPTION:Predicted: Blizzard has not published the order. The four Midni
+ ght world bosses have come up one per week in the same order since Season 
+ 1 opened on 2026-03-17 (Lu'ashal\, Cragpine\, Thorm'belan\, Predaxas)\, in
+  guides and dated player reports through October 2026.\nRegion: Americas (
+ US\, Latin American and Oceanic realms).\nA scheduled time from WoW Tracke
+ r schedule data r2\, checked 2026-11-08. It is not read from the game\; a 
+ realm can open early or late around maintenance.\nDetails and sources: htt
+ ps://radmagelabs.com/wow/
+LOCATION:World of Warcraft: Eversong Woods
+URL:https://warcraft.wiki.gg/wiki/Lu%27ashal
+CATEGORIES:World bosses
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:6a4cb322c45ba21bc1f6b6392439da73
+DTSTAMP:20261108T000000Z
+DTSTART:20261027T150000Z
+DTEND:20261103T140000Z
+SUMMARY:Warlords of Draenor Timewalking
+DESCRIPTION:Confirmed: from game data and wiki.\nRegion: Americas (US\, Lat
+ in American and Oceanic realms).\nA scheduled time from WoW Tracker schedu
+ le data r2\, checked 2026-11-08. It is not read from the game\; a realm ca
+ n open early or late around maintenance.\nDetails and sources: https://rad
+ magelabs.com/wow/
+LOCATION:World of Warcraft: Dungeon Finder
+URL:https://warcraft.wiki.gg/wiki/Timewalking
+CATEGORIES:Timewalking
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:c5fddf7804c3cc0302821537be1dffe8
+DTSTAMP:20261108T000000Z
+DTSTART:20261101T070000Z
+DTEND:20261108T070000Z
+SUMMARY:Darkmoon Faire
+DESCRIPTION:Confirmed: from Blizzard and game data.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Darkmoon Island (portals in Elwynn Forest and M
+ ulgore)
+URL:https://news.blizzard.com/en-us/article/23785338/the-darkmoon-faire-ret
+ urns
+CATEGORIES:Darkmoon Faire
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:8950263c2d88bb76b1741f6396808b4c
+DTSTAMP:20261108T000000Z
+DTSTART:20261101T180000Z
+DTEND:20261103T180000Z
+SUMMARY:Day of the Dead
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Graveyards of the capital cities
+URL:https://warcraft.wiki.gg/wiki/Day_of_the_Dead
+CATEGORIES:Holidays
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:86f285b2c1c337c906ca9fd2ff41b4b1
+DTSTAMP:20261108T000000Z
+DTSTART:20261103T150000Z
+DTEND:20261110T150000Z
+SUMMARY:Cragpine (Predicted)
+DESCRIPTION:Predicted: Blizzard has not published the order. The four Midni
+ ght world bosses have come up one per week in the same order since Season 
+ 1 opened on 2026-03-17 (Lu'ashal\, Cragpine\, Thorm'belan\, Predaxas)\, in
+  guides and dated player reports through October 2026.\nRegion: Americas (
+ US\, Latin American and Oceanic realms).\nA scheduled time from WoW Tracke
+ r schedule data r2\, checked 2026-11-08. It is not read from the game\; a 
+ realm can open early or late around maintenance.\nDetails and sources: htt
+ ps://radmagelabs.com/wow/
+LOCATION:World of Warcraft: The Stump\, Zul'Aman
+URL:https://warcraft.wiki.gg/wiki/Cragpine
+CATEGORIES:World bosses
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:6a9c0bf0cc509826d03cccc333816e7c
+DTSTAMP:20261108T000000Z
+DTSTART:20261103T150000Z
+DTEND:20261110T140000Z
+SUMMARY:Midnight Dungeon Event
+DESCRIPTION:Confirmed: from game data and wiki.\nThe final boss of each Mid
+ night dungeon drops an extra item.\nRegion: Americas (US\, Latin American 
+ and Oceanic realms).\nA scheduled time from WoW Tracker schedule data r2\,
+  checked 2026-11-08. It is not read from the game\; a realm can open early
+  or late around maintenance.\nDetails and sources: https://radmagelabs.com
+ /wow/
+LOCATION:World of Warcraft: Midnight dungeons
+URL:https://warcraft.wiki.gg/wiki/Bonus_Event
+CATEGORIES:Bonus events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7127f01bb12d68c128ee523baab7e098
+DTSTAMP:20261108T000000Z
+DTSTART:20261110T150000Z
+DTEND:20261117T140000Z
+SUMMARY:Arena Skirmish Bonus Event
+DESCRIPTION:Confirmed: from game data and wiki.\nRegion: Americas (US\, Lat
+ in American and Oceanic realms).\nA scheduled time from WoW Tracker schedu
+ le data r2\, checked 2026-11-08. It is not read from the game\; a realm ca
+ n open early or late around maintenance.\nDetails and sources: https://rad
+ magelabs.com/wow/
+LOCATION:World of Warcraft: Arena Skirmishes
+URL:https://warcraft.wiki.gg/wiki/Bonus_Event
+CATEGORIES:Bonus events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:23adbb23575ae73ddb52748bd576fd1c
+DTSTAMP:20261108T000000Z
+DTSTART:20261110T150000Z
+DTEND:20261117T150000Z
+SUMMARY:Thorm'belan (Predicted)
+DESCRIPTION:Predicted: Blizzard has not published the order. The four Midni
+ ght world bosses have come up one per week in the same order since Season 
+ 1 opened on 2026-03-17 (Lu'ashal\, Cragpine\, Thorm'belan\, Predaxas)\, in
+  guides and dated player reports through October 2026.\nRegion: Americas (
+ US\, Latin American and Oceanic realms).\nA scheduled time from WoW Tracke
+ r schedule data r2\, checked 2026-11-08. It is not read from the game\; a 
+ realm can open early or late around maintenance.\nDetails and sources: htt
+ ps://radmagelabs.com/wow/
+LOCATION:World of Warcraft: Harandar
+URL:https://warcraft.wiki.gg/wiki/Thorm%27belan
+CATEGORIES:World bosses
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2654641cc8bf97664b2d8a5544f09f55
+DTSTAMP:20261108T000000Z
+DTSTART:20261112T080000Z
+DTEND:20261113T080000Z
+SUMMARY:Moonkin Festival
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Moonglade
+URL:https://warcraft.wiki.gg/wiki/Moonkin_Festival
+CATEGORIES:Small events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:308df4f17be7f1446289f191127f399c
+DTSTAMP:20261108T000000Z
+DTSTART:20261117T150000Z
+DTEND:20261124T140000Z
+SUMMARY:Legion Timewalking
+DESCRIPTION:Confirmed: from game data and wiki.\nRegion: Americas (US\, Lat
+ in American and Oceanic realms).\nA scheduled time from WoW Tracker schedu
+ le data r2\, checked 2026-11-08. It is not read from the game\; a realm ca
+ n open early or late around maintenance.\nDetails and sources: https://rad
+ magelabs.com/wow/
+LOCATION:World of Warcraft: Dungeon Finder
+URL:https://warcraft.wiki.gg/wiki/Timewalking
+CATEGORIES:Timewalking
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:b208a6837f2e16f8b034cc6856d1d566
+DTSTAMP:20261108T000000Z
+DTSTART:20261117T150000Z
+DTEND:20261124T150000Z
+SUMMARY:Predaxas (Predicted)
+DESCRIPTION:Predicted: Blizzard has not published the order. The four Midni
+ ght world bosses have come up one per week in the same order since Season 
+ 1 opened on 2026-03-17 (Lu'ashal\, Cragpine\, Thorm'belan\, Predaxas)\, in
+  guides and dated player reports through October 2026.\nRegion: Americas (
+ US\, Latin American and Oceanic realms).\nA scheduled time from WoW Tracke
+ r schedule data r2\, checked 2026-11-08. It is not read from the game\; a 
+ realm can open early or late around maintenance.\nDetails and sources: htt
+ ps://radmagelabs.com/wow/
+LOCATION:World of Warcraft: Gorging Pit\, Voidstorm
+URL:https://warcraft.wiki.gg/wiki/Predaxas
+CATEGORIES:World bosses
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:9c6c4509663f4020dc7604e22279c7e9
+DTSTAMP:20261108T000000Z
+DTSTART:20261117T180000Z
+DTEND:20261208T180000Z
+SUMMARY:WoW's 22nd Anniversary
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Caverns of Time\, Tanaris
+URL:https://warcraft.wiki.gg/wiki/WoW%27s_Anniversary
+CATEGORIES:Holidays
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:4a3bc27799504aafd1f6825363cd0ffc
+DTSTAMP:20261108T000000Z
+DTSTART:20261122T180000Z
+DTEND:20261129T170000Z
+SUMMARY:Pilgrim's Bounty
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Capital cities
+URL:https://warcraft.wiki.gg/wiki/Pilgrim%27s_Bounty
+CATEGORIES:Holidays
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:bf6990cb7f8634b1e572493ca684b3b1
+DTSTAMP:20261108T000000Z
+DTSTART:20261124T150000Z
+DTEND:20261201T150000Z
+SUMMARY:Lu'ashal (Predicted)
+DESCRIPTION:Predicted: Blizzard has not published the order. The four Midni
+ ght world bosses have come up one per week in the same order since Season 
+ 1 opened on 2026-03-17 (Lu'ashal\, Cragpine\, Thorm'belan\, Predaxas)\, in
+  guides and dated player reports through October 2026.\nRegion: Americas (
+ US\, Latin American and Oceanic realms).\nA scheduled time from WoW Tracke
+ r schedule data r2\, checked 2026-11-08. It is not read from the game\; a 
+ realm can open early or late around maintenance.\nDetails and sources: htt
+ ps://radmagelabs.com/wow/
+LOCATION:World of Warcraft: Eversong Woods
+URL:https://warcraft.wiki.gg/wiki/Lu%27ashal
+CATEGORIES:World bosses
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ab90159d8d1f13b32e36ff25020c1f8e
+DTSTAMP:20261108T000000Z
+DTSTART:20261124T150000Z
+DTEND:20261201T140000Z
+SUMMARY:World Quest Bonus Event
+DESCRIPTION:Confirmed: from game data and wiki.\nRegion: Americas (US\, Lat
+ in American and Oceanic realms).\nA scheduled time from WoW Tracker schedu
+ le data r2\, checked 2026-11-08. It is not read from the game\; a realm ca
+ n open early or late around maintenance.\nDetails and sources: https://rad
+ magelabs.com/wow/
+LOCATION:World of Warcraft: World quests
+URL:https://warcraft.wiki.gg/wiki/Bonus_Event
+CATEGORIES:Bonus events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e45589413c1ad0e55a9397258e3b5393
+DTSTAMP:20261108T000000Z
+DTSTART;VALUE=DATE:20261201
+DTEND;VALUE=DATE:20261202
+SUMMARY:Not known yet from here: Timewalking\, World bosses
+DESCRIPTION:Timewalking: Known until Tue\, Dec 1\, 2026\, 3:00 PM UTC. Afte
+ r that: not known yet (the live game data and the 12.1.7 test data disagre
+ e from December 1\, 2026).\nWorld bosses: Known until Tue\, Dec 1\, 2026\,
+  3:00 PM UTC. After that: not known yet (the predicted order is only carri
+ ed to the December 1\, 2026 reset\, before patch 12.1.7).\nThis calendar g
+ ains entries when WoW Tracker's schedule data is updated. A day with nothi
+ ng after this is not known to be empty. https://radmagelabs.com/wow/
+URL:https://radmagelabs.com/wow/
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:a2c2cd29eeb206922e6ba2cbac7a6790
+DTSTAMP:20261108T000000Z
+DTSTART:20261201T150000Z
+DTEND:20261208T140000Z
+SUMMARY:Pet Battle Bonus Event
+DESCRIPTION:Confirmed: from game data and wiki.\nRegion: Americas (US\, Lat
+ in American and Oceanic realms).\nA scheduled time from WoW Tracker schedu
+ le data r2\, checked 2026-11-08. It is not read from the game\; a realm ca
+ n open early or late around maintenance.\nDetails and sources: https://rad
+ magelabs.com/wow/
+LOCATION:World of Warcraft: Pet battles
+URL:https://warcraft.wiki.gg/wiki/Bonus_Event
+CATEGORIES:Bonus events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:742f7033667708c27c9ed91b1daec906
+DTSTAMP:20261108T000000Z
+DTSTART:20261201T160000Z
+DTEND:20261208T150000Z
+SUMMARY:Battleground Bonus Event (Predicted time)
+DESCRIPTION:Predicted time: the dates are confirmed\; the start time on US\
+ , Latin American and Oceanic realms is not. The live game data starts it a
+ t 08:00 Pacific (16:00 UTC)\, an hour after the weekly reset\; the 12.1.7 
+ test realm data starts it at the reset (07:00 Pacific\, 15:00 UTC). Shown 
+ at the live time until one of them is seen in game.\nRegion: Americas (US\
+ , Latin American and Oceanic realms).\nA scheduled time from WoW Tracker s
+ chedule data r2\, checked 2026-11-08. It is not read from the game\; a rea
+ lm can open early or late around maintenance.\nDetails and sources: https:
+ //radmagelabs.com/wow/
+LOCATION:World of Warcraft: Random battlegrounds
+URL:https://warcraft.wiki.gg/wiki/Bonus_Event
+CATEGORIES:Bonus events
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:4bf626bf075ab10f3999171872cd0960
+DTSTAMP:20261108T000000Z
+DTSTART:20261206T080000Z
+DTEND:20261213T080000Z
+SUMMARY:Darkmoon Faire
+DESCRIPTION:Confirmed: from Blizzard and game data.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Darkmoon Island (portals in Elwynn Forest and M
+ ulgore)
+URL:https://news.blizzard.com/en-us/article/23785338/the-darkmoon-faire-ret
+ urns
+CATEGORIES:Darkmoon Faire
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:abfb5817f74abdfb495b4fbf444cbb69
+DTSTAMP:20261108T000000Z
+DTSTART:20261207T080000Z
+DTEND:20261208T080000Z
+SUMMARY:Wanderer's Festival
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Turtle Beach\, Krasarang Wilds
+URL:https://warcraft.wiki.gg/wiki/Wanderer%27s_Festival
+CATEGORIES:Small events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:215743a23ca2423d65f665a9d320a55b
+DTSTAMP:20261108T000000Z
+DTSTART:20261215T150000Z
+DTEND:20261222T140000Z
+SUMMARY:Delves Bonus Event
+DESCRIPTION:Confirmed: from game data and wiki.\nRegion: Americas (US\, Lat
+ in American and Oceanic realms).\nA scheduled time from WoW Tracker schedu
+ le data r2\, checked 2026-11-08. It is not read from the game\; a realm ca
+ n open early or late around maintenance.\nDetails and sources: https://rad
+ magelabs.com/wow/
+LOCATION:World of Warcraft: Delves and the Labyrinth of Kindo'jan
+URL:https://warcraft.wiki.gg/wiki/Bonus_Event
+CATEGORIES:Bonus events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:355eb22452a5270c462982fc5897ac47
+DTSTAMP:20261108T000000Z
+DTSTART:20261215T180000Z
+DTEND:20270102T180000Z
+SUMMARY:Feast of Winter Veil
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Ironforge\, Orgrimmar and capital cities
+URL:https://warcraft.wiki.gg/wiki/Feast_of_Winter_Veil
+CATEGORIES:Holidays
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:97717c33b822a6d4179a79b5b1f5a78c
+DTSTAMP:20261108T000000Z
+DTSTART:20261222T150000Z
+DTEND:20261229T140000Z
+SUMMARY:Midnight Dungeon Event
+DESCRIPTION:Confirmed: from game data and wiki.\nThe final boss of each Mid
+ night dungeon drops an extra item.\nRegion: Americas (US\, Latin American 
+ and Oceanic realms).\nA scheduled time from WoW Tracker schedule data r2\,
+  checked 2026-11-08. It is not read from the game\; a realm can open early
+  or late around maintenance.\nDetails and sources: https://radmagelabs.com
+ /wow/
+LOCATION:World of Warcraft: Midnight dungeons
+URL:https://warcraft.wiki.gg/wiki/Bonus_Event
+CATEGORIES:Bonus events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:9197de87322957e8a4d9ce3c13c82e0b
+DTSTAMP:20261108T000000Z
+DTSTART:20270101T020000Z
+DTEND:20270101T140000Z
+SUMMARY:Fireworks Celebration
+DESCRIPTION:Confirmed: from game data and Blizzard.\nNew Year fireworks ove
+ r the capitals.\nRegion: Americas (US\, Latin American and Oceanic realms)
+ .\nA scheduled time from WoW Tracker schedule data r2\, checked 2026-11-08
+ . It is not read from the game\; a realm can open early or late around mai
+ ntenance.\nDetails and sources: https://radmagelabs.com/wow/
+LOCATION:World of Warcraft: Capital cities
+URL:https://warcraft.wiki.gg/wiki/New_Year
+CATEGORIES:Small events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7b6b30aa1413af6e9a34db60b42674db
+DTSTAMP:20261108T000000Z
+DTSTART:20270103T080000Z
+DTEND:20270110T080000Z
+SUMMARY:Darkmoon Faire
+DESCRIPTION:Confirmed: from Blizzard and game data.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Darkmoon Island (portals in Elwynn Forest and M
+ ulgore)
+URL:https://news.blizzard.com/en-us/article/23785338/the-darkmoon-faire-ret
+ urns
+CATEGORIES:Darkmoon Faire
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e71aa378fd31e8ff2b01f493d9a0bbd4
+DTSTAMP:20261108T000000Z
+DTSTART;VALUE=DATE:20270105
+DTEND;VALUE=DATE:20270106
+SUMMARY:Not known yet from here: Bonus events
+DESCRIPTION:Bonus events: Known until Tue\, Jan 5\, 2027\, 3:00 PM UTC. Aft
+ er that: not known yet (from January 5\, 2027 the live game data and the 1
+ 2.1.7 test data list different bonus events).\nThis calendar gains entries
+  when WoW Tracker's schedule data is updated. A day with nothing after thi
+ s is not known to be empty. https://radmagelabs.com/wow/
+URL:https://radmagelabs.com/wow/
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:5f49ae75b86ee850c1064a1658a88e83
+DTSTAMP:20261108T000000Z
+DTSTART:20270121T080000Z
+DTEND:20270124T080000Z
+SUMMARY:Call of the Scarab
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Silithus
+URL:https://warcraft.wiki.gg/wiki/Call_of_the_Scarab
+CATEGORIES:Small events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:63d3a5af11b4e6bcb139472276a45ea2
+DTSTAMP:20261108T000000Z
+DTSTART:20270202T180000Z
+DTEND:20270216T180000Z
+SUMMARY:Lunar Festival
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Moonglade and elders across Azeroth
+URL:https://warcraft.wiki.gg/wiki/Lunar_Festival
+CATEGORIES:Holidays
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:671540594f1ab2ba9126b88e76b2a364
+DTSTAMP:20261108T000000Z
+DTSTART:20270207T080000Z
+DTEND:20270214T080000Z
+SUMMARY:Darkmoon Faire
+DESCRIPTION:Confirmed: from Blizzard and game data.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Darkmoon Island (portals in Elwynn Forest and M
+ ulgore)
+URL:https://news.blizzard.com/en-us/article/23785338/the-darkmoon-faire-ret
+ urns
+CATEGORIES:Darkmoon Faire
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fc5566d818eb8a5c2610bc1498e414c6
+DTSTAMP:20261108T000000Z
+DTSTART:20270208T180000Z
+DTEND:20270222T180000Z
+SUMMARY:Love is in the Air
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Capital cities
+URL:https://warcraft.wiki.gg/wiki/Love_is_in_the_Air
+CATEGORIES:Holidays
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:68c06dda4646fde348cc37688bef76b3
+DTSTAMP:20261108T000000Z
+DTSTART:20270223T080000Z
+DTEND:20270224T080000Z
+SUMMARY:Hatching of the Hippogryphs
+DESCRIPTION:Confirmed: from game data and Blizzard.\nThe wiki lists Februar
+ y 19\; the game's calendar data says February 23.\nRegion: Americas (US\, 
+ Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sch
+ edule data r2\, checked 2026-11-08. It is not read from the game\; a realm
+  can open early or late around maintenance.\nDetails and sources: https://
+ radmagelabs.com/wow/
+LOCATION:World of Warcraft: Feralas
+URL:https://warcraft.wiki.gg/wiki/Hatching_of_the_Hippogryphs
+CATEGORIES:Small events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:bc5877d4b0a346d50537f9590a14057d
+DTSTAMP:20261108T000000Z
+DTSTART:20270223T080000Z
+DTEND:20270309T080000Z
+SUMMARY:Kalimdor Cup
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Races across Kalimdor
+URL:https://warcraft.wiki.gg/wiki/Kalimdor_Cup
+CATEGORIES:Small events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:6bb0c27f247efe46b38777e715bab4e0
+DTSTAMP:20261108T000000Z
+DTSTART:20270307T080000Z
+DTEND:20270314T080000Z
+SUMMARY:Darkmoon Faire
+DESCRIPTION:Confirmed: from Blizzard and game data.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Darkmoon Island (portals in Elwynn Forest and M
+ ulgore)
+URL:https://news.blizzard.com/en-us/article/23785338/the-darkmoon-faire-ret
+ urns
+CATEGORIES:Darkmoon Faire
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:242d8a98920b349f319ee1be9d227401
+DTSTAMP:20261108T000000Z
+DTSTART:20270317T070000Z
+DTEND:20270320T070000Z
+SUMMARY:Un'Goro Madness
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Un'Goro Crater
+URL:https://warcraft.wiki.gg/wiki/Un%27Goro_Madness
+CATEGORIES:Small events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:86b040dce4cfe6229bce2709c55cdd0b
+DTSTAMP:20261108T000000Z
+DTSTART:20270320T170000Z
+DTEND:20270327T170000Z
+SUMMARY:Trial of Style
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Transmogrifiers in capital cities
+URL:https://warcraft.wiki.gg/wiki/Trial_of_Style
+CATEGORIES:Small events
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:5f650abea15456d201cb1e1e2d1f4011
+DTSTAMP:20261108T000000Z
+DTSTART:20270329T170000Z
+DTEND:20270405T170000Z
+SUMMARY:Noblegarden
+DESCRIPTION:Confirmed: from game data and Blizzard.\nRegion: Americas (US\,
+  Latin American and Oceanic realms).\nA scheduled time from WoW Tracker sc
+ hedule data r2\, checked 2026-11-08. It is not read from the game\; a real
+ m can open early or late around maintenance.\nDetails and sources: https:/
+ /radmagelabs.com/wow/
+LOCATION:World of Warcraft: Starting areas
+URL:https://warcraft.wiki.gg/wiki/Noblegarden
+CATEGORIES:Holidays
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:8b0a08760dc3b445e17e63a9629abdb0
+DTSTAMP:20261108T000000Z
+DTSTART;VALUE=DATE:20270401
+DTEND;VALUE=DATE:20270402
+SUMMARY:Not known yet from here: Holidays\, Darkmoon Faire\, Small events
+DESCRIPTION:Holidays\, Darkmoon Faire\, Small events: Known through Mar 31\
+ , 2027. After that: not known yet (dates after March 31\, 2027 are not in 
+ the game data checked so far).\nThis calendar gains entries when WoW Track
+ er's schedule data is updated. A day with nothing after this is not known 
+ to be empty. https://radmagelabs.com/wow/
+URL:https://radmagelabs.com/wow/
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

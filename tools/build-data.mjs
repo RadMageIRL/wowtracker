@@ -1,14 +1,16 @@
 // Checks each edition's schedule data (data/<source>.source.json, editions listed in js/config.js) against
 // the data rules and writes the file the page loads for it (Retail: events-data.js). The page gets what it
 // shows (names, schedules, labels, source links, check dates); the verbatim source quotes stay in the
-// source file for whoever maintains it.
+// source file for whoever maintains it. From the same page data it writes the calendar subscription feeds
+// (calendar/*.ics, tools/feeds.mjs), so a data change and its feeds are always one change.
 //
-//   node tools/build-data.mjs           check every edition and write its file
-//   node tools/build-data.mjs --check   check, and fail if a generated file is not current
-import { readFileSync, writeFileSync } from 'node:fs';
+//   node tools/build-data.mjs           check every edition and write its files and the feeds
+//   node tools/build-data.mjs --check   check, and fail if a generated file or feed is not current
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { feeds } from './feeds.mjs';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
@@ -256,29 +258,40 @@ export function render(src, edition = EDITIONS[0]) {
     + '})(typeof globalThis !== \'undefined\' ? globalThis : this);\n';
 }
 
+/** Writes a generated file, or with check says it is not current. Bytes as given (the feeds keep their CRLF). */
+function writeOrCheck(file, out, check, log) {
+  const path = join(ROOT, file);
+  let current = '';
+  try { current = readFileSync(path, 'utf8'); } catch (e) { current = ''; }
+  if (current === out) return [];
+  if (check) return [`${file} is not current: run node tools/build-data.mjs`];
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, out);
+  log(`Wrote ${file}`);
+  return [];
+}
+
 /** Checks one edition and writes (or, with check, compares) its generated file. */
 function buildEdition(edition, check, log) {
   const src = JSON.parse(readFileSync(join(ROOT, 'data', `${edition.source}.source.json`), 'utf8'));
   const errors = validate(src, edition.id).map((e) => `${edition.id}: ${e}`);
   if (errors.length) return { ok: false, errors };
-  const out = render(src, edition);
-  const path = join(ROOT, edition.file);
-  let current = '';
-  try { current = readFileSync(path, 'utf8'); } catch (e) { current = ''; }
-  if (check) {
-    if (current !== out) return { ok: false, errors: [`${edition.file} is not current: run node tools/build-data.mjs`] };
-  } else if (current !== out) {
-    writeFileSync(path, out);
-    log(`Wrote ${edition.file}`);
-  }
-  return { ok: true, errors: [], id: edition.id, revision: src.meta.datasetRevision, events: src.events.length };
+  const stale = writeOrCheck(edition.file, render(src, edition), check, log);
+  if (stale.length) return { ok: false, errors: stale };
+  return { ok: true, errors: [], id: edition.id, revision: src.meta.datasetRevision, events: src.events.length, page: pageData(src) };
 }
 
-/** Every edition; revision and events are Retail's (the default), and editions lists each one. */
+/**
+ * Every edition, then the calendar feeds made from them (tools/feeds.mjs); revision and events are Retail's
+ * (the default), and editions lists each one.
+ */
 export function buildData({ check = false, log = console.log } = {}) {
   const results = EDITIONS.map((e) => buildEdition(e, check, log));
   const errors = results.flatMap((r) => r.errors);
   if (errors.length) return { ok: false, errors };
+  const pages = Object.fromEntries(results.map((r) => [r.id, r.page]));
+  const stale = feeds(pages).flatMap((f) => writeOrCheck(f.file, f.text, check, log));
+  if (stale.length) return { ok: false, errors: stale };
   return { ok: true, errors: [], revision: results[0].revision, events: results[0].events, editions: results.map(({ id, revision, events }) => ({ id, revision, events })) };
 }
 

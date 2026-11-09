@@ -157,7 +157,13 @@ test('release files: MIT LICENSE, .nojekyll for GitHub Pages, and a CI workflow 
   assert.match(file('LICENSE'), /^MIT License\n\nCopyright \(c\) 2026 RadMageIRL\n/);
   assert.ok(existsSync(join(ROOT, '.nojekyll')));
   const wf = file('.github/workflows/test.yml');
-  for (const cmd of ['node tests/run.mjs', 'node tools/build-data.mjs --check', 'node tools/build.mjs --verify', 'node tests/smoke.mjs']) assert.ok(wf.includes(cmd), cmd);
+  for (const cmd of ['node tests/run.mjs', 'node tools/build-data.mjs --check', 'node tools/build.mjs --verify', 'node tests/smoke.mjs\n',
+    'node tests/controls.mjs\n', 'node tests/smoke.mjs --layout --font-profile android', 'node tests/smoke.mjs --layout --fonts arial-georgia', 'node tests/controls.mjs --font-profile android',
+    'node-version: ${{ matrix.node }}', 'node: [22, 24]']) assert.ok(wf.includes(cmd), cmd);
+  // Every job has a time limit, so a browser that hangs fails in minutes instead of six hours.
+  const jobs = wf.split('\njobs:\n')[1].split(/^ {2}(?=[a-z]+:\n)/m).slice(1);
+  assert.deepEqual(jobs.map((j) => j.split(':')[0]), ['unit', 'smoke', 'fonts']);
+  for (const j of jobs) assert.match(j, /\n {4}timeout-minutes: \d+\n/, j.split(':')[0]);
 });
 
 // Every project file that is ours (not local research, not build output).

@@ -3,6 +3,12 @@
 // zone. news.json is answered from a fixture, refused, or missing, so no test reaches Blizzard.
 //
 //   node tests/smoke.mjs [--dir dist] [--only <part of a check name>] [--shots <folder>]
+//                        [--layout] [--fonts page|arial-georgia|verdana-georgia] [--font-profile android]
+//
+// --layout runs only the checks whose results depend on font widths (LAYOUT_CHECKS below). --fonts swaps
+// the page's font stacks for wider ones in every tab (any platform). --font-profile shows Chrome only one
+// kind of device's fonts (Linux, tests/lib/fonts.mjs). The first line printed names the browser and the
+// fonts the page was really drawn with; a requested set or profile that is not in use stops the run.
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync, mkdirSync, mkdtempSync, cpSync, writeFileSync, rmSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
@@ -10,6 +16,7 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 import { launchChrome } from './lib/cdp.mjs';
+import { fontProfileEnv, SETS as FONT_SETS, setScript } from './lib/fonts.mjs';
 import { serve } from '../tools/serve.mjs';
 import { events as icsEvents } from './ics.mjs';
 
@@ -21,6 +28,12 @@ const opt = (name, d) => { const i = argv.indexOf(`--${name}`); return i >= 0 ? 
 const DIR = resolve(ROOT, opt('dir', 'dist'));
 const ONLY = opt('only', '');
 const SHOTS = opt('shots', null);
+const LAYOUT = argv.includes('--layout');
+const FONT_SET = opt('fonts', 'page');
+if (!Object.hasOwn(FONT_SETS, FONT_SET)) { console.error(`Unknown font set "${FONT_SET}" (known: ${Object.keys(FONT_SETS).join(', ')}).`); process.exit(1); }
+const SET = FONT_SETS[FONT_SET];
+let PROFILE = null;
+try { PROFILE = opt('font-profile', null) ? fontProfileEnv(opt('font-profile')) : null; } catch (e) { console.error(e.message); process.exit(1); }
 if (!existsSync(join(DIR, 'index.html'))) { console.error(`No site in ${DIR}: run node tools/build.mjs first.`); process.exit(1); }
 
 const FEED = readFileSync(join(ROOT, 'tests', 'fixtures', 'news-feed.json'), 'utf8');
@@ -44,7 +57,16 @@ const SLOW_NEWS = await site(DIR, { sendDate: false, news: { body: FEED, delayMs
 const EMPTY_BASE = await site(EMPTY, { sendDate: false, news: 'off' });
 const MISSING_BASE = await site(MISSING, { sendDate: false, news: 'off' });
 const DATED = await site(DIR, { sendDate: true, news: 'off' });
-const chrome = await launchChrome();
+/** Every browser the checks start gets the same fonts: the profile's (Linux) and the set's (in each tab). */
+async function launchBrowser() {
+  const b = await launchChrome({ env: PROFILE && PROFILE.env });
+  if (SET) {
+    const plain = b.newPage.bind(b);
+    b.newPage = async () => { const p = await plain(); await p.beforeLoad(setScript(SET)); return p; };
+  }
+  return b;
+}
+const chrome = await launchBrowser();
 for (const b of [BASE]) await chrome.grant(b.slice(0, -1), ['clipboardReadWrite', 'clipboardSanitizedWrite']);
 
 let passed = 0, failed = 0;
@@ -1647,7 +1669,7 @@ check('a backup made on the Forever page holds Retail and Forever apart; restore
   assert.equal(raw.shared.prefs.starred, undefined, 'the shared part holds no edition\'s stars');
   await page.close();
   // A fresh browser profile: nothing saved at all.
-  const fresh = await launchChrome();
+  const fresh = await launchBrowser();
   try {
     const p2 = await open({ at: utc('2026-11-12T18:00:00Z'), browser: fresh });
     assert.deepEqual(await stored(p2), {});
@@ -1954,8 +1976,48 @@ check('screenshots for review: desktop dark, desktop light, Europe', async () =>
   }
 });
 
+// The checks whose results depend on font widths: where things wrap, fit, scroll sideways or move. --layout
+// runs only these, so they can be repeated cheaply with other fonts. Each entry must name exactly one check.
+const LAYOUT_CHECKS = [
+  'news opens under the resets once the page has loaded',
+  'a slow news answer never holds up the countdowns or moves Happening now',
+  'a headline too long for one line ends in an ellipsis and never widens the page',
+  'on a phone the details fit the screen without sideways scrolling',
+  'on a phone several reminders at once show one notice',
+  'on a desktop at most three notices show',
+  'your checklist sits after Coming up as one folded line',
+  'selecting the backup text with a drag that ends outside the box',
+  'Forever at 390, 360 and 768 px: nothing scrolls sideways',
+  'the "All versions" label never moves the news when the headlines arrive',
+  'the page draws once, complete: no layout shift while it loads',
+  'at 390 px nothing scrolls sideways',
+  'at 360 px nothing scrolls sideways',
+  'at 768 px nothing scrolls sideways',
+  'on phones the filters fold behind one button',
+];
+for (const l of LAYOUT_CHECKS) {
+  const n = checks.filter((c) => c.name.startsWith(l)).length;
+  if (n !== 1) { console.error(`LAYOUT_CHECKS: "${l}" names ${n} checks, not one`); process.exit(1); }
+}
+const isLayout = (c) => LAYOUT_CHECKS.some((l) => c.name.startsWith(l));
+
+// What this run really draws with: the browser, and the fonts of the page's text and headings as drawn.
+{
+  const page = await open({ at: utc('2026-11-09T18:00:00Z') });
+  const sans = await page.platformFonts('#region-line'), serif = await page.platformFonts('#now-title');
+  await page.close();
+  const fonts = [PROFILE ? PROFILE.label : "this machine's fonts", SET ? `${SET.label} in the page` : null].filter(Boolean).join('; ');
+  console.log(`environment: Node ${process.version} on ${process.platform}, ${await chrome.version()}, ${fonts}: text drawn in ${sans.join(' + ')}, headings in ${serif.join(' + ')}${LAYOUT ? '; layout checks only' : ''}`);
+  const expect = (SET && SET.expect) || (PROFILE && PROFILE.expect);
+  if (expect && !(expect.sans.includes(sans[0]) && expect.serif.includes(serif[0]))) {
+    console.error(`The requested fonts are not in use (text ${sans[0]}, headings ${serif[0]}; expected ${expect.sans.join(' or ')} and ${expect.serif.join(' or ')}). Nothing was checked.`);
+    process.exit(1);
+  }
+}
+
 for (const c of checks) {
   if (ONLY && !c.name.includes(ONLY)) continue;
+  if (LAYOUT && !isLayout(c)) continue;
   try { await c.fn(); passed++; console.log(`ok   ${c.name}`); } catch (e) { failed++; console.log(`FAIL ${c.name}\n  ${String(e.message).split('\n').join('\n  ')}`); }
 }
 await chrome.close();

@@ -60,7 +60,11 @@ node tools/build.mjs            # the production build in dist/
 node tools/serve.mjs dist 8081  # preview the build
 node tests/run.mjs              # unit tests, data rules and house checks
 node tests/smoke.mjs            # browser tests on dist/ (needs Chrome)
+node tests/smoke.mjs --layout --fonts verdana-georgia   # the layout checks with wider fonts
+node tests/controls.mjs         # past defects put back: the browser tests must still catch them
 ```
+
+The browser tests print the fonts the page was really drawn with. On Linux, `--font-profile android` runs them with only Roboto and Noto Serif (packages fonts-roboto-unhinted and fonts-noto-core), as GitHub Actions does on every push.
 
 Opening index.html straight from disk works too; news then links to Blizzard News, because Blizzard's news list can only be read through a server. On radmagelabs.com (and the local server) the page asks its own site for news.json, which passes Blizzard's list through; on GitHub Pages and from disk it does not ask at all.
 

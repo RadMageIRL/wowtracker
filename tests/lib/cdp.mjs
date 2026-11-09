@@ -45,7 +45,8 @@ class Connection {
   }
 }
 
-export async function launchChrome() {
+/** env: extra environment for the browser, such as FONTCONFIG_FILE for a font profile (tests/lib/fonts.mjs). */
+export async function launchChrome({ env = null } = {}) {
   const exe = findChrome();
   if (!exe) throw new Error('Chrome not found; set CHROME_PATH');
   const profile = mkdtempSync(join(tmpdir(), 'wowtracker-chrome-'));
@@ -54,7 +55,7 @@ export async function launchChrome() {
     '--no-default-browser-check', '--disable-extensions', '--disable-background-networking', '--mute-audio',
     ...(process.env.CI ? ['--no-sandbox'] : []), // Linux CI runners do not allow Chrome's sandbox
     'about:blank',
-  ], { stdio: ['ignore', 'ignore', 'pipe'] });
+  ], { stdio: ['ignore', 'ignore', 'pipe'], env: env ? { ...process.env, ...env } : process.env });
   // Keep the end of Chrome's own error output, so a failed start says why.
   let stderr = '';
   child.stderr.on('data', (d) => { stderr = (stderr + d).slice(-4000); });
@@ -75,6 +76,9 @@ export async function launchChrome() {
   const conn = new Connection(ws);
 
   return {
+    exe,
+    /** The browser's own name and version, e.g. "HeadlessChrome/156.0.8078.79". */
+    async version() { return (await conn.send('Browser.getVersion')).product; },
     // Grants permissions (e.g. clipboardReadWrite) to pages from `origin` without a prompt.
     async grant(origin, permissions) {
       await conn.send('Browser.grantPermissions', { origin, permissions });
@@ -182,6 +186,17 @@ async function makePage(conn, sessionId, targetId) {
       }
       const { data } = await send('Page.captureScreenshot', params);
       writeFileSync(file, Buffer.from(data, 'base64'));
+    },
+    // The fonts the browser really drew a node's text with (family names, most glyphs first): what a
+    // font stack resolved to on this machine, not what the CSS asked for.
+    async platformFonts(selector) {
+      await send('DOM.enable');
+      await send('CSS.enable');
+      const { root } = await send('DOM.getDocument', {});
+      const { nodeId } = await send('DOM.querySelector', { nodeId: root.nodeId, selector });
+      if (!nodeId) throw new Error(`no element ${selector}`);
+      const { fonts } = await send('CSS.getPlatformFontsForNode', { nodeId });
+      return [...new Set(fonts.sort((a, b) => b.glyphCount - a.glyphCount).map((f) => f.familyName))];
     },
     // Close the tab: a background tab left open gets throttled timers and can slow later checks.
     async close() { await conn.send('Target.closeTarget', { targetId }); },

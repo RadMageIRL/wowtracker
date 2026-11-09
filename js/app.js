@@ -18,7 +18,7 @@
   const ED = EDITIONS.find((e) => e.id === EDITION);
   const RETAIL = EDITION === EDITIONS[0].id;
   const DATA = window[ED.data];
-  /** This page's version, from its own script address (app.js?v=0.3.1), for backups. */
+  /** This page's version, from its own script address (app.js?v=0.4.0), for backups. */
   const APP_VERSION = (() => { try { return new URL(document.currentScript.src).searchParams.get('v') || ''; } catch (e) { return ''; } })();
   const $ = (id) => document.getElementById(id);
   // Without the schedule data there is nothing to count down: say so instead of showing a broken page.

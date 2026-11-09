@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.4.0 (2026-11-09)
+
+Quick filters, a Weekly overview that names its dates, and calendar feeds published for later subscriptions. Retail's and WoW: Forever's events, times, calendar files, identifiers and backups are as in v0.3.1, and everything v0.3.1 saved carries over.
+
+- Show only, at the top of the filters: Today, This week, Starred and Holidays. Today keeps what is on at some point in your day (your midnight to the next) and only those times, in Coming up, the Weekly overview and the Event calendar; This week does the same for the week the Weekly overview shows first (the reset week, or Monday to Monday in WoW: Forever); Holidays keeps the holidays. They narrow what your categories, stars, hidden events and search already show, so they combine (Today and Starred: your starred events on today), and a line says what they keep and how many events. Today, This week and Holidays are not saved and never change your saved settings. Starred is the saved filter it always was, now a button in that row in place of the All and Starred pair. On phones the row folds with the other filters, so the first screen is as it was, and the folded line names what is on.
+- The Weekly overview names the date of every start and end. A bonus week now reads "Wed, Nov 11, 5:00 AM to Wed, Nov 18, 4:00 AM" instead of "Wed 5:00 AM to Wed 4:00 AM", which looked like an hour backwards; something within one day says its date once ("Sun, Nov 15, 2:00 PM to 4:00 PM"); an end at midnight is the next day's. "On now" shows only in this week's column, not again beside what carries on into next week.
+- Calendar feeds, published but not offered on the page yet: four calendar files next to the page, one per game version and region (calendar/retail-americas.ics, calendar/retail-europe.ics, calendar/forever-americas.ics and calendar/forever-europe.ics), rebuilt whenever the schedule data changes. A calendar app subscribed to one picks up changes on its own schedule. Each holds the entries Export to calendar would give, from two weeks before the data was reviewed to where it ends, without events that repeat every hour or more often, with "(Predicted)" or "(Predicted time)" where the page shows it, and one all-day entry where each known schedule ends. There is no Subscribe button yet: I have seen Google Calendar subscribe to a test feed written the same way and follow its changes, but I have not tested Apple Calendar or Outlook.
+- Export to calendar and Add to calendar save the same files as in v0.3.1 for the same filters, byte for byte (only the moment of download differs). Holidays and Starred narrow an export as they narrow the lists; Today and This week do not, since the dialog has its own range.
+- Behind the scenes: the tests run with Linux and Android-like fonts on every push; a schedule comparison tool reports what a new game build changes in the calendar data and never edits it; the WoW: Forever test data keeps fingerprints of the game's descriptions instead of their text; the page's structured-data description now matches its meta description.
+
+Schedule data:
+
+- Retail: r2, unchanged.
+- WoW: Forever r2 (2026-11-09), wording only, no time changed: the Americas server clock (US Central time) has now been seen twice, both in standard time: the fishing contest on November 8, 2026, and a player's in-game clock on November 7, 2026 (two hours ahead of Pacific time, UTC-6). Blizzard has not said, daylight saving time and the resets have not been seen, and every WoW: Forever time is still labeled Predicted time.
+
 ## v0.3.1 (2026-11-09)
 
 Maintenance: the news header on phones. No schedule data or feature changes; settings saved by v0.3.0 and earlier carry over. v0.3.0 was tagged and on the site for part of November 9, 2026, and this release replaces it.
@@ -10,10 +25,6 @@ Schedule data:
 
 - Retail: r2, unchanged.
 - WoW: Forever: r1, unchanged.
-
-Not released yet (in development for v0.4.0; it moves into that version's entry when it ships):
-
-- WoW: Forever r2 (2026-11-09), wording only, no time changed: the Americas server clock (US Central time) has now been seen twice, both in standard time: the fishing contest on November 8, 2026, and a player's in-game clock on November 7, 2026 (two hours ahead of Pacific time, UTC-6). Blizzard has not said, daylight saving time and the resets have not been seen, and every WoW: Forever time is still labeled Predicted time.
 
 ## v0.3.0 (2026-11-09)
 

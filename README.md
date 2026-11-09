@@ -1,10 +1,10 @@
-# WoW Tracker v0.3.1
+# WoW Tracker v0.4.0
 
 My World of Warcraft dashboard for resets and scheduled events, in your local time, for Retail and for WoW: Forever. It is one plain HTML page: no install, no account, no ads, no server. Every time is worked out in your browser from schedule data kept in this repository.
 
 Use it online at **[radmagelabs.com/wow](https://radmagelabs.com/wow/)** (also at [radmageirl.github.io/wowtracker](https://radmageirl.github.io/wowtracker/)), or download it and open it from your own computer.
 
-![WoW Tracker in the dark theme, on Retail: the Retail and Forever switch beside the title, the daily and weekly reset countdowns and the Trading Post for the Americas, the three newest Blizzard News headlines labeled All versions, the category filters with the search box and Reminders, and Happening now cards for the Midnight Dungeon bonus event, Cragpine, the week's predicted world boss, and a predicted Curse Surge at Siege at the Whispering Marsh](screenshots/wowtracker.png)
+![WoW Tracker v0.4.0 in the dark theme, on Retail: the Retail and Forever switch beside the title, the daily and weekly reset countdowns and the Trading Post for the Americas, the three newest Blizzard News headlines labeled All versions, the Show only quick filters (Today, This week, Starred, Holidays) above the category filters, the search box and Reminders, and Happening now cards for the Midnight Dungeon bonus event, Cragpine and a Curse Surge](screenshots/wowtracker.png)
 
 - **Retail or WoW: Forever:** a switch beside the title picks the game version. Each has its own events, stars, hidden events, filters and checklist; the region, theme and reminder settings are shared. A link ending in #forever opens WoW: Forever.
 - **Resets:** daily and weekly reset countdowns for the Americas and Europe, plus the monthly Trading Post change (Retail).
@@ -12,12 +12,26 @@ Use it online at **[radmagelabs.com/wow](https://radmagelabs.com/wow/)** (also a
 - **Happening now:** what is inside its scheduled window right now. Events that repeat every hour or more often (Aqir Invasions, Curse Surges) come last.
 - **Coming up:** what starts in the next hour, few hours or days, with Today and Tomorrow headings.
 - **Your checklist:** your own daily and weekly tasks, or picks from a list of suggestions, that clear at your region's resets. Nothing is read from the game. Off in WoW: Forever until its reset times are known.
-- **Weekly overview:** this reset week and the next, including the week's world boss.
+- **Show only:** Today, This week, Starred and Holidays, at the top of the filters. Today and This week keep what is on at some point in your day or in the week the Weekly overview shows first, and only those times; Holidays keeps the holidays. They narrow what your other filters show and combine with them and with search. Starred is saved, as always; the other three are not, and none of them changes your saved settings.
+- **Weekly overview:** this reset week and the next, including the week's world boss, with the date of every start and end, so a week-long event reads "Wed, Nov 11, 5:00 AM to Wed, Nov 18, 4:00 AM".
 - **Event calendar:** holidays, the Darkmoon Faire, Timewalking and bonus weeks by month; in WoW: Forever, its holidays, the Darkmoon Faire and the Sunday fishing contest.
 - **Search and details:** one box narrows every list as you type and forgives small typos; every event name opens what the schedule data knows about it, with its sources.
-- **Calendar export:** Add to calendar for one occurrence, or Export to calendar for what the filters show, as an .ics file made in your browser. Each game version gets its own files, and one file never mixes them.
+- **Calendar export:** Add to calendar for one occurrence, or Export to calendar for what the filters show, as an .ics file made in your browser. Each game version gets its own files, and one file never mixes them. Calendar feeds for subscribing are published too, but not offered on the page yet (see Calendar feeds below).
 - **Reminders** for starred events, off by default: a notice on the page, and a browser notification if you allow it, 5 to 60 minutes before the start. Only while the page is open in a tab, and only for the game version on screen; for anything else, use the calendar export.
 - Stars, hiding with a Hidden list to bring things back, category filters, compact mode, Dark / Light / System themes, and local, UTC or both. Everything is saved in your browser only, and Back up settings copies it all, both game versions apart, as one line of text you can restore later or in another browser. Backups from v0.1 and v0.2 still restore.
+
+## Calendar feeds
+
+Four calendar files are published next to the page, one per game version and region, and rebuilt whenever the schedule data changes:
+
+| Game version | Americas | Europe |
+|---|---|---|
+| Retail | https://radmagelabs.com/wow/calendar/retail-americas.ics | https://radmagelabs.com/wow/calendar/retail-europe.ics |
+| WoW: Forever | https://radmagelabs.com/wow/calendar/forever-americas.ics | https://radmagelabs.com/wow/calendar/forever-europe.ics |
+
+A calendar app that subscribes to one of these addresses checks it again on its own schedule and follows the changes. Each feed holds the entries Export to calendar would give, from two weeks before the data was reviewed to where it ends, without events that repeat every hour or more often, with "(Predicted)" or "(Predicted time)" in the title where the page shows it, and one all-day entry where each known schedule ends.
+
+The page does not offer them yet, and I have not tested them everywhere. Google Calendar subscribed to a test feed written the same way, showed it correctly and followed its changes (moved, renamed, removed and added entries) about an hour and a half after I published them. I have not tested Apple Calendar or Outlook. A Subscribe button will come once more apps are tested; until then the addresses above are for anyone who wants to try, with no promise that every app handles them or how quickly it checks again.
 
 ## How sure the times are
 
@@ -68,7 +82,7 @@ The browser tests print the fonts the page was really drawn with. On Linux, `--f
 
 Opening index.html straight from disk works too; news then links to Blizzard News, because Blizzard's news list can only be read through a server. On radmagelabs.com (and the local server) the page asks its own site for news.json, which passes Blizzard's list through; on GitHub Pages and from disk it does not ask at all.
 
-I keep the schedule data in [data/events.source.json](data/events.source.json) (Retail) and [data/forever.source.json](data/forever.source.json) (WoW: Forever), with the verbatim source quote behind every time. `node tools/build-data.mjs` checks both against the data rules and writes events-data.js and forever-data.js.
+I keep the schedule data in [data/events.source.json](data/events.source.json) (Retail) and [data/forever.source.json](data/forever.source.json) (WoW: Forever), with the verbatim source quote behind every time. `node tools/build-data.mjs` checks both against the data rules and writes events-data.js, forever-data.js and the four calendar feeds in [calendar/](calendar/). The feeds keep the CRLF line endings calendar files require; every other file uses LF.
 
 When a new game build comes out, I compare its calendar with what the page publishes before changing anything:
 

@@ -6,6 +6,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
 
 const require = createRequire(import.meta.url);
 const S = require('../js/schedule.js');
@@ -212,15 +213,29 @@ export async function foreverTests(test) {
     assert.deepEqual(validate(SOURCE, 'forever'), []);
   });
 
-  test('places come from the game\'s own calendar text: every quoted line is in the client\'s descriptions, and every word of a place is in its quote', () => {
-    const descriptions = FIX.table.map((r) => r.description.replace(/\s+/g, ' '));
+  // The fixture keeps no game text: each row has its client text's SHA-256, and each sentence the data quotes
+  // from it has its place (whitespace collapsed) and SHA-256, recorded from the client's own text by
+  // local/scripts/fixture-text.mjs, whose --verify mode checks them against that text before every release.
+  test('places come from the game\'s own calendar text: every quoted line is a recorded sentence of a row its event cites, every word of a place is in its quote, and the fixture holds no game text', () => {
+    const sha = (s) => createHash('sha256').update(s, 'utf8').digest('hex');
+    for (const r of FIX.table) {
+      assert.ok(!('description' in r), `row ${r.holidayId} holds the client's text`);
+      assert.ok(r.descriptionSha256 === null || /^[0-9a-f]{64}$/.test(r.descriptionSha256), `row ${r.holidayId}: a fingerprint or nothing`);
+      for (const q of r.quoted || []) assert.ok(r.descriptionSha256 && Number.isInteger(q.at) && q.at >= 0 && q.chars > 0 && /^[0-9a-f]{64}$/.test(q.sha256), `row ${r.holidayId}`);
+    }
+    let parts = 0;
     for (const e of SOURCE.events) {
       const texts = e.sources.filter((s) => s.publisher.startsWith('Game calendar text'));
       assert.equal(texts.length, 1, e.id);
-      for (const part of texts[0].quote.split(' / ')) assert.ok(descriptions.some((d) => d.includes(part)), `${e.id}: ${part}`);
+      const cited = clientIds(e).map((id) => TABLE.get(id));
+      for (const part of texts[0].quote.split(' / ')) {
+        parts++;
+        assert.ok(cited.some((r) => (r.quoted || []).some((q) => q.sha256 === sha(part) && q.chars === part.length)), `${e.id}: "${part}" is not a recorded sentence of rows ${clientIds(e).join(', ')}`);
+      }
       if (e.zone === null) continue;
       for (const word of e.zone.match(/[A-Za-z']{4,}/g)) if (!['across', 'alternates'].includes(word)) assert.ok(texts[0].quote.toLowerCase().includes(word.toLowerCase()), `${e.id}: ${word}`);
     }
+    assert.equal(FIX.table.reduce((n, r) => n + (r.quoted || []).length, 0), parts, 'every recorded sentence is one the data quotes, and no more');
   });
 
   // ---- Coverage and what is left out ----

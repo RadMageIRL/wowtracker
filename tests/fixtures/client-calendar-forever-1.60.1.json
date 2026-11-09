@@ -25,7 +25,7 @@
    "calendarFilterType": 3,
    "calendarFlags": [],
    "descriptionId": 0,
-   "description": ""
+   "descriptionSha256": null
   },
   {
    "holidayId": 62,
@@ -45,7 +45,14 @@
     3
    ],
    "descriptionId": 11,
-   "description": "After the sun sets, the end of Midsummer is celebrated, with an hourly firework extravaganza.\n\nTo watch the show, visit any capital city or Booty Bay."
+   "descriptionSha256": "7507a8c048f31808ab7940c5bb35e9d698081fe55e31ecf06f95aec4866ee516",
+   "quoted": [
+    {
+     "at": 0,
+     "chars": 149,
+     "sha256": "26355207a9d67123b02f905a7b0017cffed780538b915c02398985e6509973d1"
+    }
+   ]
   },
   {
    "holidayId": 141,
@@ -65,7 +72,14 @@
     3
    ],
    "descriptionId": 13,
-   "description": "Greatfather Winter is visiting the cities of Ironforge and Orgrimmar, courtesy of Smokywood Pastures. And throughout Azeroth, it is the season to be jolly!"
+   "descriptionSha256": "743b8249b31146733a83e7673485930d777b1efcce09078620f9780cbd1edc6e",
+   "quoted": [
+    {
+     "at": 0,
+     "chars": 155,
+     "sha256": "743b8249b31146733a83e7673485930d777b1efcce09078620f9780cbd1edc6e"
+    }
+   ]
   },
   {
    "holidayId": 161,
@@ -83,7 +97,7 @@
    "calendarFilterType": 3,
    "calendarFlags": [],
    "descriptionId": 0,
-   "description": ""
+   "descriptionSha256": null
   },
   {
    "holidayId": 181,
@@ -112,7 +126,7 @@
     3
    ],
    "descriptionId": 14,
-   "description": "The feast of Noblegarden has arrived. The proving grounds of each race, the place where young heroes first test their strength, each holds cleverly hidden treasure eggs. How many can you find?"
+   "descriptionSha256": "4c279d42d6d90c6652af7cfd77e6479ee42d632f76489b84709a6b49523817c7"
   },
   {
    "holidayId": 201,
@@ -134,7 +148,7 @@
     3
    ],
    "descriptionId": 12,
-   "description": "Show an orphan what the hero's life is like! Visit Orphan Matron Nightingale in Stormwind or Orphan Matron Battlewail in Orgrimmar and make a child's dream come true."
+   "descriptionSha256": "1db239ece2457b9776bcd8dd4a24192ce911431ce2e6eddee24b0adfd3412f16"
   },
   {
    "holidayId": 263,
@@ -171,7 +185,14 @@
     3
    ],
    "descriptionId": 1,
-   "description": "The Darkmoon Faire is here, this time in idyllic Elwynn Forest.\n\nMeet Silas Darkmoon and his troupe, play games that test mind and nerve, and behold exotic sights from the four corners of Azeroth... and beyond!"
+   "descriptionSha256": "599effa37a03788e6a1a46c17646d9421e8d3e44703f517b3834533652c561d2",
+   "quoted": [
+    {
+     "at": 0,
+     "chars": 63,
+     "sha256": "cc219a126aaec86796fb8cc92f805d8ec7dbbc9d6f6b74a02b54d3cd94d6ba3c"
+    }
+   ]
   },
   {
    "holidayId": 264,
@@ -210,7 +231,14 @@
     3
    ],
    "descriptionId": 26,
-   "description": "The Darkmoon Faire is here, this time at the foot of Thunder Bluff.\n\nMeet Silas Darkmoon and his troupe, play games that test mind and nerve, and behold exotic sights from the four corners of Azeroth... and beyond!"
+   "descriptionSha256": "659be22b79d2c89b04dc6b6632a490bd371209dd2a23c0c12eca2af515d4c54b",
+   "quoted": [
+    {
+     "at": 0,
+     "chars": 67,
+     "sha256": "264d7148c6acffa8be63ebecb8366d4e0c2bb9b2b5ab5025b2ab3329592e365c"
+    }
+   ]
   },
   {
    "holidayId": 281,
@@ -228,7 +256,7 @@
    "calendarFilterType": 3,
    "calendarFlags": [],
    "descriptionId": 0,
-   "description": ""
+   "descriptionSha256": null
   },
   {
    "holidayId": 283,
@@ -265,7 +293,7 @@
     3
    ],
    "descriptionId": 22,
-   "description": "The battle for Alterac Valley grows intense. Greater honor is given to those who pledge sword to their liege and battle in Alterac."
+   "descriptionSha256": "924b3fc9b929d9d5b4e4ae04f42d9aed13e1239f3c2c66e4ca65056b6f46e981"
   },
   {
    "holidayId": 284,
@@ -302,7 +330,7 @@
     3
    ],
    "descriptionId": 25,
-   "description": "The battle for Warsong Gulch grows intense. Greater honor is given to those who pledge sword to their liege and battle in the Gulch."
+   "descriptionSha256": "20ae536c7d65efd5d7db19cdfa6dd41e66e31a681de0e3d610e5dc22851622b2"
   },
   {
    "holidayId": 285,
@@ -337,7 +365,7 @@
    "calendarFilterType": 2,
    "calendarFlags": [],
    "descriptionId": 23,
-   "description": "The battle for Arathi Basin grows intense. Greater honor is given to those who pledge sword to their liege and battle in Arathi."
+   "descriptionSha256": "4a10deb1aa6e9705dd3c7b0384ae3e502e46efd2fb21067e5f88fb32c1ef674d"
   },
   {
    "holidayId": 301,
@@ -357,7 +385,14 @@
     3
    ],
    "descriptionId": 4,
-   "description": "A fishing tournament, held along the coasts of Stranglethorn Vale. Catch as many tastyfish as you can!\n\nWill you be the master fisherman who catches forty fish first and wins the grand prize?"
+   "descriptionSha256": "c0bd9f353aef664d2dc2da4065c3b70615350c0d341a08f49200da429f27f723",
+   "quoted": [
+    {
+     "at": 0,
+     "chars": 66,
+     "sha256": "d7a50b1e85384ef3740ca15fdd766d632ed1cdefc239d07accd6f2cdd7d45dde"
+    }
+   ]
   },
   {
    "holidayId": 321,
@@ -385,7 +420,14 @@
     3
    ],
    "descriptionId": 16,
-   "description": "The Harvest Festival is a time to commemorate those who have sacrificed their lives to help friends and allies. Feasts are held outside Orgrimmar and Ironforge in honor of these fallen heroes."
+   "descriptionSha256": "fc78a2098252a9dacc2e062483dbfef3b00cb254017dae3f2169dfff0c69e452",
+   "quoted": [
+    {
+     "at": 112,
+     "chars": 80,
+     "sha256": "83233c0a849901f0f1674b523637cc74700d345e61dc21224063f7d0241391c4"
+    }
+   ]
   },
   {
    "holidayId": 324,
@@ -405,7 +447,14 @@
     3
    ],
    "descriptionId": 15,
-   "description": "Hallow's End celebrates the break of the Forsaken from the Scourge.\n\nFun and mischief reign as the Innkeepers of Azeroth give treats, and tricks, to whomever asks."
+   "descriptionSha256": "11e8bb3b66682eb72adc1608cf8c2bb7566c427f2a786622c87a03fd54139138",
+   "quoted": [
+    {
+     "at": 68,
+     "chars": 94,
+     "sha256": "0f20165f4bc693d32ba8693740f04c7ffbf8f2da34bcdd8a214a4558a7c0c88d"
+    }
+   ]
   },
   {
    "holidayId": 327,
@@ -440,7 +489,14 @@
     3
    ],
    "descriptionId": 17,
-   "description": "Every year the druids of Moonglade hold a celebration of their city's great triumph over an ancient evil. During the Lunar Festival, citizens of Azeroth have the opportunity to honor their elders by celebrating their sage wisdom, sharing in magnificent feasts, and of course... shooting lots of fireworks!"
+   "descriptionSha256": "93902969ecad0cd010b1fed9dff0f0e5d87669cc934f73dbb4ef7afe8e004a69",
+   "quoted": [
+    {
+     "at": 0,
+     "chars": 105,
+     "sha256": "d5bcbe4f16c6eb23de6236ef34b4bd17fb0aea17680c4862d8ef3cf91d09c72c"
+    }
+   ]
   },
   {
    "holidayId": 335,
@@ -460,7 +516,14 @@
     3
    ],
    "descriptionId": 9,
-   "description": "Something is in the air in the major cities of Azeroth. Many guards and townsfolk spend their days giving and receiving gifts to other amorous citizens."
+   "descriptionSha256": "2808859a564b80a18fc56f5cabfd5a58964ddf296ee2336c3fcb9e378fd564cb",
+   "quoted": [
+    {
+     "at": 0,
+     "chars": 55,
+     "sha256": "ff6c30fdf8cfc7bd33e9c523a28461da7c55f3bcbf46579a95fed439ebf77070"
+    }
+   ]
   },
   {
    "holidayId": 341,
@@ -480,7 +543,14 @@
     3
    ],
    "descriptionId": 10,
-   "description": "A time of merriment and celebration, dedicated to the hottest season of the year."
+   "descriptionSha256": "bac9cdd57797daafa71b71825c11171df10e40d6d52ea86daa67073d814397fa",
+   "quoted": [
+    {
+     "at": 0,
+     "chars": 81,
+     "sha256": "bac9cdd57797daafa71b71825c11171df10e40d6d52ea86daa67073d814397fa"
+    }
+   ]
   },
   {
    "holidayId": 1840,
@@ -501,7 +571,7 @@
     3
    ],
    "descriptionId": 512,
-   "description": "The battle at Darkspear Islands is heating up. Join up and prove your might!"
+   "descriptionSha256": "b2b9a1f67bc50f7888eb14f902987544b9d89e2e6734af5cba141ec095abf888"
   },
   {
    "holidayId": 1841,
@@ -522,7 +592,7 @@
     3
    ],
    "descriptionId": 23,
-   "description": "The battle for Arathi Basin grows intense. Greater honor is given to those who pledge sword to their liege and battle in Arathi."
+   "descriptionSha256": "4a10deb1aa6e9705dd3c7b0384ae3e502e46efd2fb21067e5f88fb32c1ef674d"
   },
   {
    "holidayId": 1842,
@@ -543,7 +613,7 @@
     3
    ],
    "descriptionId": 25,
-   "description": "The battle for Warsong Gulch grows intense. Greater honor is given to those who pledge sword to their liege and battle in the Gulch."
+   "descriptionSha256": "20ae536c7d65efd5d7db19cdfa6dd41e66e31a681de0e3d610e5dc22851622b2"
   },
   {
    "holidayId": 1879,
@@ -563,7 +633,7 @@
     3
    ],
    "descriptionId": 13,
-   "description": "Greatfather Winter is visiting the cities of Ironforge and Orgrimmar, courtesy of Smokywood Pastures. And throughout Azeroth, it is the season to be jolly!"
+   "descriptionSha256": "743b8249b31146733a83e7673485930d777b1efcce09078620f9780cbd1edc6e"
   },
   {
    "holidayId": 1896,
@@ -581,7 +651,7 @@
    "calendarFilterType": 0,
    "calendarFlags": [],
    "descriptionId": 0,
-   "description": ""
+   "descriptionSha256": null
   }
  ],
  "rows": [
@@ -2611,5 +2681,6 @@
    "startUtc": "2027-11-07T20:00:00Z",
    "endUtc": "2027-11-07T22:00:00Z"
   }
- ]
+ ],
+ "descriptions": "Description text is not stored here. Each row has the SHA-256 of its client text (descriptionSha256) and, for the sentences data/forever.source.json quotes, their place in the text with whitespace collapsed and their SHA-256 (quoted). local/scripts/fixture-text.mjs --verify checks them against the client CSV."
 }

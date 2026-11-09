@@ -118,9 +118,29 @@
   }));
   const found = (e) => Search.matches(SEARCH_INDEX.get(e.id), query);
 
-  function shown() {
+  // Quick filters narrow what the saved filters show, as search does, and are not saved: Today and This week (one at
+  // a time) keep what is on at some point in that range, and only those windows; Holidays keeps the Holidays category.
+  // Starred is the saved filter it always was. None of them changes saved categories, stars or hidden events.
+  const quick = { scope: null, holidays: false };
+  const HOLIDAY = 'holiday';
+  /** The week the overview shows first: the reset week, or Monday to Monday in the reader's time without a published reset. */
+  function weekRule() {
+    const weekly = resets().weekly;
+    return knownReset(weekly) ? weekly.rule : { type: 'weekly', weekday: 1, time: '00:00', zone: formats().zone };
+  }
+  /** [from, to) of the quick time filter at now, or null when none is on. */
+  const scopeRange = (now) => (!quick.scope ? null : quick.scope === 'today' ? S.dayRange(now, formats().zone) : S.weekRange(weekRule(), now));
+  const inScope = (w, range) => !range || (w.end > range[0] && w.start < range[1]);
+  const occursIn = (e, range) => { const s = S.scheduleFor(e, region()); return Boolean(s && S.windows(s, range[0], range[1]).length); };
+  /** Anything narrowing the lists beyond the saved categories and hidden events. */
+  const narrowed = () => Boolean(query || quick.scope || quick.holidays);
+
+  /** What the filters show. scope: false leaves out Today and This week (a calendar file has its own range). */
+  function shown({ scope = true } = {}) {
     const cats = new Set(prefs.categories), hidden = new Set(prefs.hidden), starred = new Set(prefs.starred);
-    return EVENTS.filter((e) => !hidden.has(e.id) && cats.has(e.category) && (prefs.filter === 'all' || starred.has(e.id)) && found(e));
+    const range = scope ? scopeRange(nowMs()) : null;
+    return EVENTS.filter((e) => !hidden.has(e.id) && cats.has(e.category) && (prefs.filter === 'all' || starred.has(e.id)) && found(e)
+      && (!quick.holidays || e.category === HOLIDAY) && (!range || occursIn(e, range)));
   }
   const region = () => prefs.region;
   const resets = () => DATA.resets[region()];
@@ -188,8 +208,8 @@
 
   /** The categories the viewer follows: the chosen ones, or with Starred, those of the starred events. */
   function followedCategories() {
-    if (prefs.filter !== 'starred' && !query) return new Set(prefs.categories);
-    // With Starred or a search: the categories of what is shown.
+    if (prefs.filter !== 'starred' && !narrowed()) return new Set(prefs.categories);
+    // With Starred, a search or a quick filter: the categories of what is shown.
     return new Set(shown().map((e) => e.category));
   }
 
@@ -343,12 +363,12 @@
 
   // ---- Weekly overview: this reset week and the next ----
 
-  function weekColumn(title, from, to, list, now) {
+  function weekColumn(title, from, to, list, now, range) {
     const items = [];
     for (const e of list) {
       const s = S.scheduleFor(e, region());
       if (!s) continue;
-      const found = S.windows(s, from, to);
+      const found = S.windows(s, from, to).filter((w) => inScope(w, range));
       // Something that repeats every hour or so gets one line for the week, not one per start. Its details
       // open at the slot on now or next (`at`), not at the week's first slot, which may be days past.
       if (isFrequent(e)) {
@@ -369,24 +389,23 @@
         h('span', { class: 'span', text: when + (live ? ' · on now' : '') }));
     });
     const note = gapNote(to);
-    if (!li.length) li.push(h('li', { class: 'none', text: note ? 'Nothing known yet.' : query ? 'Nothing that matches is scheduled.' : 'Nothing you follow is scheduled.' }));
+    if (!li.length) li.push(h('li', { class: 'none', text: note ? 'Nothing known yet.' : narrowed() ? 'Nothing that matches is scheduled.' : 'Nothing you follow is scheduled.' }));
     return h('div', { class: 'week-col' },
       h('h3', {}, title, ' ', h('span', { class: 'dates', text: `${at(from, 'wdate')} to ${at(to, 'wdate')}` })),
       h('ul', { class: 'week-list' }, li), note);
   }
 
-  function weekGrid(list, now) {
-    const weekly = resets().weekly;
+  function weekGrid(list, now, range) {
     // Without a published weekly reset the overview shows calendar weeks: Monday to Monday in the reader's time.
-    const rule = knownReset(weekly) ? weekly.rule : { type: 'weekly', weekday: 1, time: '00:00', zone: formats().zone };
+    const rule = weekRule();
     const start = S.previousReset(rule, now), next = S.nextReset(rule, now), after = S.nextReset(rule, next);
-    const [a, b] = knownReset(weekly) ? ['This reset week', 'Next reset week'] : ['This week', 'Next week'];
-    return [weekColumn(a, start, next, list, now), weekColumn(b, next, after, list, now)];
+    const [a, b] = knownReset(resets().weekly) ? ['This reset week', 'Next reset week'] : ['This week', 'Next week'];
+    return [weekColumn(a, start, next, list, now, range), weekColumn(b, next, after, list, now, range)];
   }
 
   // ---- Event calendar: an agenda by month ----
 
-  function calendarMonths(list, now) {
+  function calendarMonths(list, now, range) {
     const z = formats().zone;
     const until = COVERS_UNTIL;
     const items = [];
@@ -395,14 +414,14 @@
       if (!s) continue;
       // Something that repeats every hour or so would flood the agenda; it lives in Coming up.
       if (isFrequent(e)) continue;
-      for (const w of S.windows(s, now, until)) items.push({ event: e, start: w.start, end: w.end, name: w.name });
+      for (const w of S.windows(s, now, until)) if (inScope(w, range)) items.push({ event: e, start: w.start, end: w.end, name: w.name });
     }
     items.sort((a, b) => a.start - b.start || a.event.name.localeCompare(b.event.name));
-    // Every month from this one to the end of the data, so a month with nothing known still shows.
+    // Every month from this one to the end of the data (or of Today or This week), so a month with nothing known still shows.
     const months = [];
     for (let w = S.wallClock(z, now), y = w.y, mo = w.mo; ; mo === 12 ? (y++, mo = 1) : mo++) {
       const start = S.wallToUtc(z, y, mo, 1, 0, 0), end = S.wallToUtc(z, mo === 12 ? y + 1 : y, mo === 12 ? 1 : mo + 1, 1, 0, 0);
-      if (start > until) break;
+      if (start > until || (range && start >= range[1])) break;
       months.push({ key: `${y}-${String(mo).padStart(2, '0')}`, label: at(Math.max(start, now), 'month'), end, items: [] });
     }
     for (const i of items) {
@@ -413,7 +432,7 @@
     return months.map((m) => h('div', { class: 'month' },
       h('h3', { text: m.label }),
       gapNote(Math.min(m.end, DATA_END)),
-      m.items.length ? null : h('p', { class: 'month-none', text: gaps(Math.min(m.end, DATA_END)).length ? 'Nothing else known yet.' : 'Nothing you follow this month.' }),
+      m.items.length ? null : h('p', { class: 'month-none', text: gaps(Math.min(m.end, DATA_END)).length ? 'Nothing else known yet.' : narrowed() ? 'Nothing that matches this month.' : 'Nothing you follow this month.' }),
       m.items.length ? h('ol', { class: 'agenda' }, m.items.map((i) => {
         const live = i.start <= now && now < i.end;
         return h('li', { class: live ? 'is-now' : null, 'data-cat': i.event.category, 'data-id': i.event.id },
@@ -429,7 +448,7 @@
   let lastKey = '';
   function structureKey(now, list, nowItems, nextItems, nextItem) {
     const rs = resets();
-    return [prefs.region, prefs.filter, prefs.categories.join(), prefs.starred.join(), prefs.hidden.join(), prefs.aheadHours, prefs.compact, prefs.timeMode, query,
+    return [prefs.region, prefs.filter, prefs.categories.join(), prefs.starred.join(), prefs.hidden.join(), prefs.aheadHours, prefs.compact, prefs.timeMode, query, quick.scope, quick.holidays,
       formats().local, S.dayKey(now, formats().zone),
       nowItems.map((i) => i.event.id + i.start).join(), nextItems.map((i) => i.event.id + i.start).join(),
       nextItem ? nextItem.event.id + nextItem.start : '', list.length,
@@ -437,11 +456,11 @@
   }
 
   function render(force) {
-    const now = nowMs(), list = shown();
+    const now = nowMs(), list = shown(), range = scopeRange(now);
     // Soonest to end first, but something that repeats every hour or so after the rest, as in the week:
     // a Curse Surge is always on, and would otherwise always sit on top.
     const nowItems = S.happening(list, region(), now).sort((a, b) => Number(isFrequent(a.event)) - Number(isFrequent(b.event)));
-    const nextItems = capRepeats(S.upcoming(list, region(), now, prefs.aheadHours * S.HOUR));
+    const nextItems = capRepeats(S.upcoming(list, region(), now, prefs.aheadHours * S.HOUR).filter((i) => inScope(i, range)));
     const nextItem = nextImportant(list, now);
     const key = structureKey(now, list, nowItems, nextItems, nextItem);
     if (force || key !== lastKey) {
@@ -464,15 +483,18 @@
       empty.hidden = nextItems.length > 0;
       const nextGap = showGap('next-gap', now + prefs.aheadHours * S.HOUR);
       if (!nextItems.length) {
-        empty.textContent = `Nothing ${nextGap ? 'known' : 'you follow'} starts in the next ${aheadText(prefs.aheadHours)}.`
-          + (nextItem ? ` Next: ${nameOf(nextItem)}, ${at(nextItem.start, 'full')}.` : '');
+        empty.textContent = quick.scope ? `Nothing that matches starts ${now + prefs.aheadHours * S.HOUR >= range[1] ? `later ${quick.scope === 'today' ? 'today' : 'this week'}` : `in the next ${aheadText(prefs.aheadHours)}`}.`
+          : `Nothing ${nextGap ? 'known' : 'you follow'} starts in the next ${aheadText(prefs.aheadHours)}.`
+            + (nextItem ? ` Next: ${nameOf(nextItem)}, ${at(nextItem.start, 'full')}.` : '');
       }
-      $('coming-hint').textContent = `next ${aheadText(prefs.aheadHours)}, ${zoneName() === 'UTC' ? 'in UTC' : `your time (${zoneName()})`}`;
-      $('week-grid').replaceChildren(...weekGrid(list, now));
+      $('coming-hint').textContent = `next ${aheadText(prefs.aheadHours)}${quick.scope ? `, ${quick.scope === 'today' ? 'today' : 'this week'} only` : ''}, ${zoneName() === 'UTC' ? 'in UTC' : `your time (${zoneName()})`}`;
+      const qs = quickStatus();
+      if ($('quick-status').textContent !== qs) $('quick-status').textContent = qs; // a new day or week moves Today and This week
+      $('week-grid').replaceChildren(...weekGrid(list, now, range));
       $('week-hint').textContent = knownReset(resets().weekly) ? `${REGION.get(region()).name} reset weeks` : 'calendar weeks, Monday to Monday in your time (the weekly reset is not published)';
-      const months = calendarMonths(list, now);
+      const months = calendarMonths(list, now, range);
       const anyItem = months.some((m) => m.querySelector('.agenda'));
-      $('calendar').replaceChildren(...(anyItem || gaps(COVERS_UNTIL).length ? months : [h('p', { class: 'empty', text: query ? 'Nothing on the calendar matches your search.' : 'Nothing you follow is on the calendar.' })]),
+      $('calendar').replaceChildren(...(anyItem || gaps(COVERS_UNTIL).length ? months : [h('p', { class: 'empty', text: query ? 'Nothing on the calendar matches your search.' : narrowed() ? 'Nothing on the calendar matches your filters.' : 'Nothing you follow is on the calendar.' })]),
         h('p', { class: 'gap', text: `Nothing after ${isoDay(DATA.meta.coversUntil)} is in the data yet.` }));
       $('calendar-hint').textContent = `through ${isoDay(DATA.meta.coversUntil)}`;
       renderChecklist(false); // rebuilt only when its region, periods or display changed
@@ -507,7 +529,11 @@
   function syncControls() {
     for (const b of document.querySelectorAll('[data-region]')) b.setAttribute('aria-pressed', String(b.getAttribute('data-region') === prefs.region));
     for (const b of document.querySelectorAll('[data-edition]')) b.setAttribute('aria-pressed', String(b.getAttribute('data-edition') === EDITION));
-    for (const b of document.querySelectorAll('[data-filter]')) b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === prefs.filter));
+    for (const b of document.querySelectorAll('[data-quick]')) {
+      const k = b.getAttribute('data-quick');
+      b.setAttribute('aria-pressed', String(k === 'starred' ? prefs.filter === 'starred' : k === 'holidays' ? quick.holidays : quick.scope === k));
+    }
+    $('quick-status').textContent = quickStatus();
     $('category-chips').replaceChildren(...CATEGORIES.map((c) => h('button', {
       type: 'button', class: 'chip', 'data-cat': c.id, 'data-category': c.id, 'aria-pressed': String(prefs.categories.includes(c.id)), text: c.name,
     })));
@@ -516,13 +542,7 @@
     $('compact-btn').setAttribute('aria-pressed', String(prefs.compact));
     $('hidden-btn').textContent = `Hidden (${prefs.hidden.length})`;
     // What the folded filters (phones) are set to, so they need not be opened to be read.
-    const option = (id) => { const s = $(id); return s.options[s.selectedIndex] ? s.options[s.selectedIndex].textContent : ''; };
-    $('filters-summary').textContent = [
-      query ? `search "${query}"` : null,
-      prefs.filter === 'starred' ? 'Starred' : null,
-      prefs.categories.length === CATEGORIES.length ? 'all categories' : `${prefs.categories.length} of ${CATEGORIES.length} categories`,
-      option('ahead'), option('time-mode'), prefs.compact ? 'compact' : null, prefs.hidden.length ? `${prefs.hidden.length} hidden` : null,
-    ].filter(Boolean).join(' · ');
+    $('filters-summary').textContent = filtersSummary(true);
     searchStatus();
     renderRemindersUi(); // the button says whether reminders are on; the dialog counts the starred events
     document.body.classList.toggle('compact', prefs.compact);
@@ -539,7 +559,39 @@
   }
   if (systemLight && systemLight.addEventListener) systemLight.addEventListener('change', applyTheme);
 
+  /** The filters in one line: "Today · Starred · all categories · 7 days · Local". scope: false leaves out Today and This week. */
+  function filtersSummary(scope) {
+    const option = (id) => { const s = $(id); return s.options[s.selectedIndex] ? s.options[s.selectedIndex].textContent : ''; };
+    return [
+      query ? `search "${query}"` : null,
+      scope && quick.scope ? { today: 'Today', week: 'This week' }[quick.scope] : null,
+      prefs.filter === 'starred' ? 'Starred' : null,
+      quick.holidays ? 'Holidays' : null,
+      prefs.categories.length === CATEGORIES.length ? 'all categories' : `${prefs.categories.length} of ${CATEGORIES.length} categories`,
+      option('ahead'), option('time-mode'), prefs.compact ? 'compact' : null, prefs.hidden.length ? `${prefs.hidden.length} hidden` : null,
+    ].filter(Boolean).join(' · ');
+  }
+
   function changed() { savePrefs(); syncControls(); render(true); }
+
+  /** A quick filter's button: Starred is the saved filter; Today and This week (one at a time) and Holidays are not saved. */
+  function toggleQuick(k) {
+    if (k === 'starred') { prefs.filter = prefs.filter === 'starred' ? 'all' : 'starred'; changed(); return; }
+    if (k === 'holidays') quick.holidays = !quick.holidays;
+    else quick.scope = quick.scope === k ? null : k;
+    syncControls();
+    render(true);
+  }
+
+  /** What the quick filters keep, in words: "Only holidays this reset week (Tue, Nov 10 to Tue, Nov 17): 2 events." */
+  function quickStatus() {
+    if (!quick.scope && !quick.holidays) return '';
+    const range = scopeRange(nowMs()), n = shown().length;
+    const when = !range ? '' : quick.scope === 'today' ? ` today (${at(range[0], 'wdate')})`
+      : ` ${knownReset(resets().weekly) ? 'this reset week' : 'this week'} (${at(range[0], 'wdate')} to ${at(range[1], 'wdate')})`;
+    const off = quick.holidays && !prefs.categories.includes(HOLIDAY) ? ' Holidays is turned off in your categories; turn it on there to see them.' : '';
+    return `Only ${quick.holidays ? 'holidays' : 'what is on'}${when}: ${n} ${n === 1 ? 'event' : 'events'}.${off}`;
+  }
   const toggleIn = (arr, id) => (arr.includes(id) ? arr.filter((x) => x !== id) : arr.concat(id));
 
   let toastTimer = 0;
@@ -591,7 +643,7 @@
       if (again) again.focus();
     } else if (a('data-region')) { prefs.region = a('data-region'); changed(); }
     else if (a('data-edition')) switchEdition(a('data-edition'));
-    else if (a('data-filter')) { prefs.filter = a('data-filter'); changed(); }
+    else if (a('data-quick')) toggleQuick(a('data-quick'));
     else if (a('data-category')) { prefs.categories = toggleIn(prefs.categories, a('data-category')); changed(); }
     else if (a('data-star')) { prefs.starred = toggleIn(prefs.starred, a('data-star')); changed(); }
     else if (a('data-hide')) {
@@ -626,7 +678,7 @@
     const n = shown().length;
     const elsewhere = EVENTS.filter(found).length - n;
     el.textContent = (n ? `${n} ${n === 1 ? 'event matches' : 'events match'}.` : `No event you follow matches "${query}".`)
-      + (elsewhere > 0 ? ` ${elsewhere} more ${elsewhere === 1 ? 'is' : 'are'} hidden, not starred, or in a category you turned off.` : '');
+      + (elsewhere > 0 ? ` ${elsewhere} more ${elsewhere === 1 ? 'is' : 'are'} hidden, not starred, ${quick.scope || quick.holidays ? 'outside your quick filters, ' : ''}or in a category you turned off.` : '');
   }
   function setQuery(text) {
     const next = String(text || '').trim().slice(0, 60);
@@ -843,7 +895,7 @@
   function exportPlan(range, withPredicted) {
     const now = nowMs(), to = range === 'all' ? COVERS_UNTIL : now + prefs.aheadHours * S.HOUR;
     const entries = [], hourly = [], predicted = new Set(), timeOnly = new Set();
-    for (const e of shown()) {
+    for (const e of shown({ scope: false })) {
       const s = S.scheduleFor(e, region());
       if (!s) continue;
       const ws = S.windows(s, now, to); // on now, or starting before the end of the range
@@ -865,7 +917,7 @@
     const p = exportPlan(range, withPredicted), all = exportPlan('all', withPredicted), soon = exportPlan('soon', withPredicted);
     $('export-soon-label').textContent = `On now and the next ${aheadText(prefs.aheadHours)} (${soon.entries.length})`;
     $('export-all-label').textContent = `Everything known, through ${isoDay(DATA.meta.coversUntil)} (${all.entries.length})`;
-    $('export-scope').textContent = `${REGION.get(region()).name}, with your filters: ${$('filters-summary').textContent}. Hidden events are left out.`;
+    $('export-scope').textContent = `${REGION.get(region()).name}, with your filters: ${filtersSummary(false)}. Hidden events are left out.${quick.scope ? ' Today and This week do not apply: the range is chosen here.' : ''}`;
     const withP = exportPlan(range, true);
     const pred = withP.entries.filter((x) => / \(Predicted\)$/.test(x.summary)).length;
     $('export-predicted-label').textContent = `Include predicted events (${pred}, titled "(Predicted)")`;

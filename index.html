@@ -88,6 +88,16 @@
     <section class="controls panel" id="filters" aria-label="Filters">
       <button type="button" class="filters-toggle" id="filters-toggle" aria-expanded="false" aria-controls="filters-body"><span class="filters-label">Search and filters</span> <span class="filters-summary" id="filters-summary"></span> <span class="filters-act" id="filters-act">Show</span></button>
       <div class="filters-body" id="filters-body">
+      <div class="quick">
+        <span class="quick-label" id="quick-label">Show only</span>
+        <div class="seg" role="group" aria-labelledby="quick-label">
+          <button type="button" class="seg-btn" data-quick="today" aria-pressed="false">Today</button>
+          <button type="button" class="seg-btn" data-quick="week" aria-pressed="false">This week</button>
+          <button type="button" class="seg-btn" data-quick="starred" aria-pressed="false">Starred</button>
+          <button type="button" class="seg-btn" data-quick="holidays" aria-pressed="false">Holidays</button>
+        </div>
+      </div>
+      <p class="quick-status" id="quick-status" role="status"></p>
       <div class="filters-line">
         <div class="chips" id="category-chips" role="group" aria-label="Categories"></div>
         <div class="search" role="search">
@@ -98,10 +108,6 @@
       </div>
       <p class="search-status" id="search-status" role="status"></p>
       <div class="control-row">
-        <div class="seg" role="group" aria-label="Show">
-          <button type="button" class="seg-btn" data-filter="all" aria-pressed="true">All</button>
-          <button type="button" class="seg-btn" data-filter="starred" aria-pressed="false">Starred</button>
-        </div>
         <button type="button" class="btn small" id="reminders-btn" aria-haspopup="dialog" data-on="false">Reminders: off</button>
         <label class="field">Coming up for
           <select id="ahead">

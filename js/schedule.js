@@ -111,6 +111,15 @@
     return found[found.length - 1];
   }
 
+  /** The calendar day of nowMs in `zone` as [its midnight, the next midnight), read off that zone's own clock. */
+  function dayRange(nowMs, zone) {
+    const w = wallClock(zone, nowMs), n = addDays(w.y, w.mo, w.d, 1);
+    return [wallToUtc(zone, w.y, w.mo, w.d, 0, 0), wallToUtc(zone, n.y, n.mo, n.d, 0, 0)];
+  }
+
+  /** The week of a weekly rule that holds nowMs: [the latest reset at or before it, the next one after it). */
+  const weekRange = (rule, nowMs) => [previousReset(rule, nowMs), nextReset(rule, nowMs)];
+
   // ---- Event windows ----
 
   /**
@@ -252,7 +261,7 @@
   const Schedule = {
     MIN, HOUR, DAY, WEEK, WEEKDAYS,
     wallClock, offsetMin, wallToUtc, addDays,
-    resetInstants, nextReset, previousReset,
+    resetInstants, nextReset, previousReset, dayRange, weekRange,
     rotationName, windows, currentWindow, scheduleFor, happening, upcoming, nextOf,
     duration, dayKey, dayDiff, dayLabel,
   };

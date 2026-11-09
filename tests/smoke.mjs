@@ -231,10 +231,10 @@ check('stars, hide and restore, categories, Starred, compact, times and theme ar
   assert.equal(await page.eval(`document.body.classList.contains('compact')`), true);
   assert.equal(await page.eval(`document.documentElement.getAttribute('data-theme')`), 'light');
   assert.match(await text(page, '#next-list .row .when'), /UTC/);
-  await click(page, '[data-filter="starred"]');
+  await click(page, '[data-quick="starred"]');
   assert.deepEqual(await cardNames(page), ["Hallow's End"]);
   assert.equal(await page.eval(`document.querySelectorAll('#next-list .row').length`), 0);
-  await click(page, '[data-filter="all"]');
+  await click(page, '[data-quick="starred"]'); // Starred again: everything
   await click(page, '#hidden-btn');
   await click(page, '[data-unhide="darkmoon-faire"]');
   assert.equal(await text(page, '#hidden-btn'), 'Hidden (0)');
@@ -463,6 +463,139 @@ check('search narrows every list as you type, forgives spelling and aliases, say
   assert.equal(await page.eval(`document.getElementById('search').value`), '', 'a search is not saved');
   assert.deepEqual(await cardNames(page), all);
   await page.close();
+});
+
+// ---- Quick filters: Today, This week, Starred, Holidays ----
+
+const pressedQuick = (page) => page.eval(`[...document.querySelectorAll('[data-quick]')].filter((b) => b.getAttribute('aria-pressed') === 'true').map((b) => b.dataset.quick)`);
+/** Every listed window (Coming up rows, the week, the calendar) as [event id, start, end] from the engine, in the page's region. */
+const listedWindows = (page, data, region, sel) => page.eval(`[...document.querySelectorAll(${JSON.stringify(sel)})].map((b) => [b.dataset.details, Number(b.dataset.start)])`)
+  .then((xs) => xs.map(([id, start]) => { const e = data.events.find((x) => x.id === id); const w = Engine.windows(e.schedules[region], start, start + 1).find((x) => x.start === start); return [id, start, w ? w.end : NaN]; }));
+
+check('Today keeps what is on at some point today, in every list, up to the next local midnight; hidden events stay out; nothing is saved and a reload starts without it', async () => {
+  const at = utc('2026-11-10T18:00:00Z'), dayStart = utc('2026-11-10T06:00:00Z'), dayEnd = utc('2026-11-11T06:00:00Z');
+  const page = await open({ at, prefs: { hidden: ['aqir-invasion'] } });
+  const DATA = require(join(DIR, 'events-data.js'));
+  const before = await stored(page), cards = await cardNames(page);
+  const rowStarts = () => page.eval(`[...document.querySelectorAll('#next-list .row')].map((r) => Number(r.dataset.start))`);
+  assert.ok((await rowStarts()).some((s) => s >= dayEnd), 'without it Coming up runs past midnight');
+  assert.deepEqual(await pressedQuick(page), []);
+  await click(page, '[data-quick="today"]');
+  assert.deepEqual(await pressedQuick(page), ['today']);
+  assert.equal(await text(page, '#quick-status'), 'Only what is on today (Tue, Nov 10): 5 events.'); // ended this morning, on now, later today; Aqir Invasion hidden
+  assert.deepEqual(await cardNames(page), cards, 'what is on now is on today');
+  const starts = await rowStarts();
+  assert.ok(starts.length && starts.every((s) => s > at && s < dayEnd), 'Coming up: only later today');
+  assert.match(await text(page, '#coming-hint'), /^next 7 days, today only, your time/);
+  for (const sel of ['#week-grid [data-details]', '#calendar [data-details]']) {
+    for (const [id, s, e] of await listedWindows(page, DATA, 'us', sel)) assert.ok((e > dayStart && s < dayEnd) || id === 'curse-surge', `${sel}: ${id} ${new Date(s).toISOString()}`);
+  }
+  const firstWeek = await texts(page, '#week-grid .week-col:first-child li [data-details]');
+  assert.ok(firstWeek.includes('Arena Skirmish Bonus Event') && firstWeek.includes("Thorm'belan"), firstWeek.join(', '));
+  assert.equal(await text(page, '#week-grid .week-col:last-child .none'), 'Nothing that matches is scheduled.');
+  assert.equal(await page.eval(`document.querySelectorAll('#calendar .month').length`), 1, 'the calendar shows this month only');
+  assert.ok(!(await texts(page, '#next-list .name, #week-grid [data-details], #calendar [data-details]')).some((n) => /Aqir/.test(n)), 'a hidden event stays hidden');
+  assert.deepEqual(await stored(page), before, 'nothing saved');
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  assert.deepEqual([await pressedQuick(page), await text(page, '#quick-status')], [[], '']);
+  assert.ok((await rowStarts()).some((s) => s >= dayEnd), 'after a reload, everything again');
+  await page.close();
+  // Late in the evening: the half-hourly slots after midnight belong to tomorrow and leave Coming up.
+  const late = await open({ at: utc('2026-11-10T05:10:00Z') });
+  const lateRows = () => late.eval(`[...document.querySelectorAll('#next-list .row')].map((r) => Number(r.dataset.start))`);
+  assert.ok((await lateRows()).some((s) => s >= utc('2026-11-10T06:00:00Z')));
+  await click(late, '[data-quick="today"]');
+  const todayRows = await lateRows();
+  assert.ok(todayRows.length >= 1 && todayRows.every((s) => s < utc('2026-11-10T06:00:00Z')), todayRows.map((s) => new Date(s).toISOString()).join());
+  await late.close();
+  // Forever on a Sunday: today's fishing contest in the calendar, not the Sundays after it.
+  const sunday = await open({ at: utc('2026-11-15T18:00:00Z'), url: `${BASE}#forever` });
+  const contests = () => sunday.eval(`[...document.querySelectorAll('#calendar [data-details="stranglethorn-fishing-extravaganza"]')].map((b) => Number(b.dataset.start))`);
+  assert.ok((await contests()).length > 2);
+  await click(sunday, '[data-quick="today"]');
+  assert.deepEqual(await contests(), [utc('2026-11-15T20:00:00Z')]);
+  await sunday.close();
+});
+
+check('This week keeps the week the overview shows first (the reset week; Monday to Monday in Forever); Today and This week are one at a time, and pressing again turns it off', async () => {
+  const at = utc('2026-11-10T18:00:00Z'), weekEnd = utc('2026-11-17T15:00:00Z');
+  const page = await open({ at });
+  await click(page, '[data-quick="week"]');
+  assert.match(await text(page, '#quick-status'), /^Only what is on this reset week \(Tue, Nov 10 to Tue, Nov 17\): \d+ events\.$/);
+  const starts = await page.eval(`[...document.querySelectorAll('#next-list .row')].map((r) => Number(r.dataset.start))`);
+  assert.ok(starts.every((s) => s < weekEnd) && starts.some((s) => s > utc('2026-11-11T06:00:00Z')), 'more than today, less than the week');
+  assert.ok((await texts(page, '#week-grid .week-col:first-child li [data-details]')).includes('Moonkin Festival'));
+  await click(page, '[data-quick="today"]');
+  assert.deepEqual(await pressedQuick(page), ['today'], 'Today replaces This week');
+  await click(page, '[data-quick="today"]');
+  assert.deepEqual([await pressedQuick(page), await text(page, '#quick-status')], [[], '']);
+  await page.close();
+  const forever = await open({ at, url: `${BASE}#forever` });
+  await click(forever, '[data-quick="week"]');
+  assert.match(await text(forever, '#quick-status'), /^Only what is on this week \(Mon, Nov 9 to Mon, Nov 16\): \d+ events\.$/);
+  assert.ok((await texts(forever, '#next-list .name')).every((n) => n === 'Stranglethorn Fishing Extravaganza'), 'Sunday\'s contest, nothing after Monday');
+  assert.deepEqual(forever.problems, []);
+  await forever.close();
+});
+
+check('Holidays keeps only holidays without touching the saved categories; Starred, a search and hidden events still narrow it; with Holidays turned off in the categories it says so', async () => {
+  const page = await open({ at: utc('2026-11-24T18:00:00Z'), prefs: { starred: ['pilgrims-bounty', 'darkmoon-faire'], hidden: ['day-of-the-dead'] } });
+  const DATA = require(join(DIR, 'events-data.js'));
+  const holiday = new Set(DATA.events.filter((e) => e.category === 'holiday').map((e) => e.id));
+  const before = await stored(page), chips = () => page.eval(`[...document.querySelectorAll('#category-chips .chip')].map((c) => c.getAttribute('aria-pressed')).join()`);
+  const chipsBefore = await chips();
+  await click(page, '[data-quick="holidays"]');
+  const ids = await page.eval(`[...document.querySelectorAll('#now-list [data-id], #next-list .row, #week-grid [data-details], #calendar [data-details]')].map((x) => x.dataset.id || x.dataset.details)`);
+  assert.ok(ids.length > 3 && ids.every((id) => holiday.has(id)), ids.join(', '));
+  assert.deepEqual(await cardNames(page), ["Pilgrim's Bounty", "WoW's 22nd Anniversary"]);
+  assert.match(await text(page, '#quick-status'), /^Only holidays: \d+ events\.$/);
+  assert.match(await text(page, '#filters-summary'), /^Holidays · all categories · /);
+  assert.equal(await chips(), chipsBefore, 'the category chips are as saved');
+  await click(page, '[data-quick="today"]');
+  assert.match(await text(page, '#quick-status'), /^Only holidays today \(Tue, Nov 24\): 2 events\.$/);
+  await click(page, '[data-quick="starred"]'); // the saved Starred filter, as before
+  assert.deepEqual(await cardNames(page), ["Pilgrim's Bounty"]);
+  assert.equal(JSON.parse((await stored(page))['wowtracker:v1:prefs']).filter, 'starred', 'Starred is saved, as it always was');
+  await click(page, '[data-quick="starred"]');
+  await click(page, '[data-quick="today"]');
+  await typeSearch(page, 'veil');
+  assert.deepEqual([...new Set(await texts(page, '#calendar .agenda .name'))], ['Feast of Winter Veil'], 'a search narrows Holidays further');
+  await typeSearch(page, '');
+  await click(page, '.chip[data-cat="holiday"]'); // turned off in the saved categories
+  assert.match(await text(page, '#quick-status'), /^Only holidays: 0 events\. Holidays is turned off in your categories; turn it on there to see them\.$/);
+  assert.match(await text(page, '#calendar'), /Nothing on the calendar matches your filters\./);
+  await click(page, '.chip[data-cat="holiday"]');
+  await click(page, '[data-quick="holidays"]');
+  const after = await stored(page);
+  assert.deepEqual(JSON.parse(after['wowtracker:v1:prefs']).categories.sort(), DATA.categories.map((c) => c.id).sort(), 'every category still followed');
+  assert.notEqual(after['wowtracker:v1:prefs'], before['wowtracker:v1:prefs'], 'only the reader\'s own changes were written (Starred, the chip)');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('Export to calendar takes Holidays and Starred from the quick filters but not Today or This week, and says so; on a phone the folded filters name them', async () => {
+  const page = await open({ at: utc('2026-11-24T18:00:00Z') });
+  const count = async () => { await click(page, '#export-btn'); const n = Number((/^Download (\d+)/.exec(await text(page, '#export-go')) || [])[1]); await page.eval(`document.getElementById('export-dialog').close()`); return n; };
+  const all = await count();
+  await click(page, '[data-quick="today"]');
+  assert.equal(await count(), all, 'Today does not shorten a calendar file');
+  await click(page, '#export-btn');
+  assert.match(await text(page, '#export-scope'), /^Americas, with your filters: all categories · 7 days · Local\. Hidden events are left out\. Today and This week do not apply: the range is chosen here\.$/);
+  await page.eval(`document.getElementById('export-dialog').close()`);
+  await click(page, '[data-quick="holidays"]');
+  await click(page, '#export-btn');
+  const file = await saved(page, () => click(page, '#export-go'));
+  const entries = icsEvents(file.text);
+  assert.ok(entries.length >= 2 && entries.every((x) => x.CATEGORIES === 'Holidays'), entries.map((x) => x.SUMMARY).join(', '));
+  await page.close();
+  const phone = await open({ at: utc('2026-11-24T18:00:00Z'), width: 390, height: 844, mobile: true });
+  await click(phone, '#filters-toggle');
+  await click(phone, '[data-quick="week"]');
+  await click(phone, '#filters-toggle');
+  assert.equal(await phone.eval(`document.querySelector('[data-quick="week"]').offsetParent`), null, 'folded with the filters');
+  assert.match(await text(phone, '#filters-summary'), /^This week · all categories · 7 days · Local$/);
+  await phone.close();
 });
 
 check('a name opens its details from the data only: when, how long, both regions, how sure, coverage and sources; Escape returns focus', async () => {
@@ -1229,7 +1362,7 @@ check('Retail is the default: with nothing saved and no link the page shows Reta
   assert.equal(await page.eval(`document.querySelector('.edition').getAttribute('role') + ' ' + document.querySelector('.edition').getAttribute('aria-label')`), 'group Game version');
   assert.match(await text(page, '#summary [data-reset="daily"] .value'), /^in \d/);
   assert.ok((await cardNames(page)).length > 0, 'Retail events are shown');
-  await click(page, '[data-filter="starred"]'); // a Retail change: only Retail's own keys are written
+  await click(page, '[data-quick="starred"]'); // a Retail change: only Retail's own keys are written
   assert.deepEqual(Object.keys(await stored(page)), ['wowtracker:v1:prefs'], 'no edition choice and no Forever key');
   assert.deepEqual(page.problems, []);
   await page.close();
@@ -1244,7 +1377,8 @@ check('storage isolation: switching to Forever and back, five times, leaves ever
   assert.equal(await text(page, '#summary [data-reset="daily"] .value'), 'Not published');
   // Forever's own choices: a category, the Starred filter, the checklist panel.
   await click(page, '.chip[data-cat="holiday"]');
-  await click(page, '[data-filter="all"]');
+  await click(page, '[data-quick="starred"]');
+  await click(page, '[data-quick="starred"]'); // Starred on and off again: Forever's filter written as "all"
   await click(page, '#cl-toggle');
   const forever = JSON.parse((await stored(page))['wowtracker:v1:forever:prefs']);
   assert.deepEqual(forever, { filter: 'all', categories: ['darkmoon', 'outdoor', 'minor'], starred: [], hidden: [], checklistOpen: true });
@@ -1261,7 +1395,7 @@ check('storage isolation: switching to Forever and back, five times, leaves ever
   assert.equal(after['wowtracker:v1:forever:prefs'], (await stored(page))['wowtracker:v1:forever:prefs']);
   // Retail as it was: Europe, the Starred view, two stars, one hidden, the checklist open with its tick.
   assert.equal(await page.eval(`document.querySelector('[data-region="eu"]').getAttribute('aria-pressed')`), 'true');
-  assert.equal(await page.eval(`document.querySelector('[data-filter="starred"]').getAttribute('aria-pressed')`), 'true');
+  assert.equal(await page.eval(`document.querySelector('[data-quick="starred"]').getAttribute('aria-pressed')`), 'true');
   assert.equal(await text(page, '#checklist-count'), '0 of 1 today · 1 of 1 this week');
   assert.deepEqual(page.problems, []);
   await page.close();
@@ -1285,7 +1419,7 @@ check('shared settings follow the reader between editions: region, theme, times 
   assert.equal(await page.eval(`document.querySelector('[data-region="us"]').getAttribute('aria-pressed')`), 'true');
   assert.equal(await page.eval(`document.getElementById('time-mode').value`), 'utc');
   assert.equal(await page.eval(`document.getElementById('news').classList.contains('is-collapsed')`), true);
-  assert.equal(await page.eval(`document.querySelector('[data-filter="starred"]').getAttribute('aria-pressed')`), 'true', 'Retail\'s Starred view is still on');
+  assert.equal(await page.eval(`document.querySelector('[data-quick="starred"]').getAttribute('aria-pressed')`), 'true', 'Retail\'s Starred view is still on');
   assert.deepEqual(page.problems, []);
   await page.close();
 });

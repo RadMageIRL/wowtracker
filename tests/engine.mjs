@@ -225,4 +225,27 @@ export function engineTests(test) {
     assert.equal(S.dayKey(utc('2026-10-28T06:59:59Z'), 'America/Los_Angeles'), '2026-10-27');
     assert.equal(S.dayKey(utc('2026-10-28T07:00:00Z'), 'America/Los_Angeles'), '2026-10-28');
   });
+
+  // The quick filters' Today and This week.
+  const range = (r) => r.map((t) => new Date(t).toISOString().replace('.000Z', 'Z'));
+  test('Today is the reader\'s calendar day, midnight to midnight on their own clock: 25 hours when clocks go back, 23 when they go forward', () => {
+    assert.deepEqual(range(S.dayRange(utc('2026-11-10T18:00:00Z'), 'America/Chicago')), ['2026-11-10T06:00:00Z', '2026-11-11T06:00:00Z']);
+    assert.deepEqual(range(S.dayRange(utc('2026-11-10T05:59:59Z'), 'America/Chicago')), ['2026-11-09T06:00:00Z', '2026-11-10T06:00:00Z'], 'a second before midnight is still yesterday');
+    assert.deepEqual(range(S.dayRange(utc('2026-11-10T06:00:00Z'), 'America/Chicago')), ['2026-11-10T06:00:00Z', '2026-11-11T06:00:00Z'], 'midnight itself is today');
+    assert.deepEqual(range(S.dayRange(utc('2026-11-01T12:00:00Z'), 'America/Chicago')), ['2026-11-01T05:00:00Z', '2026-11-02T06:00:00Z']);
+    assert.deepEqual(range(S.dayRange(utc('2027-03-14T12:00:00Z'), 'America/Chicago')), ['2027-03-14T06:00:00Z', '2027-03-15T05:00:00Z']);
+    assert.deepEqual(range(S.dayRange(utc('2026-10-25T12:00:00Z'), 'Europe/Paris')), ['2026-10-24T22:00:00Z', '2026-10-25T23:00:00Z']);
+    assert.deepEqual(range(S.dayRange(utc('2026-11-10T23:30:00Z'), 'UTC')), ['2026-11-10T00:00:00Z', '2026-11-11T00:00:00Z']);
+    assert.deepEqual(range(S.dayRange(utc('2026-11-10T23:30:00Z'), 'Australia/Sydney')), ['2026-11-10T13:00:00Z', '2026-11-11T13:00:00Z']);
+  });
+
+  test('This week is the week of a weekly rule that holds now: from the reset at or before it to the next one', () => {
+    const us = { type: 'weekly', weekday: 2, time: '15:00', zone: 'UTC' };
+    assert.deepEqual(range(S.weekRange(us, utc('2026-11-10T18:00:00Z'))), ['2026-11-10T15:00:00Z', '2026-11-17T15:00:00Z']);
+    assert.deepEqual(range(S.weekRange(us, utc('2026-11-10T15:00:00Z'))), ['2026-11-10T15:00:00Z', '2026-11-17T15:00:00Z'], 'the reset instant starts a week');
+    assert.deepEqual(range(S.weekRange(us, utc('2026-11-10T14:59:59Z'))), ['2026-11-03T15:00:00Z', '2026-11-10T15:00:00Z']);
+    // A calendar week (Monday to Monday on the reader's clock) across the European change of October 25, 2026: 169 hours.
+    const monday = { type: 'weekly', weekday: 1, time: '00:00', zone: 'Europe/Paris' };
+    assert.deepEqual(range(S.weekRange(monday, utc('2026-10-22T12:00:00Z'))), ['2026-10-18T22:00:00Z', '2026-10-25T23:00:00Z']);
+  });
 }

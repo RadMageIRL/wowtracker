@@ -184,6 +184,11 @@ main > * { min-width: 0; }
 .chip[aria-pressed="true"] { color: var(--text); border-color: var(--line-strong); background: var(--surface-2); text-decoration: none; }
 .chip[aria-pressed="true"]::before { opacity: 1; }
 .control-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+/* Quick filters narrow what the saved filters show, at the top of the filters (folded with them on phones). */
+.quick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.quick-label { color: var(--text-dim); font-size: 13px; }
+.quick-status { margin: -4px 0 0; color: var(--text-dim); font-size: 12.5px; }
+.quick-status:empty { display: none; }
 .field { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dim); }
 .field select {
   min-height: 30px; padding: 0 8px; border-radius: 7px; border: 1px solid var(--line-strong);

@@ -15,6 +15,7 @@ World of Warcraft: Forever, as a second game version beside Retail. Retail's eve
 - Back up settings keeps both game versions apart, with the shared settings. Restoring shows, part by part, what would change and what stays, and changes nothing until Replace; a game version the backup does not hold stays as it is, and the game version on screen never changes. Backups from v0.1 and v0.2 restore Retail and the shared settings. v0.2.0 refuses a v0.3 backup and changes nothing.
 - Latest news is labeled "All versions": Blizzard's list mixes Retail and WoW: Forever posts and gives no way to tell them apart.
 - In WoW: Forever, Export to calendar does not offer to leave predicted events out (every time there is Predicted time), and Reminders does not offer hourly events (it has none).
+- The page no longer jumps as it loads. It used to draw an empty page and then push everything down as the lists filled in (a layout shift of about 0.9 on a computer); now it is drawn once, complete. The page description and the link preview text mention WoW: Forever.
 
 Schedule data:
 

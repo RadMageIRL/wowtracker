@@ -26,7 +26,7 @@ export async function editionTests(test) {
     assert.deepEqual(Config.editions.map((e) => [e.source, e.file, e.data]), [['events', 'events-data.js', 'WOW_DATA'], ['forever', 'forever-data.js', 'WOW_DATA_FOREVER']]);
     for (const e of Config.editions) {
       const data = require(`../${e.file}`);
-      assert.ok(html.includes(`<script src="${e.file}?r=${data.meta.datasetRevision}"></script>`), e.file);
+      assert.ok(html.includes(`<script defer src="${e.file}?r=${data.meta.datasetRevision}"></script>`), e.file);
       assert.ok(SITE_FILES.includes(e.file), e.file);
       assert.ok(file(e.file).includes(`else root.${e.data} = DATA;`), e.data);
     }

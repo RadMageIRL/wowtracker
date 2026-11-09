@@ -1707,6 +1707,39 @@ check('Forever\'s checklist is never cleared by a guessed reset: a month later i
   await retail.close();
 });
 
+// ---- Loading ----
+
+// Before v0.3.0 the page drew its empty shell first, then the scripts at the end of the body filled it in and
+// everything below the resets jumped (a layout shift of about 0.9 on a desktop, 0.76 on a phone on a slow
+// network). The scripts now load deferred from the head and app.js holds the first paint until the page is
+// filled, so the first thing drawn is the whole page.
+check('the page draws once, complete: no layout shift while it loads, in Retail and Forever, on a desktop and on a phone with a slow network', async () => {
+  const CLS = `window.__cls = 0; new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__cls += e.value; }).observe({ type: 'layout-shift', buffered: true });`;
+  const SLOW = { offline: false, latency: 150, downloadThroughput: 200000, uploadThroughput: 93750 };
+  const seen = [];
+  for (const [label, url, width, slow] of [['Retail desktop', BASE, 1280, false], ['Forever desktop', `${BASE}#forever`, 1280, false], ['Retail phone, slow network', BASE, 390, true], ['Forever phone, slow network', `${BASE}#forever`, 390, true]]) {
+    const page = await chrome.newPage();
+    await page.send('Storage.clearDataForOrigin', { origin: new URL(BASE).origin, storageTypes: 'all' });
+    await page.send('Network.enable', {});
+    await page.send('Network.setCacheDisabled', { cacheDisabled: true });
+    if (slow) await page.send('Network.emulateNetworkConditions', SLOW);
+    await page.emulate({ timezone: 'America/Chicago', locale: 'en-US' });
+    await page.viewport(width, width < 600 ? 844 : 900, width < 600);
+    await page.startClockAt(utc('2026-11-10T18:00:00Z'));
+    await page.beforeLoad(CLS);
+    await page.goto(url);
+    await page.waitFor("document.querySelector('#summary li') !== null", 20000);
+    await page.waitFor("document.querySelectorAll('#news-list li a').length === 3", 20000); // the news comes last, when the page is idle
+    await sleep(1000);
+    const cls = await page.eval('window.__cls');
+    seen.push(`${label} ${cls.toFixed(4)}`);
+    assert.ok(cls < 0.1, `${label}: layout shift ${cls.toFixed(4)}`);
+    assert.deepEqual(page.problems, []);
+    await page.close();
+  }
+  assert.equal(seen.length, 4, seen.join(', '));
+});
+
 // ---- Footer ----
 
 check('the footer links go where config.js says, and Share passes the canonical address', async () => {

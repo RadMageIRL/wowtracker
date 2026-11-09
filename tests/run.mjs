@@ -79,7 +79,23 @@ test('the changelog opens with this version, which names the schedule data revis
 
 test('the page loads the schedule data with ?r= set to the dataset revision', () => {
   const DATA = require('../events-data.js');
-  assert.ok(html.includes(`<script src="events-data.js?r=${DATA.meta.datasetRevision}"></script>`));
+  assert.ok(html.includes(`<script defer src="events-data.js?r=${DATA.meta.datasetRevision}"></script>`));
+});
+
+// The page draws once, complete: every script loads deferred from the head (in this order, the data before the
+// code that reads it), and app.js holds the first paint until it has filled the page, so it never draws an
+// empty page and then jumps (a layout shift of about 0.9 before v0.3.0). theme-boot.js stays a plain script,
+// first, so the theme is set before anything is drawn. Every script is this site's own file; nothing outside it.
+test('every script loads from the head: theme-boot.js first and plain, the rest deferred in order, app.js holding the first paint', () => {
+  const [head, body] = html.split('</head>');
+  assert.ok(!/<script/.test(body), 'no script in the body');
+  const tags = [...head.matchAll(/<script([^>]*)\bsrc="([^"?]+)\?[^"]*"><\/script>/g)].map((m) => [m[2], m[1].trim()]);
+  assert.deepEqual(tags, [
+    ['js/theme-boot.js', ''], ['js/config.js', 'defer'], ['events-data.js', 'defer'], ['forever-data.js', 'defer'],
+    ['js/schedule.js', 'defer'], ['js/store.js', 'defer'], ['js/news.js', 'defer'], ['js/search.js', 'defer'], ['js/ics.js', 'defer'],
+    ['js/reminders.js', 'defer'], ['js/checklist.js', 'defer'], ['js/backup.js', 'defer'], ['js/clock.js', 'defer'],
+    ['js/app.js', 'defer blocking="render"'],
+  ]);
 });
 
 test('the CSP allows scripts, styles and connections to this site only', () => {

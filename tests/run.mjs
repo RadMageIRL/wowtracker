@@ -148,6 +148,9 @@ test('sharing metadata: canonical, og:url and JSON-LD name the canonical address
   assert.ok(meta('og:title') && meta('og:description') && meta('og:image:alt'));
   const ld = JSON.parse(/<script type="application\/ld\+json">([^<]+)<\/script>/.exec(html)[1]);
   assert.equal(ld.url, CANON);
+  // Search engines and the RadMage Labs checks compare these two; one description, said once.
+  assert.equal(ld.description, meta('description'), 'the JSON-LD description is the meta description');
+  assert.ok(meta('description').length <= 160, 'the meta description fits in a search result (160 characters)');
   assert.equal(ld.sameAs, REPO);
   assert.equal(ld.image, meta('og:image'));
 });

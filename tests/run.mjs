@@ -11,6 +11,7 @@ import { unitTests } from './units.mjs';
 import { dataTests } from './data.mjs';
 import { searchTests } from './search.mjs';
 import { icsTests } from './ics.mjs';
+import { entryTests } from './entries.mjs';
 import { reminderTests } from './reminders.mjs';
 import { checklistTests } from './checklist.mjs';
 import { editionTests } from './editions.mjs';
@@ -32,6 +33,7 @@ unitTests(test);
 await dataTests(test);
 searchTests(test);
 icsTests(test);
+entryTests(test);
 reminderTests(test);
 checklistTests(test);
 await editionTests(test);
@@ -49,7 +51,7 @@ test('the version is the same in the title, header, About, README and every asse
   assert.ok(html.includes(`<h2 id="about-title">WoW Tracker v${VERSION}</h2>`));
   assert.match(file('README.md'), new RegExp(`^# WoW Tracker v${VERSION.replace(/\./g, '\\.')}\\n`));
   const assets = [...html.matchAll(/(?:src|href)="((?:js\/[^"]+\.js|style\.css)[^"]*)"/g)].map((m) => m[1]);
-  assert.equal(assets.length, 13);
+  assert.equal(assets.length, 14);
   for (const a of assets) assert.ok(a.endsWith(`?v=${VERSION}`), a);
 });
 
@@ -97,7 +99,7 @@ test('every script loads from the head: theme-boot.js first and plain, the rest 
   const tags = [...head.matchAll(/<script([^>]*)\bsrc="([^"?]+)\?[^"]*"><\/script>/g)].map((m) => [m[2], m[1].trim()]);
   assert.deepEqual(tags, [
     ['js/theme-boot.js', ''], ['js/config.js', 'defer'], ['events-data.js', 'defer'], ['forever-data.js', 'defer'],
-    ['js/schedule.js', 'defer'], ['js/store.js', 'defer'], ['js/news.js', 'defer'], ['js/search.js', 'defer'], ['js/ics.js', 'defer'],
+    ['js/schedule.js', 'defer'], ['js/store.js', 'defer'], ['js/news.js', 'defer'], ['js/search.js', 'defer'], ['js/ics.js', 'defer'], ['js/calendar-entry.js', 'defer'],
     ['js/reminders.js', 'defer'], ['js/checklist.js', 'defer'], ['js/backup.js', 'defer'], ['js/clock.js', 'defer'],
     ['js/app.js', 'defer blocking="render"'],
   ]);

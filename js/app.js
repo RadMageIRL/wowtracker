@@ -5,6 +5,7 @@
   'use strict';
 
   const S = window.WoWSchedule, Store = window.WoWStore, News = window.WoWNews, Clock = window.WoWClock;
+  const CE = window.WoWCalendarEntry;
   const CONFIG = window.WoWConfig;
   const storage = (() => { try { return window.localStorage; } catch (e) { return null; } })();
   /**
@@ -131,11 +132,7 @@
   // ---- Pieces shared by cards, rows and the calendar ----
 
   /** How sure the schedule is in the chosen region: a region can be less certain than the event (its start time). */
-  function statusFor(e) {
-    const s = S.scheduleFor(e, region());
-    if (s && s.status) return { status: s.status, part: s.part || null, basis: s.basis };
-    return { status: e.status, part: null, basis: e.basis };
-  }
+  const statusFor = (e) => CE.statusFor(e, region());
   function predictedBadge(st) {
     if (st.status !== 'predicted') return null;
     const text = st.part === 'time' ? 'Predicted time' : 'Predicted';
@@ -147,7 +144,7 @@
     if (!s || s.type !== 'every' || s.periodMin >= 1440) return null;
     return s.periodMin === 60 ? 'every hour' : s.periodMin % 60 === 0 ? `every ${s.periodMin / 60} hours` : `every ${s.periodMin} min`;
   }
-  const isFrequent = (e) => { const s = S.scheduleFor(e, region()); return Boolean(s && s.type === 'every' && s.periodMin < 1440); };
+  const isFrequent = (e) => CE.isFrequent(S.scheduleFor(e, region()));
   const nameOf = (item) => item.name || item.event.name;
   /** Where it happens; when no source names a place, the page says so instead of guessing one. */
   const whereOf = (e) => e.zone || 'Not stated in its sources';
@@ -674,7 +671,7 @@
 
   // ---- Event details: one dialog, built only from what the dataset says ----
 
-  const KIND = { official: 'Blizzard', client: 'game data', 'game-api': 'game API', wiki: 'wiki', guide: 'guide' };
+  const KIND = CE.KIND;
   const ORDINAL = { 1: 'first', 2: 'second', 3: 'third', 4: 'fourth' };
 
   /** "6 days 23 hours", "10 minutes": whole units only, as the data has them. */
@@ -741,14 +738,8 @@
     return [h('strong', { text: 'Confirmed. ' }), `From ${kinds.join(' and ')}.`];
   }
 
-  function coverage(e) {
-    const c = CATEGORY.get(e.category), until = c.knownUntil ? Date.parse(c.knownUntil[region()]) : null;
-    if (!until) return null;
-    // A limit at midnight UTC is a date ("through Mar 31, 2027"); one at a reset is a moment.
-    const d = new Date(until);
-    const when = d.getUTCHours() === 0 && d.getUTCMinutes() === 0 ? `through ${isoDay(new Date(until - S.DAY).toISOString().slice(0, 10))}` : `until ${at(until, 'full')}`;
-    return [`Known ${when}. After that: not known yet`, c.gap ? ` (${c.gap})` : '', '.'];
-  }
+  /** How far this event's schedule is known in the chosen region, with dates in the reader's own words. */
+  const coverage = (e) => CE.coverageText(CATEGORY.get(e.category), region(), { day: isoDay, moment: (ms) => at(ms, 'full') }) || null;
 
   let detailsOpen = null; // { id, at, trigger }
   function renderDetails() {
@@ -805,48 +796,17 @@
     if (back) back.focus();
   });
 
-  // ---- Calendar export (.ics): the engine's own windows, written by js/ics.js ----
+  // ---- Calendar export (.ics): the engine's own windows, worded by js/calendar-entry.js, written by js/ics.js ----
 
   const Ics = window.WoWIcs;
   const PAGE_URL = CONFIG.shareUrl || location.href.split('#')[0];
   // Retail's files, calendar names and UIDs are as they were in v0.2; another edition names itself in each.
   const FILE_PREFIX = RETAIL ? 'wowtracker' : `wowtracker-${EDITION}`;
-  const calendarName = () => (RETAIL ? `WoW Tracker (${REGION.get(region()).name})` : `WoW Tracker, ${ED.short} (${REGION.get(region()).name})`);
-  const pad2 = (n) => String(n).padStart(2, '0');
-  /** For an edition other than Retail: its server time, how it repeats and how far its data goes. */
-  function editionLines(e, w, reg) {
-    const z = reg.serverZone, c = z ? S.wallClock(z.zone, w.start) : null;
-    return [
-      z ? `Server time: ${S.WEEKDAYS[c.wd]} ${pad2(c.h)}:${pad2(c.mi)}, read as ${z.name}${z.status === 'predicted' ? ' (predicted)' : ''}.` : null,
-      e.repeats ? `Repeats: ${e.repeats}` : null,
-      (coverage(e) || []).join(''),
-    ];
-  }
-  const predictedLabel = (st) => (st.status !== 'predicted' ? '' : st.part === 'time' ? ' (Predicted time)' : ' (Predicted)');
+  const calendarName = () => CE.calendarName(EDITION, ED.short, REGION.get(region()).name);
+  const predictedLabel = CE.predictedLabel;
 
-  /** One calendar entry for one window of an event, in the chosen region. */
-  function icsEntry(e, w) {
-    const r = region(), reg = REGION.get(r), st = statusFor(e);
-    const sure = st.status === 'predicted' && st.part === 'time'
-      ? `Predicted time: the dates are confirmed; the start time on ${reg.realms} is not. ${st.basis || ''}`
-      : st.status === 'predicted' ? `Predicted: ${st.basis || e.basis || 'a pattern Blizzard has not published.'}`
-        : `Confirmed: from ${[...new Set(e.sources.map((s) => KIND[s.kind] || s.kind))].join(' and ')}.`;
-    const description = [
-      sure.trim(),
-      e.note || null,
-      `Region: ${reg.name} (${reg.realms}).`,
-      ...(RETAIL ? [] : editionLines(e, w, reg)),
-      `A scheduled time from WoW Tracker${RETAIL ? '' : `'s ${DATA.meta.game}`} schedule data r${DATA.meta.datasetRevision}, checked ${e.lastVerified}. It is not read from the game; a realm can open early or late around maintenance.`,
-      `Sources: ${e.sources.map((s) => `${s.publisher} ${s.url}`).join(' ; ')}`,
-      `WoW Tracker: ${PAGE_URL}${RETAIL ? '' : `#${EDITION}`}`,
-    ].filter(Boolean).join('\n');
-    return {
-      uid: Ics.eventUid(e.id, r, w.start, EDITION), start: w.start, end: w.end,
-      summary: `${w.name || e.name}${predictedLabel(st)}`, description,
-      location: e.zone ? `World of Warcraft: ${e.zone}` : 'World of Warcraft', url: e.link ? e.link.url : e.sources[0].url,
-      tentative: st.status === 'predicted', categories: [CATEGORY.get(e.category).name],
-    };
-  }
+  /** One calendar entry for one window of an event, in the chosen region; how far its data goes, in the reader's words. */
+  const icsEntry = (e, w) => CE.entry({ event: e, window: w, region: region(), data: DATA, edition: EDITION, pageUrl: PAGE_URL, coverage: coverage(e) || '' });
 
   /** Hands a file made here to the browser to save. Nothing leaves the browser. */
   function saveFile(fileName, text, type) {

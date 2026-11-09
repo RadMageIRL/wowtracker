@@ -244,6 +244,23 @@
     return `${w.y}-${pad(w.mo)}-${pad(w.d)}`;
   }
 
+  /**
+   * When an item of the Weekly overview runs, said within its column [from, to) of the week. Every instant names
+   * its date, so a span that starts and ends on the same weekday (a bonus week from Wednesday 5:00 AM to the next
+   * Wednesday 4:00 AM) or crosses midnight reads one way only. fmt(ms, kind) writes an instant in the reader's zone:
+   * 'full' (weekday, date and time) or 'time'; zone is that zone. Spans are half-open, [start, end).
+   *   all week | until Wed, Nov 18, 4:00 AM | from Mon, Nov 16, 10:00 AM
+   *   Sun, Nov 15, 2:00 PM to 4:00 PM (ends the day it starts) | Wed, Nov 11, 5:00 AM to Wed, Nov 18, 4:00 AM
+   * An end at midnight is the next day's ("Thu, Nov 12, 12:00 AM to Fri, Nov 13, 12:00 AM"), never "to 12:00 AM".
+   */
+  function weekSpanText(item, from, to, zone, fmt) {
+    if (item.start <= from && item.end >= to) return 'all week';
+    if (item.start < from) return `until ${fmt(item.end, 'full')}`;
+    if (item.end > to) return `from ${fmt(item.start, 'full')}`;
+    const sameDay = dayKey(item.start, zone) === dayKey(item.end, zone);
+    return `${fmt(item.start, 'full')} to ${fmt(item.end, sameDay ? 'time' : 'full')}`;
+  }
+
   /** Whole calendar days from nowMs's day to ms's day, both read in `zone`. */
   function dayDiff(ms, nowMs, zone) {
     const a = wallClock(zone, nowMs), b = wallClock(zone, ms);
@@ -263,7 +280,7 @@
     wallClock, offsetMin, wallToUtc, addDays,
     resetInstants, nextReset, previousReset, dayRange, weekRange,
     rotationName, windows, currentWindow, scheduleFor, happening, upcoming, nextOf,
-    duration, dayKey, dayDiff, dayLabel,
+    duration, dayKey, dayDiff, dayLabel, weekSpanText,
   };
   if (typeof module === 'object' && module.exports) module.exports = Schedule;
   else root.WoWSchedule = Schedule;

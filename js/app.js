@@ -379,10 +379,11 @@
     }
     items.sort((a, b) => Number(Boolean(a.repeats)) - Number(Boolean(b.repeats)) || a.start - b.start || a.event.name.localeCompare(b.event.name));
     const li = items.map((i) => {
-      const whole = i.start <= from && i.end >= to;
-      const when = i.repeats ? `${repeatText(i.event)}${i.end < to ? `, until ${at(i.end, 'wday')}` : ''}`
-        : whole ? 'all week' : i.start < from ? `until ${at(i.end, 'wday')}` : i.end > to ? `from ${at(i.start, 'wday')}` : `${at(i.start, 'wday')} to ${at(i.end, 'wday')}`;
-      const live = !i.repeats && i.start <= now && now < i.end;
+      // Dates on every instant: "Wed 5:00 AM to Wed 4:00 AM" once read as an hour backwards, not a week.
+      const when = i.repeats ? `${repeatText(i.event)}${i.end < to ? `, until ${at(i.end, 'full')}` : ''}`
+        : S.weekSpanText(i, from, to, formats().zone, at);
+      // "On now" only in the week that holds now: next week's column lists what carries on into it, not what is on.
+      const live = !i.repeats && i.start <= now && now < i.end && from <= now && now < to;
       return h('li', { 'data-cat': i.event.category, 'data-id': i.event.id },
         nameButton(i, `week:${i.event.id}:${i.start}`),
         predictedBadge(statusFor(i.event)),

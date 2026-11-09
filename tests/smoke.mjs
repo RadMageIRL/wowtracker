@@ -686,6 +686,36 @@ check('Curse Surges: the Details name the place of each slot and the order, labe
   await page.close();
 });
 
+/** The Weekly overview's columns as [heading, "name | when", ...]. */
+const weekText = (page) => page.eval(`[...document.querySelectorAll('#week-grid .week-col')].map((c) => [c.querySelector('h3').textContent, ...[...c.querySelectorAll('li:not(.none)')].map((li) => li.querySelector('[data-details]').textContent + ' | ' + li.querySelector('.span').textContent)])`);
+
+check('the Weekly overview names the date of each end, so a week-long span reads one way, and only the week that holds now says "on now"', async () => {
+  const page = await open({ at: utc('2026-11-11T12:00:00Z'), tz: 'Europe/Berlin', prefs: { region: 'eu' } });
+  const [cur, next] = await weekText(page);
+  assert.equal(cur[0], 'This reset week Wed, Nov 11 to Wed, Nov 18');
+  // The v0.3 defect: "Wed 5:00 AM to Wed 4:00 AM" for a bonus week that ends an hour before the next reset.
+  assert.ok(cur.includes('Arena Skirmish Bonus Event | Wed, Nov 11, 5:00 AM to Wed, Nov 18, 4:00 AM · on now'), cur.join('\n'));
+  assert.ok(cur.includes("Thorm'belan | all week · on now") && cur.includes('Moonkin Festival | Thu, Nov 12, 12:00 AM to Fri, Nov 13, 12:00 AM'), cur.join('\n'));
+  assert.ok(next.includes('Legion Timewalking | Wed, Nov 18, 5:00 AM to Wed, Nov 25, 4:00 AM'), next.join('\n'));
+  for (const line of [...cur, ...next].slice(1)) assert.doesNotMatch(line, /\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun) \d/, `a weekday without its date: ${line}`);
+  await page.close();
+  // A Faire on now that runs on into next week: "on now" in this week's column, not in next week's.
+  const faire = await open({ at: utc('2026-11-03T12:00:00Z'), tz: 'Europe/Berlin', prefs: { region: 'eu' } });
+  const [a, b] = await weekText(faire);
+  assert.ok(a.includes('Darkmoon Faire | from Sun, Nov 1, 12:00 AM · on now') && b.includes('Darkmoon Faire | until Sun, Nov 8, 12:00 AM'), `${a.join('\n')}\n${b.join('\n')}`);
+  assert.ok(!b.some((x) => / on now$/.test(x)), 'next week says nothing is on now');
+  await faire.close();
+  // Forever's calendar weeks, and the US change of clocks inside a reset week (10:00 AM CDT to 8:00 AM CST).
+  const forever = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever` });
+  assert.deepEqual(await weekText(forever), [
+    ['This week Mon, Nov 9 to Mon, Nov 16', 'Darkmoon Faire: Elwynn Forest | from Mon, Nov 9, 4:00 AM · on now', 'Stranglethorn Fishing Extravaganza | Sun, Nov 15, 2:00 PM to 4:00 PM'],
+    ['Next week Mon, Nov 16 to Mon, Nov 23', 'Darkmoon Faire: Elwynn Forest | until Mon, Nov 16, 4:00 AM', 'Stranglethorn Fishing Extravaganza | Sun, Nov 22, 2:00 PM to 4:00 PM']]);
+  await forever.close();
+  const dst = await open({ at: utc('2026-10-28T01:30:00Z') });
+  assert.ok((await weekText(dst))[0].includes('Warlords of Draenor Timewalking | Tue, Oct 27, 10:00 AM to Tue, Nov 3, 8:00 AM · on now'), (await weekText(dst))[0].join('\n'));
+  await dst.close();
+});
+
 check('details from the weekly overview describe the slot on now, not the week\'s first; the other region\'s line is the same occurrence there', async () => {
   const page = await open({ at: utc('2026-11-08T20:10:00Z') });
   const dl = () => page.eval(`Object.fromEntries([...document.querySelectorAll('#details dt')].map((dt) => [dt.textContent, dt.nextElementSibling.textContent]))`);

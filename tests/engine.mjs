@@ -226,6 +226,40 @@ export function engineTests(test) {
     assert.equal(S.dayKey(utc('2026-10-28T07:00:00Z'), 'America/Los_Angeles'), '2026-10-28');
   });
 
+  // The Weekly overview's span text, written as the page writes it in English.
+  const fmtIn = (zone) => {
+    const f = { full: new Intl.DateTimeFormat('en-US', { timeZone: zone, weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }), time: new Intl.DateTimeFormat('en-US', { timeZone: zone, hour: 'numeric', minute: '2-digit' }) };
+    return (ms, kind) => f[kind].format(ms);
+  };
+  const span = (zone, from, to, start, end) => S.weekSpanText({ start: utc(start), end: utc(end) }, utc(from), utc(to), zone, fmtIn(zone)).replace(/ /g, ' ');
+  test('the Weekly overview names the date of each end: a week-long bonus event no longer reads "Wed 5:00 AM to Wed 4:00 AM"', () => {
+    const eu = ['Europe/Berlin', '2026-11-11T04:00:00Z', '2026-11-18T04:00:00Z'];
+    assert.equal(span(...eu, '2026-11-11T04:00:00Z', '2026-11-18T03:00:00Z'), 'Wed, Nov 11, 5:00 AM to Wed, Nov 18, 4:00 AM');
+    assert.equal(span(...eu, '2026-11-11T04:00:00Z', '2026-11-18T04:00:00Z'), 'all week', 'exactly the column');
+    assert.equal(span(...eu, '2026-11-01T09:00:00Z', '2026-11-25T09:00:00Z'), 'all week', 'longer than the column');
+    assert.equal(span(...eu, '2026-11-01T09:00:00Z', '2026-11-13T09:00:00Z'), 'until Fri, Nov 13, 10:00 AM', 'began in an earlier week');
+    assert.equal(span(...eu, '2026-11-16T09:00:00Z', '2026-11-30T09:00:00Z'), 'from Mon, Nov 16, 10:00 AM', 'runs into the next week');
+    assert.equal(span(...eu, '2026-11-12T04:00:00Z', '2026-11-18T04:00:00Z'), 'Thu, Nov 12, 5:00 AM to Wed, Nov 18, 5:00 AM', 'ends at the column\'s end');
+  });
+  test('the Weekly overview: within one day the date is said once; across midnight both dates; an end at midnight is the next day\'s', () => {
+    const eu = ['Europe/Berlin', '2026-11-11T04:00:00Z', '2026-11-18T04:00:00Z'];
+    assert.equal(span(...eu, '2026-11-15T13:00:00Z', '2026-11-15T15:00:00Z'), 'Sun, Nov 15, 2:00 PM to 4:00 PM');
+    assert.equal(span(...eu, '2026-11-14T22:30:00Z', '2026-11-15T00:30:00Z'), 'Sat, Nov 14, 11:30 PM to Sun, Nov 15, 1:30 AM');
+    assert.equal(span(...eu, '2026-11-14T21:00:00Z', '2026-11-14T23:00:00Z'), 'Sat, Nov 14, 10:00 PM to Sun, Nov 15, 12:00 AM');
+    assert.equal(span(...eu, '2026-11-11T23:00:00Z', '2026-11-12T23:00:00Z'), 'Thu, Nov 12, 12:00 AM to Fri, Nov 13, 12:00 AM', 'a whole day, never "12:00 AM to 12:00 AM"');
+    // The same instants read in Sydney fall on other days: the reader's own calendar decides.
+    assert.equal(span('Australia/Sydney', '2026-11-11T04:00:00Z', '2026-11-18T04:00:00Z', '2026-11-14T21:00:00Z', '2026-11-14T23:00:00Z'), 'Sun, Nov 15, 8:00 AM to 10:00 AM');
+  });
+  test('the Weekly overview across daylight saving: the local hours on each side of the change, in a week that holds it', () => {
+    const us = ['America/Chicago', '2026-10-27T15:00:00Z', '2026-11-03T15:00:00Z'];
+    assert.equal(span(...us, '2026-10-31T23:00:00Z', '2026-11-01T12:00:00Z'), 'Sat, Oct 31, 6:00 PM to Sun, Nov 1, 6:00 AM', 'CDT to CST');
+    assert.equal(span(...us, '2026-11-01T07:00:00Z', '2026-11-08T07:00:00Z'), 'from Sun, Nov 1, 1:00 AM', 'the Faire opens at the change');
+    assert.equal(span(...us, '2026-10-27T15:00:00Z', '2026-11-03T14:00:00Z'), 'Tue, Oct 27, 10:00 AM to Tue, Nov 3, 8:00 AM', 'a bonus week: 10 AM CDT to 8 AM CST');
+    const eu = ['Europe/Paris', '2027-03-24T04:00:00Z', '2027-03-31T04:00:00Z'];
+    assert.equal(span(...eu, '2027-03-24T04:00:00Z', '2027-03-31T03:00:00Z'), 'Wed, Mar 24, 5:00 AM to Wed, Mar 31, 5:00 AM', 'CET to CEST: the same wall hour, a week less an hour');
+    assert.equal(span(...eu, '2027-03-27T23:30:00Z', '2027-03-28T01:30:00Z'), 'Sun, Mar 28, 12:30 AM to 3:30 AM', 'across the skipped hour, one day');
+  });
+
   // The quick filters' Today and This week.
   const range = (r) => r.map((t) => new Date(t).toISOString().replace('.000Z', 'Z'));
   test('Today is the reader\'s calendar day, midnight to midnight on their own clock: 25 hours when clocks go back, 23 when they go forward', () => {

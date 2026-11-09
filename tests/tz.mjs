@@ -51,4 +51,14 @@ test('a wall clock read in the device zone matches the platform\'s own local clo
   }
 });
 
+// Calendar files carry UTC times ("Z"). Checked in every device zone, not only the machine's: a CI runner's
+// zone is UTC, where a file written in local time would look the same (a v0.4 Linux mutation run found that).
+test('calendar files hold the same UTC times in every device zone', () => {
+  const Ics = require('../js/ics.js');
+  assert.equal(Ics.stamp(utc('2026-11-10T15:04:05Z')), '20261110T150405Z');
+  assert.equal(Ics.stamp(utc('2027-03-28T00:30:00Z')), '20270328T003000Z');
+  const text = Ics.calendar({ name: 'T', stampMs: utc('2026-11-09T12:00:00Z'), events: [{ uid: Ics.eventUid('darkmoon-faire', 'us', utc('2026-12-06T08:00:00Z')), start: utc('2026-12-06T08:00:00Z'), end: utc('2026-12-13T08:00:00Z'), summary: 'Darkmoon Faire' }] });
+  assert.ok(text.includes('\r\nDTSTART:20261206T080000Z\r\nDTEND:20261213T080000Z\r\n') && text.includes('\r\nDTSTAMP:20261109T120000Z\r\n'), text);
+});
+
 if (failed) process.exit(1);

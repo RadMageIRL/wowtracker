@@ -333,6 +333,8 @@ main > * { min-width: 0; }
 .backup-result:empty { display: none; }
 .backup-result { margin-top: 10px; padding: 8px 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface-2); }
 .backup-result p { margin: 4px 0; }
+.backup-plan { margin: 4px 0; padding-left: 18px; }
+.backup-plan li { margin: 3px 0; }
 .backup .backup-error { color: var(--warn); }
 
 /* Event calendar: an agenda by month */
@@ -426,6 +428,7 @@ dialog a { color: var(--text); }
 .dialog-close { float: right; margin: -4px -6px 0 8px; }
 /* Reminders: settings in a small dialog; notices in a corner, still (no animation), until dismissed. */
 .rem-fields { margin: 10px 0 0; padding: 0; border: 0; display: grid; gap: 6px; }
+.reminders .check[hidden] { display: none; }
 .reminders .check { display: flex; align-items: center; gap: 8px; min-height: 30px; font-size: 14px; color: var(--text); cursor: pointer; }
 .reminders .check input { width: 18px; height: 18px; margin: 0; accent-color: var(--gold); }
 .reminders .check:has(input:disabled) { color: var(--text-faint); cursor: default; }

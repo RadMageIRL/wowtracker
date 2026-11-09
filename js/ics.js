@@ -51,6 +51,13 @@
     return `${a.toString(16).padStart(8, '0')}${b.toString(16).padStart(8, '0')}@radmagelabs.com`;
   }
 
+  /**
+   * The UID of one occurrence of an event. Retail's input is what v0.2 used ("id|region|start"), so every
+   * Retail UID ever exported stays the same; another edition names itself first ("forever|id|region|start"),
+   * so the same event at the same moment in two editions is two calendar entries, never one.
+   */
+  const eventUid = (id, region, start, edition) => uid(`${!edition || edition === 'retail' ? '' : `${edition}|`}${id}|${region}|${start}`);
+
   const httpsUrl = (u) => { try { return new URL(u).protocol === 'https:'; } catch (e) { return false; } };
 
   /** Refuses an event that would make a wrong or broken entry, saying why. */
@@ -90,7 +97,7 @@
     return `${lines.map(fold).join('\r\n')}\r\n`;
   }
 
-  const Ics = { PRODID, MAX_EVENTS, stamp, escapeText, fold, uid, calendar };
+  const Ics = { PRODID, MAX_EVENTS, stamp, escapeText, fold, uid, eventUid, calendar };
   if (typeof module === 'object' && module.exports) module.exports = Ics;
   else root.WoWIcs = Ics;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

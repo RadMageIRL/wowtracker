@@ -156,71 +156,131 @@ export function checklistTests(test) {
     assert.equal(Store.editionKey('checklist', 'forever'), 'forever:checklist');
   });
 
-  // ---- Settings backup ----
+  // ---- Settings backup (format 2: shared settings, reminders and each edition; format 1 from v0.1 and v0.2) ----
 
-  const EVENT_IDS = DATA.events.map((e) => e.id), CAT_IDS = DATA.categories.map((c) => c.id);
+  const FOREVER = require('../forever-data.js');
+  const editionClean = (data) => ({ prefs: (raw) => Store.sanitizeEditionPrefs(raw, data.events.map((e) => e.id), data.categories.map((c) => c.id)), checklist: (raw) => CL.sanitize(raw) });
   const clean = {
-    prefs: (raw) => Store.sanitizePrefs(raw, EVENT_IDS, CAT_IDS, 'America/Chicago'),
+    shared: (raw) => Store.sanitizeShared(raw, 'America/Chicago'),
     reminders: (raw) => Rem.sanitize(raw),
-    checklist: (raw) => CL.sanitize(raw),
+    editions: { retail: editionClean(DATA), forever: editionClean(FOREVER) },
   };
-  const PREFS = clean.prefs({ region: 'eu', starred: ['hallows-end', 'darkmoon-faire'], hidden: ['aqir-invasion'], theme: 'light', checklistOpen: true });
+  const ALL = Store.sanitizePrefs({ region: 'eu', starred: ['hallows-end', 'darkmoon-faire'], hidden: ['aqir-invasion'], theme: 'light', checklistOpen: true }, DATA.events.map((e) => e.id), DATA.categories.map((c) => c.id), 'America/Chicago');
+  const SHARED = Store.sanitizeShared(ALL, 'America/Chicago');
+  const RETAIL_OWN = Store.editionPrefs(ALL);
+  const FOREVER_OWN = clean.editions.forever.prefs({ starred: ['stranglethorn-fishing-extravaganza', 'darkmoon-faire'], hidden: ['fireworks-spectacular'], categories: ['holiday', 'darkmoon'], filter: 'starred' });
   const REM = { on: true, lead: 30, notify: false, hourly: true };
   const LISTED = CL.tick(LIST, 'bbb', true, per('eu', '2026-11-10T16:00:00Z'));
-  const backup = () => Backup.make({ prefs: PREFS, reminders: REM, checklist: LISTED, version: '0.2.0', now: t('2026-11-10T16:00:00Z') });
+  const FOREVER_LIST = { tasks: [{ id: 'fff', name: 'Dedicated Study', kind: 'daily' }], done: { 'us:daily:2026-11-09T15:00Z': ['fff'] } };
+  const backup = (editions = { retail: { prefs: RETAIL_OWN, checklist: LISTED }, forever: { prefs: FOREVER_OWN, checklist: FOREVER_LIST } }) =>
+    Backup.make({ shared: SHARED, reminders: REM, editions, version: '0.3.0', now: t('2026-11-10T16:00:00Z') });
+  // What v0.2.0 itself writes (format 1, one edition, prefs whole).
+  const V020 = JSON.stringify({ app: 'wowtracker', format: 1, edition: 'retail', version: '0.2.0', saved: '2026-11-10T16:00:00.000Z', prefs: ALL, reminders: REM, checklist: LISTED });
 
-  test('a backup is one line of JSON that reads back to the same settings, stars, hidden events, reminders and checklist', () => {
+  test('a backup (format 2) is one line of JSON holding the shared settings, the reminders and each edition apart, and reads back to the same', () => {
     const text = backup();
     assert.equal(text.includes('\n'), false);
+    const raw = JSON.parse(text);
+    assert.deepEqual(Object.keys(raw), ['app', 'format', 'version', 'saved', 'shared', 'editions']);
+    assert.deepEqual([raw.format, Object.keys(raw.shared), Object.keys(raw.editions)], [2, ['prefs', 'reminders'], ['retail', 'forever']]);
+    assert.deepEqual(Object.keys(raw.shared.prefs).sort(), [...Store.SHARED_PREFS].sort(), 'shared: only shared settings');
+    for (const e of ['retail', 'forever']) assert.deepEqual(Object.keys(raw.editions[e].prefs).sort(), [...Store.EDITION_PREFS].sort(), `${e}: only its own choices`);
     const r = Backup.read(text, clean);
     assert.equal(r.ok, true);
-    assert.deepEqual(r.data, { prefs: PREFS, reminders: REM, checklist: LISTED });
-    assert.deepEqual([r.saved, r.version, r.dropped], [t('2026-11-10T16:00:00Z'), '0.2.0', { starred: 0, hidden: 0, tasks: 0 }]);
-    assert.equal(JSON.parse(text).edition, 'retail');
+    assert.deepEqual([r.format, r.shared, r.reminders], [2, SHARED, REM]);
+    assert.deepEqual(r.editions, { retail: { prefs: RETAIL_OWN, checklist: LISTED }, forever: { prefs: FOREVER_OWN, checklist: FOREVER_LIST } });
+    assert.deepEqual([r.saved, r.version, r.unknown], [t('2026-11-10T16:00:00Z'), '0.3.0', []]);
+    assert.deepEqual(r.dropped, { retail: { starred: 0, hidden: 0, tasks: 0 }, forever: { starred: 0, hidden: 0, tasks: 0 } });
   });
 
-  test('a backup that is empty, not JSON, too big, someone else\'s, newer or for another edition is refused', () => {
+  test('a v0.2 backup (format 1) restores the shared settings, the reminders and Retail only: Forever is not in it, so nothing of Forever\'s is replaced', () => {
+    const r = Backup.read(V020, clean);
+    assert.equal(r.ok, true);
+    assert.deepEqual([r.format, r.shared, r.reminders], [1, SHARED, REM]);
+    assert.deepEqual(Object.keys(r.editions), ['retail'], 'Forever is left as it is');
+    assert.deepEqual(r.editions.retail, { prefs: RETAIL_OWN, checklist: LISTED });
+    // Put back together, the shared and Retail parts are exactly what v0.2 had in "prefs".
+    assert.deepEqual({ ...r.shared, ...r.editions.retail.prefs }, ALL);
+    // One without an edition (v0.1) is Retail's; one naming Forever (a v0.3 development copy) is Forever's, checked against Forever's events.
+    assert.deepEqual(Object.keys(Backup.read(JSON.stringify({ ...JSON.parse(V020), edition: undefined }), clean).editions), ['retail']);
+    const f = Backup.read(JSON.stringify({ app: 'wowtracker', format: 1, edition: 'forever', prefs: { starred: ['stranglethorn-fishing-extravaganza', 'hallows-end', 'aqir-invasion'] } }), clean);
+    assert.deepEqual([Object.keys(f.editions), f.editions.forever.prefs.starred, f.dropped.forever.starred], [['forever'], ['stranglethorn-fishing-extravaganza', 'hallows-end'], 1], "Retail's Aqir Invasion is not a Forever event");
+  });
+
+  test('each edition is checked against its own events: a Retail id in the Forever part (or the reverse) is dropped and counted, never moved across', () => {
+    const raw = JSON.parse(backup());
+    raw.editions.forever.prefs.starred = ['stranglethorn-fishing-extravaganza', 'world-boss-luashal'];
+    raw.editions.retail.prefs.hidden = ['stranglethorn-fishing-extravaganza', 'aqir-invasion'];
+    const r = Backup.read(JSON.stringify(raw), clean);
+    assert.deepEqual([r.editions.forever.prefs.starred, r.editions.retail.prefs.hidden], [['stranglethorn-fishing-extravaganza'], ['aqir-invasion']]);
+    assert.deepEqual([r.dropped.forever.starred, r.dropped.retail.hidden], [1, 1]);
+    assert.equal(r.editions.retail.prefs.starred.includes('stranglethorn-fishing-extravaganza'), false);
+  });
+
+  test('a backup with only some parts restores only those: no shared part leaves the shared settings and reminders; a missing edition is left as it is', () => {
+    const raw = JSON.parse(backup({ forever: { prefs: FOREVER_OWN, checklist: FOREVER_LIST } }));
+    let r = Backup.read(JSON.stringify(raw), clean);
+    assert.deepEqual(Object.keys(r.editions), ['forever']);
+    delete raw.shared;
+    r = Backup.read(JSON.stringify(raw), clean);
+    assert.deepEqual([r.ok, r.shared, r.reminders, Object.keys(r.editions)], [true, null, null, ['forever']]);
+    // An edition this version does not have is named and left out; alone, it is refused.
+    raw.editions.classic = { prefs: { starred: ['x'] } };
+    raw.editions['<b>'] = {};
+    r = Backup.read(JSON.stringify(raw), clean);
+    assert.deepEqual([r.ok, r.unknown, Object.keys(r.editions)], [true, ['classic', 'unnamed'], ['forever']]);
+    assert.equal(Backup.read(JSON.stringify({ app: 'wowtracker', format: 2, editions: { classic: {} } }), clean).error, 'edition');
+  });
+
+  test('a backup that is empty, not JSON, too big, someone else\'s, newer, damaged or for a game version this page lacks is refused', () => {
     const refused = (text) => Backup.read(text, clean).error;
     const good = JSON.parse(backup());
     assert.equal(refused(''), 'empty');
     assert.equal(refused('   '), 'empty');
     assert.equal(refused(null), 'empty');
-    assert.equal(refused('{"app": "wowtracker", "format": 1'), 'not-json');
+    assert.equal(refused('{"app": "wowtracker", "format": 2'), 'not-json');
     assert.equal(refused('x'.repeat(Backup.MAX_CHARS + 1)), 'too-big');
-    for (const v of ['[]', 'null', '7', '"wowtracker"', '{"app": "gw2timer", "format": 1, "prefs": {}}', JSON.stringify({ ...good, app: undefined })]) assert.equal(refused(v), 'not-ours', v);
-    assert.equal(refused(JSON.stringify({ ...good, format: 2 })), 'format');
-    assert.equal(refused(JSON.stringify({ ...good, format: '1' })), 'format');
-    assert.equal(refused(JSON.stringify({ ...good, edition: 'forever' })), 'edition');
-    assert.equal(Backup.read(JSON.stringify({ ...good, edition: 'forever' }), clean, 'forever').ok, true, 'read by that edition it is fine');
+    for (const v of ['[]', 'null', '7', '"wowtracker"', '{"app": "gw2timer", "format": 2, "shared": {}}', JSON.stringify({ ...good, app: undefined })]) assert.equal(refused(v), 'not-ours', v);
+    for (const f of [3, '2', 0, null, 1.5]) assert.equal(refused(JSON.stringify({ ...good, format: f })), 'format', String(f));
+    assert.equal(refused(JSON.stringify({ ...good, shared: [] })), 'damaged');
+    assert.equal(refused(JSON.stringify({ ...good, editions: 'retail' })), 'damaged');
+    assert.equal(refused(JSON.stringify({ ...good, editions: { retail: [] } })), 'damaged');
+    assert.equal(refused(JSON.stringify({ ...JSON.parse(V020), edition: 'classic' })), 'edition');
     assert.equal(refused('{"app": "wowtracker", "format": 1}'), 'nothing');
-    for (const e of ['empty', 'too-big', 'not-json', 'not-ours', 'format', 'edition', 'nothing']) assert.ok(Backup.ERRORS[e], e);
+    assert.equal(refused('{"app": "wowtracker", "format": 2}'), 'nothing');
+    assert.equal(refused('{"app": "wowtracker", "format": 2, "editions": {}}'), 'nothing');
+    for (const e of ['empty', 'too-big', 'not-json', 'not-ours', 'format', 'edition', 'damaged', 'nothing']) assert.ok(Backup.ERRORS[e], e);
   });
 
-  test('a hostile or damaged backup is cleaned like saved settings: unknown ids dropped and counted, odd values back to defaults', () => {
+  test('a hostile or damaged backup is cleaned like saved settings: unknown ids dropped and counted, odd values back to defaults, nothing polluted', () => {
     const raw = {
-      app: 'wowtracker', format: 1, saved: 'yesterday', version: '<script>',
-      prefs: { region: 'kr', starred: ['hallows-end', 'not-an-event', 'also-gone', 'hallows-end'], hidden: ['gone'], theme: 'javascript:alert(1)', aheadHours: 1e9 },
-      reminders: { on: 'yes', lead: 7 },
-      checklist: { tasks: [{ id: 'aaa', name: 'x'.repeat(500), kind: 'daily' }, { id: 'bad id', name: 'y', kind: 'daily' }], done: { 'constructor': ['aaa'] } },
+      app: 'wowtracker', format: 2, saved: 'yesterday', version: '<script>',
+      shared: { prefs: { region: 'kr', theme: 'javascript:alert(1)', aheadHours: 1e9 }, reminders: { on: 'yes', lead: 7 } },
+      editions: {
+        retail: { prefs: { starred: ['hallows-end', 'not-an-event', 'also-gone', 'hallows-end'], hidden: ['gone'] }, checklist: { tasks: [{ id: 'aaa', name: 'x'.repeat(500), kind: 'daily' }, { id: 'bad id', name: 'y', kind: 'daily' }], done: { constructor: ['aaa'] } } },
+        forever: { prefs: 'all of them', checklist: 7 },
+      },
     };
-    const text = JSON.stringify(raw).replace('"region":"kr"', '"__proto__":{"polluted":true},"region":"kr"');
-    assert.ok(text.includes('__proto__'));
+    const text = JSON.stringify(raw).replace('"region":"kr"', '"__proto__":{"polluted":true},"region":"kr"').replace('"editions":{', '"editions":{"__proto__":{"polluted":true},');
+    assert.equal((text.match(/__proto__/g) || []).length, 2);
     const r = Backup.read(text, clean);
     assert.equal(r.ok, true);
-    assert.deepEqual([r.data.prefs.region, r.data.prefs.starred, r.data.prefs.hidden, r.data.prefs.theme, r.data.prefs.aheadHours], ['us', ['hallows-end'], [], 'dark', 168]);
-    assert.deepEqual(r.dropped, { starred: 2, hidden: 1, tasks: 1 });
-    assert.deepEqual(r.data.reminders, Rem.defaults());
-    assert.deepEqual(r.data.checklist.tasks.map((x) => x.name.length), [60]);
-    assert.deepEqual(r.data.checklist.done, {});
-    assert.deepEqual([r.saved, r.version], [null, null]);
+    assert.deepEqual([r.shared.region, r.shared.theme, r.shared.aheadHours], ['us', 'dark', 168]);
+    assert.deepEqual([r.editions.retail.prefs.starred, r.editions.retail.prefs.hidden], [['hallows-end'], []]);
+    assert.deepEqual(r.dropped.retail, { starred: 2, hidden: 1, tasks: 1 });
+    assert.deepEqual(r.reminders, Rem.defaults());
+    assert.deepEqual(r.editions.retail.checklist.tasks.map((x) => x.name.length), [60]);
+    assert.deepEqual(r.editions.retail.checklist.done, {});
+    assert.deepEqual(r.editions.forever, { prefs: clean.editions.forever.prefs(null), checklist: CL.defaults() });
+    assert.deepEqual([r.saved, r.version, r.unknown], [null, null, ['unnamed']]);
     assert.equal({}.polluted, undefined);
   });
 
   test('a backup of v0.1 settings (prefs only, with the old newsOpen) restores them, with defaults for the rest', () => {
     const r = Backup.read(JSON.stringify({ app: 'wowtracker', format: 1, prefs: { region: 'eu', starred: ['hallows-end'], newsOpen: false, compact: true } }), clean);
     assert.equal(r.ok, true);
-    assert.deepEqual([r.data.prefs.region, r.data.prefs.starred, r.data.prefs.compact, r.data.prefs.newsCollapsed], ['eu', ['hallows-end'], true, false]);
-    assert.deepEqual(r.data.reminders, Rem.defaults());
-    assert.deepEqual(r.data.checklist, CL.defaults());
+    assert.deepEqual([r.shared.region, r.editions.retail.prefs.starred, r.shared.compact, r.shared.newsCollapsed], ['eu', ['hallows-end'], true, false]);
+    assert.deepEqual(r.reminders, Rem.defaults());
+    assert.deepEqual(r.editions.retail.checklist, CL.defaults());
   });
 }

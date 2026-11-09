@@ -125,6 +125,8 @@
   const resets = () => DATA.resets[region()];
   /** A reset with a rule. An edition whose resets are not published says "unknown" and has none. */
   const knownReset = (r) => Boolean(r && r.rule);
+  /** True when every region of a dataset has a daily and a weekly reset rule: only then can checklist ticks expire. */
+  function resetsKnownIn(data) { return data.regions.every((x) => knownReset(data.resets[x.id].daily) && knownReset(data.resets[x.id].weekly)); }
 
   // ---- Pieces shared by cards, rows and the calendar ----
 
@@ -807,6 +809,19 @@
 
   const Ics = window.WoWIcs;
   const PAGE_URL = CONFIG.shareUrl || location.href.split('#')[0];
+  // Retail's files, calendar names and UIDs are as they were in v0.2; another edition names itself in each.
+  const FILE_PREFIX = RETAIL ? 'wowtracker' : `wowtracker-${EDITION}`;
+  const calendarName = () => (RETAIL ? `WoW Tracker (${REGION.get(region()).name})` : `WoW Tracker, ${ED.short} (${REGION.get(region()).name})`);
+  const pad2 = (n) => String(n).padStart(2, '0');
+  /** For an edition other than Retail: its server time, how it repeats and how far its data goes. */
+  function editionLines(e, w, reg) {
+    const z = reg.serverZone, c = z ? S.wallClock(z.zone, w.start) : null;
+    return [
+      z ? `Server time: ${S.WEEKDAYS[c.wd]} ${pad2(c.h)}:${pad2(c.mi)}, read as ${z.name}${z.status === 'predicted' ? ' (predicted)' : ''}.` : null,
+      e.repeats ? `Repeats: ${e.repeats}` : null,
+      (coverage(e) || []).join(''),
+    ];
+  }
   const predictedLabel = (st) => (st.status !== 'predicted' ? '' : st.part === 'time' ? ' (Predicted time)' : ' (Predicted)');
 
   /** One calendar entry for one window of an event, in the chosen region. */
@@ -820,12 +835,13 @@
       sure.trim(),
       e.note || null,
       `Region: ${reg.name} (${reg.realms}).`,
-      `A scheduled time from WoW Tracker schedule data r${DATA.meta.datasetRevision}, checked ${e.lastVerified}. It is not read from the game; a realm can open early or late around maintenance.`,
+      ...(RETAIL ? [] : editionLines(e, w, reg)),
+      `A scheduled time from WoW Tracker${RETAIL ? '' : `'s ${DATA.meta.game}`} schedule data r${DATA.meta.datasetRevision}, checked ${e.lastVerified}. It is not read from the game; a realm can open early or late around maintenance.`,
       `Sources: ${e.sources.map((s) => `${s.publisher} ${s.url}`).join(' ; ')}`,
-      `WoW Tracker: ${PAGE_URL}`,
+      `WoW Tracker: ${PAGE_URL}${RETAIL ? '' : `#${EDITION}`}`,
     ].filter(Boolean).join('\n');
     return {
-      uid: Ics.uid(`${e.id}|${r}|${w.start}`), start: w.start, end: w.end,
+      uid: Ics.eventUid(e.id, r, w.start, EDITION), start: w.start, end: w.end,
       summary: `${w.name || e.name}${predictedLabel(st)}`, description,
       location: e.zone ? `World of Warcraft: ${e.zone}` : 'World of Warcraft', url: e.link ? e.link.url : e.sources[0].url,
       tentative: st.status === 'predicted', categories: [CATEGORY.get(e.category).name],
@@ -895,19 +911,21 @@
   function exportNow() {
     const range = document.querySelector('input[name="export-range"]:checked').value;
     const p = exportPlan(range, $('export-predicted').checked);
-    if (p.entries.length && saveIcs(`wowtracker-${regionSlug()}-${fileDay(nowMs())}.ics`, `WoW Tracker (${REGION.get(region()).name})`, p.entries)) $('export-dialog').close();
+    if (p.entries.length && saveIcs(`${FILE_PREFIX}-${regionSlug()}-${fileDay(nowMs())}.ics`, calendarName(), p.entries)) $('export-dialog').close();
   }
 
   function addOneToCalendar(id, startMs) {
     const e = BY_ID.get(id), s = e && S.scheduleFor(e, region());
     const w = s && S.windows(s, startMs, startMs + 1).find((x) => x.start === startMs);
     if (!w) { toast('That time is no longer in the schedule.'); return; }
-    saveIcs(`wowtracker-${e.id}-${fileDay(w.start)}.ics`, `WoW Tracker (${REGION.get(region()).name})`, [icsEntry(e, w)]);
+    saveIcs(`${FILE_PREFIX}-${e.id}-${fileDay(w.start)}.ics`, calendarName(), [icsEntry(e, w)]);
   }
 
   // ---- Reminders for starred events (only while this page is open) ----
 
   const Rem = window.WoWReminders;
+  // Settings are shared by every edition; what was delivered is each edition's own (Retail: "reminded", as in v0.2).
+  const REMINDED_KEY = Store.editionKey('reminded', EDITION);
   let rem = Rem.sanitize(Store.read(storage, 'reminders'));
   const saveRem = () => Store.write(storage, 'reminders', rem);
   let tray = [];                 // reminders shown on the page: { key, event, start, name, title, body }
@@ -915,6 +933,7 @@
   let notifyBroken = false;      // the browser has Notification but refuses it (Android Chrome needs a service worker)
   const BASE_TITLE = document.title;
   const REM_ENGINE = { scheduleFor: S.scheduleFor, windows: S.windows, isFrequent: (s) => s.type === 'every' && s.periodMin < 1440 };
+  const HAS_HOURLY = EVENTS.some((e) => Object.values(e.schedules || {}).some((s) => s && REM_ENGINE.isFrequent(s)));
 
   const notifyState = () => (!('Notification' in window) || notifyBroken ? 'unsupported' : Notification.permission);
 
@@ -923,17 +942,17 @@
     const label = predictedLabel(st);
     return {
       title: `${it.name}${label} starts in ${S.duration(it.start - now)}`,
-      body: `${when}${st.status === 'predicted' ? (st.part === 'time' ? '. The start time is a prediction.' : '. The time is a prediction, not published by Blizzard.') : '.'} ${REGION.get(region()).name}. WoW Tracker`,
+      body: `${when}${st.status === 'predicted' ? (st.part === 'time' ? '. The start time is a prediction.' : '. The time is a prediction, not published by Blizzard.') : '.'} ${REGION.get(region()).name}${RETAIL ? '' : `, ${ED.short}`}. WoW Tracker`,
     };
   }
 
   /** Only one tab delivers each reminder: the key is claimed under a lock shared by every tab. */
   async function claim(k) {
     const run = () => {
-      const d = Rem.prune(Store.read(storage, 'reminded'), Date.now());
+      const d = Rem.prune(Store.read(storage, REMINDED_KEY), Date.now(), EDITION);
       if (d[k]) return false;
       d[k] = Date.now();
-      Store.write(storage, 'reminded', d);
+      Store.write(storage, REMINDED_KEY, d);
       return true;
     };
     try { if (navigator.locks && navigator.locks.request) return await navigator.locks.request('wowtracker-reminders', run); } catch (e) { /* no locks here: claim without one */ }
@@ -1011,12 +1030,12 @@
   /** On each tick: drop what is no longer due, deliver what has come due. Nothing at all while off. */
   function checkReminders(now) {
     if (tray.length) {
-      const ctx = { region: region(), now, starred: prefs.starred, hidden: prefs.hidden };
+      const ctx = { region: region(), now, starred: prefs.starred, hidden: prefs.hidden, edition: EDITION };
       const keep = tray.filter((it) => rem.on && Rem.stillDue(it, ctx));
       if (keep.length !== tray.length) { tray = keep; renderTray(); }
     }
     if (!rem.on || !prefs.starred.length) return;
-    for (const it of Rem.due({ events: EVENTS, region: region(), now, settings: rem, starred: prefs.starred, hidden: prefs.hidden, engine: REM_ENGINE })) {
+    for (const it of Rem.due({ events: EVENTS, region: region(), now, settings: rem, starred: prefs.starred, hidden: prefs.hidden, engine: REM_ENGINE, edition: EDITION })) {
       if (!tried.has(it.key)) deliver(it, now);
     }
   }
@@ -1042,6 +1061,10 @@
     $('rem-starred').textContent = starred.length
       ? `${starred.length} starred ${starred.length === 1 ? 'event' : 'events'} in ${REGION.get(region()).name}${hourly ? `, ${hourly} of them every hour or more often${rem.hourly ? '' : ' (left out unless you tick those)'}` : ''}.`
       : 'No starred events yet. Star an event (the star by its name) to be reminded of it.';
+    // An edition with nothing that repeats every hour or so (Forever) has no use for that choice.
+    $('rem-hourly').closest('label').hidden = !HAS_HOURLY;
+    const others = EDITIONS.filter((x) => x.id !== EDITION).map((x) => x.name);
+    $('rem-edition').textContent = `Only for ${ED.name}, the game version on screen.${others.length ? ` Starred ${others.join(' and ')} events remind you while ${others.length === 1 ? 'it is' : 'they are'} on screen.` : ''}`;
   }
 
   function remChanged() { saveRem(); renderRemindersUi(); syncControls(); checkReminders(nowMs()); }
@@ -1065,13 +1088,16 @@
   // region, a period, the display zone or the list itself changes, never on the one-second tick.
   const CL = window.WoWChecklist;
   const CL_KEY = Store.editionKey('checklist', EDITION);
+  const CL_PRUNES = resetsKnownIn(DATA);
   const CL_ENGINE = { previousReset: S.previousReset, nextReset: S.nextReset };
   const KIND_NAME = { daily: 'Daily', weekly: 'Weekly' };
   let checklist = CL.defaults(), clEditing = false, clRev = 0, clKey = '';
   {
     const saved = Store.read(storage, CL_KEY);
-    checklist = CL.prune(CL.sanitize(saved), Date.now()); // ticks from long ago are dropped on load
-    if (saved && JSON.stringify(saved) !== JSON.stringify(checklist)) Store.write(storage, CL_KEY, checklist);
+    // Ticks from long ago are dropped on load, but only where resets are published: without them,
+    // what is stored stays exactly as it is (nothing expires at a guessed time).
+    checklist = CL_PRUNES ? CL.prune(CL.sanitize(saved), Date.now()) : CL.sanitize(saved);
+    if (CL_PRUNES && saved && JSON.stringify(saved) !== JSON.stringify(checklist)) Store.write(storage, CL_KEY, checklist);
   }
   const clPeriods = (now) => CL.periods(DATA.resets, region(), now, CL_ENGINE);
   const random = () => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] / 4294967296; };
@@ -1248,23 +1274,52 @@
 
   // ---- Settings backup: one line of text the reader keeps; restored only after a confirmation ----
 
+  // A backup holds the shared settings, the reminder settings and every edition this browser has anything
+  // of its own saved for, so it is made and restored from any edition's page. Both data files are loaded,
+  // so each edition's part is checked against that edition's own events, never another's.
   const Backup = window.WoWBackup;
+  const DATASETS = new Map(EDITIONS.filter((x) => window[x.data] && Array.isArray(window[x.data].events)).map((x) => [x.id, window[x.data]]));
+  const editionLabel = (id) => (EDITIONS.find((x) => x.id === id) || { name: id }).name;
+  const listText = (a) => (a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`);
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const backupClean = {
-    prefs: (raw) => Store.sanitizePrefs(raw, EVENTS.map((e) => e.id), CATEGORIES.map((c) => c.id), deviceZone()),
+    shared: (raw) => Store.sanitizeShared(raw, deviceZone()),
     reminders: (raw) => Rem.sanitize(raw),
-    checklist: (raw) => CL.sanitize(raw),
+    editions: Object.fromEntries([...DATASETS].map(([id, d]) => [id, {
+      prefs: (raw) => Store.sanitizeEditionPrefs(raw, d.events.map((e) => e.id), d.categories.map((c) => c.id)),
+      checklist: (raw) => CL.sanitize(raw),
+    }])),
   };
   let pendingBackup = null;
 
-  function settingsSummary(p, r, c) {
-    const n = c.tasks.length;
-    return [REGION.get(p.region).name, `${p.starred.length} starred`, `${p.hidden.length} hidden`, r.on ? `reminders ${r.lead} min before` : 'reminders off',
-      n ? `${n} checklist ${n === 1 ? 'task' : 'tasks'}` : 'no checklist tasks'].join(' · ');
+  /** A checklist as kept: old ticks are dropped only where that edition's resets are published (as on load). */
+  const clKept = (id, c) => (resetsKnownIn(DATASETS.get(id)) ? CL.prune(c, nowMs()) : c);
+
+  /** What this browser has for an edition: { prefs, checklist } of its own, or null when nothing of its own is saved. */
+  function editionNow(id) {
+    if (id === EDITION) return { prefs: Store.editionPrefs(prefs), checklist };
+    const raw = Store.read(storage, Store.editionKey('prefs', id)), cl = Store.read(storage, Store.editionKey('checklist', id));
+    const has = raw !== null && typeof raw === 'object' && !Array.isArray(raw) && Store.EDITION_PREFS.some((k) => Object.prototype.hasOwnProperty.call(raw, k));
+    if (!has && cl === null) return null;
+    return { prefs: backupClean.editions[id].prefs(raw), checklist: CL.sanitize(cl) };
   }
-  const backupText = () => Backup.make({ prefs, reminders: rem, checklist: CL.prune(checklist, nowMs()), edition: EDITION, version: APP_VERSION, now: nowMs() });
+
+  const sharedSummary = (p, r) => `${REGION.get(p.region).name} · ${r.on ? `reminders ${r.lead} min before` : 'reminders off'}`;
+  function editionSummary(e) {
+    if (!e) return 'nothing saved';
+    const n = e.checklist.tasks.length;
+    return [`${e.prefs.starred.length} starred`, `${e.prefs.hidden.length} hidden`, n ? `${n} checklist ${n === 1 ? 'task' : 'tasks'}` : 'no checklist tasks'].join(' · ');
+  }
+  const browserSummary = () => [sharedSummary(prefs, rem), ...[...DATASETS.keys()].map((id) => `${editionLabel(id)}: ${editionSummary(editionNow(id))}`)].join('. ');
+
+  function backupText() {
+    const editions = {};
+    for (const id of DATASETS.keys()) { const e = editionNow(id); if (e) editions[id] = { prefs: e.prefs, checklist: clKept(id, e.checklist) }; }
+    return Backup.make({ shared: Store.sanitizeShared(prefs, deviceZone()), reminders: rem, editions, version: APP_VERSION, now: nowMs() });
+  }
 
   function renderBackup() {
-    $('backup-what').textContent = `This browser now: ${settingsSummary(prefs, rem, checklist)}.`;
+    $('backup-what').textContent = `This browser now: ${browserSummary()}.`;
     $('backup-out').value = backupText();
     pendingBackup = null;
     $('backup-result').replaceChildren();
@@ -1282,19 +1337,39 @@
     toast(`Saved ${name}. Open a file under Restore to bring it back.`);
   }
 
+  // The shared settings by what a reader would call them, to say which ones a restore changes.
+  const SHARED_LABEL = { region: 'region', theme: 'theme', timeMode: 'times', aheadHours: 'Coming up span', compact: 'compact view', newsCollapsed: 'news choices', newsAll: 'news choices', newsShop: 'news choices' };
+
+  /** Checks a backup and shows, part by part, what restoring it would change. Nothing is written here. */
   function checkBackup(text) {
-    const r = Backup.read(text, backupClean, EDITION), out = $('backup-result');
+    const r = Backup.read(text, backupClean), out = $('backup-result');
     pendingBackup = null;
     if (!r.ok) { out.replaceChildren(h('p', { class: 'backup-error', text: `${Backup.ERRORS[r.error]} Nothing was changed.` })); return; }
-    pendingBackup = r.data;
-    const d = r.data, lost = r.dropped.starred + r.dropped.hidden;
-    out.replaceChildren(...[
-      h('p', {}, h('strong', { text: 'This backup can be restored. ' }), r.saved ? `Made ${at(r.saved, 'full')}${r.version ? ` with v${r.version}` : ''}. ` : '', `It holds: ${settingsSummary(d.prefs, d.reminders, d.checklist)}.`),
-      lost || r.dropped.tasks ? h('p', { text: [lost ? `${lost} starred or hidden ${lost === 1 ? 'event is' : 'events are'} not in this version's schedule data and will be left out.` : '', r.dropped.tasks ? `${r.dropped.tasks} damaged checklist ${r.dropped.tasks === 1 ? 'task' : 'tasks'} will be left out.` : ''].filter(Boolean).join(' ') }) : null,
-      h('p', { text: `Restoring replaces what this browser has now (${settingsSummary(prefs, rem, checklist)}).` }),
+    pendingBackup = r;
+    const items = [];
+    if (r.shared) {
+      const cur = Store.sanitizeShared(prefs, deviceZone());
+      const changes = [...new Set(Object.keys(SHARED_LABEL).filter((k) => !same(cur[k], r.shared[k])).map((k) => SHARED_LABEL[k]))];
+      if (!same(rem, r.reminders)) changes.push('reminders');
+      items.push(h('li', {}, h('strong', { text: 'Shared settings: ' }), `${sharedSummary(r.shared, r.reminders)}. `, changes.length ? `Changes the ${listText(changes)}.` : 'The same as now.'));
+    } else items.push(h('li', {}, h('strong', { text: 'Shared settings: ' }), 'not in this backup, so they stay as they are.'));
+    for (const id of DATASETS.keys()) {
+      const part = r.editions[id], cur = editionNow(id);
+      if (!part) { items.push(h('li', {}, h('strong', { text: `${editionLabel(id)}: ` }), 'not in this backup, so it stays as it is.')); continue; }
+      const d = r.dropped[id], lost = d.starred + d.hidden;
+      items.push(h('li', {}, h('strong', { text: `${editionLabel(id)}: ` }), `${editionSummary(part)}. `,
+        cur && same(cur.prefs, part.prefs) && same(cur.checklist, part.checklist) ? 'The same as now.' : `Replaces ${editionSummary(cur)}.`,
+        lost ? ` ${lost} starred or hidden ${lost === 1 ? 'event is' : 'events are'} not in this version's schedule data and will be left out.` : '',
+        d.tasks ? ` ${d.tasks} damaged checklist ${d.tasks === 1 ? 'task' : 'tasks'} will be left out.` : ''));
+    }
+    if (r.unknown.length) items.push(h('li', {}, h('strong', { text: 'Left out: ' }), `${listText(r.unknown)}, not a game version this WoW Tracker has.`));
+    out.replaceChildren(
+      h('p', {}, h('strong', { text: 'This backup can be restored. ' }), r.saved ? `Made ${at(r.saved, 'full')}${r.version ? ` with v${r.version}` : ''}. ` : '', 'Restoring it changes this browser like this:'),
+      h('ul', { class: 'backup-plan' }, items),
+      h('p', { text: `The game version on screen stays ${ED.name}.` }),
       h('p', { class: 'backup-actions' },
         h('button', { type: 'button', class: 'btn small', id: 'backup-apply', text: 'Replace my settings' }),
-        h('button', { type: 'button', class: 'btn small', id: 'backup-cancel', text: 'Cancel' }))].filter(Boolean));
+        h('button', { type: 'button', class: 'btn small', id: 'backup-cancel', text: 'Cancel' })));
     $('backup-apply').focus();
   }
 
@@ -1304,15 +1379,31 @@
     $('backup-check').focus();
   }
 
+  /**
+   * Writes what the checked backup holds: the shared part if it has one, and each edition it has, each
+   * under that edition's own keys; an edition it does not have is left exactly as stored. The edition
+   * on screen is not changed.
+   */
   function applyBackup() {
     if (!pendingBackup) return;
-    const d = pendingBackup;
+    const r = pendingBackup;
     pendingBackup = null;
-    prefs = d.prefs;
-    rem = d.reminders;
-    checklist = CL.prune(d.checklist, nowMs());
-    clRev++;
-    const saved = [savePrefs(), Store.write(storage, 'reminders', rem), Store.write(storage, CL_KEY, checklist)].every(Boolean);
+    const writes = [], restored = [];
+    // Retail's own choices share the "prefs" key with the shared settings: read once, change only what is restored, write once.
+    const stored = Store.read(storage, 'prefs');
+    const base = stored !== null && typeof stored === 'object' && !Array.isArray(stored) ? { ...stored } : {};
+    let prefsTouched = false;
+    if (r.shared) { Object.assign(base, r.shared); prefsTouched = true; writes.push(Store.write(storage, 'reminders', r.reminders)); }
+    for (const [id, part] of Object.entries(r.editions)) {
+      const key = Store.editionKey('prefs', id), list = clKept(id, part.checklist);
+      if (key === 'prefs') { Object.assign(base, part.prefs); prefsTouched = true; } else writes.push(Store.write(storage, key, part.prefs));
+      writes.push(Store.write(storage, Store.editionKey('checklist', id), list));
+      if (id === EDITION) { Object.assign(prefs, part.prefs); checklist = list; clRev++; }
+      restored.push(editionLabel(id));
+    }
+    if (prefsTouched) writes.push(Store.write(storage, 'prefs', base));
+    if (r.shared) { Object.assign(prefs, r.shared); rem = r.reminders; }
+    const saved = writes.every(Boolean);
     $('backup-in').value = '';
     syncControls();
     render(true);
@@ -1320,9 +1411,10 @@
     renderNews();
     if (!prefs.newsCollapsed && !newsState.items.length) loadNews();
     checkReminders(nowMs());
-    $('backup-what').textContent = `This browser now: ${settingsSummary(prefs, rem, checklist)}.`;
+    $('backup-what').textContent = `This browser now: ${browserSummary()}.`;
     $('backup-out').value = backupText();
-    $('backup-result').replaceChildren(h('p', { text: saved ? 'Restored: settings, stars, hidden events, reminders and the checklist.' : 'Restored for this visit, but this browser is not saving right now, so it lasts only until the page is closed.' }));
+    const what = [r.shared ? 'the shared settings and reminders' : null, restored.length ? `the stars, hidden events, categories and checklist of ${listText(restored)}` : null].filter(Boolean);
+    $('backup-result').replaceChildren(h('p', { text: saved ? `Restored: ${what.join(', and ')}.` : 'Restored for this visit, but this browser is not saving right now, so it lasts only until the page is closed.' }));
     $('backup-check').focus();
   }
 

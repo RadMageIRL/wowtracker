@@ -7,6 +7,7 @@ const require = createRequire(import.meta.url);
 const Rem = require('../js/reminders.js');
 const S = require('../js/schedule.js');
 const DATA = require('../events-data.js');
+const FOREVER = require('../forever-data.js');
 
 const ENGINE = { scheduleFor: S.scheduleFor, windows: S.windows, isFrequent: (s) => s.type === 'every' && s.periodMin < 1440 };
 const ON = { on: true, lead: 15, notify: false, hourly: false };
@@ -74,5 +75,35 @@ export function reminderTests(test) {
     assert.equal(Rem.stillDue(it, { ...ctx, region: 'eu' }), false);
     assert.equal(Rem.stillDue(it, { ...ctx, starred: [] }), false);
     assert.equal(Rem.stillDue(it, { ...ctx, hidden: ['world-boss-thormbelan'] }), false);
+  });
+  // ---- Editions: Retail's keys and records as in v0.2; another edition's named first ----
+
+  test('Retail\'s reminder keys are v0.2\'s, byte for byte; Forever\'s name the edition first, so the same event at the same moment is two reminders', () => {
+    const start = Date.parse('2027-02-02T09:00:00Z'); // the Lunar Festival in Europe: the same instant in both editions
+    assert.equal(Rem.key('eu', 'lunar-festival', start, 15), 'eu|lunar-festival|1801558800000|15');
+    assert.equal(Rem.key('eu', 'lunar-festival', start, 15, 'retail'), 'eu|lunar-festival|1801558800000|15');
+    assert.equal(Rem.key('eu', 'lunar-festival', start, 15, 'forever'), 'forever|eu|lunar-festival|1801558800000|15');
+    const at = (events, edition) => Rem.due({ events, region: 'eu', now: start - 10 * 60000, settings: ON, starred: ['lunar-festival'], hidden: [], engine: ENGINE, edition }).map((x) => x.key);
+    assert.deepEqual(at(DATA.events), ['eu|lunar-festival|1801558800000|15']);
+    assert.deepEqual(at(DATA.events, 'retail'), ['eu|lunar-festival|1801558800000|15']);
+    assert.deepEqual(at(FOREVER.events, 'forever'), ['forever|eu|lunar-festival|1801558800000|15']);
+  });
+
+  test('each edition keeps only its own delivery records: Retail drops a Forever key and Forever a Retail one', () => {
+    const now = Date.parse('2027-02-02T09:00:00Z'), r = Rem.key('eu', 'lunar-festival', now, 15), f = Rem.key('eu', 'lunar-festival', now, 15, 'forever');
+    const both = { [r]: now - 60000, [f]: now - 60000 };
+    assert.deepEqual(Rem.prune(both, now), { [r]: now - 60000 });
+    assert.deepEqual(Rem.prune(both, now, 'retail'), { [r]: now - 60000 });
+    assert.deepEqual(Rem.prune(both, now, 'forever'), { [f]: now - 60000 });
+    assert.deepEqual(Rem.prune({ 'classic|eu|x|1|15': now, 'forever|eu|x|1': now, 'forever|eu|lunar-festival|1|15|9': now }, now, 'forever'), {});
+  });
+
+  test('a shown reminder stays only in its own edition: a Retail item is not due on a Forever page, nor the reverse', () => {
+    const now = Date.parse('2027-02-02T08:50:00Z'), start = Date.parse('2027-02-02T09:00:00Z');
+    const ctx = { region: 'eu', now, starred: ['lunar-festival'], hidden: [] };
+    const retail = { key: Rem.key('eu', 'lunar-festival', start, 15), event: { id: 'lunar-festival' }, start };
+    const forever = { key: Rem.key('eu', 'lunar-festival', start, 15, 'forever'), event: { id: 'lunar-festival' }, start };
+    assert.deepEqual([Rem.stillDue(retail, ctx), Rem.stillDue(retail, { ...ctx, edition: 'retail' }), Rem.stillDue(retail, { ...ctx, edition: 'forever' })], [true, true, false]);
+    assert.deepEqual([Rem.stillDue(forever, ctx), Rem.stillDue(forever, { ...ctx, edition: 'forever' }), Rem.stillDue(forever, { ...ctx, edition: 'forever', region: 'us' })], [false, true, false]);
   });
 }

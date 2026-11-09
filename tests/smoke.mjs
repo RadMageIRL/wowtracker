@@ -52,8 +52,8 @@ const checks = [];
 const check = (name, fn) => checks.push({ name, fn });
 
 /** A fresh tab: storage cleared (or seeded with prefs), a simulated clock and zone. */
-async function open({ at, tz = 'America/Chicago', width = 1280, height = 900, mobile = false, url = BASE, prefs = null, keepStorage = false, media = null, reminders = null, checklist = null, before = null } = {}) {
-  const page = await chrome.newPage();
+async function open({ at, tz = 'America/Chicago', width = 1280, height = 900, mobile = false, url = BASE, prefs = null, keepStorage = false, media = null, reminders = null, checklist = null, before = null, browser = chrome } = {}) {
+  const page = await browser.newPage();
   const origin = new URL(url).origin;
   if (!keepStorage && url.startsWith('http')) await page.send('Storage.clearDataForOrigin', { origin, storageTypes: 'all' });
   await page.emulate({ timezone: tz, locale: 'en-US' });
@@ -1038,7 +1038,7 @@ check('Back up settings: Copy and Download give one line that brings back settin
   await click(page, '#backup-btn');
   assert.equal(await page.eval(`document.getElementById('backup-dialog').open`), true);
   assert.match(await text(page, '#backup-dialog'), /Safari can remove them by itself after 7 days/);
-  assert.equal(await text(page, '#backup-what'), 'This browser now: Europe · 2 starred · 1 hidden · reminders 30 min before · 2 checklist tasks.');
+  assert.equal(await text(page, '#backup-what'), 'This browser now: Europe · reminders 30 min before. Retail: 2 starred · 1 hidden · 2 checklist tasks. Forever: nothing saved.');
   const sentBefore = page.requests.length;
   await click(page, '#backup-copy');
   await page.waitFor(`navigator.clipboard.readText().then((t) => t.startsWith('{"app":"wowtracker"'))`);
@@ -1046,7 +1046,8 @@ check('Back up settings: Copy and Download give one line that brings back settin
   assert.equal(copied.includes('\n'), false, 'one line');
   const file = await saved(page, () => click(page, '#backup-download'), '.json');
   assert.equal(file.name, 'wowtracker-settings-2026-11-10.json');
-  assert.deepEqual(JSON.parse(file.text).checklist, JSON.parse(copied).checklist);
+  assert.deepEqual(JSON.parse(file.text).editions, JSON.parse(copied).editions);
+  assert.deepEqual([JSON.parse(copied).format, Object.keys(JSON.parse(copied).editions)], [2, ['retail']], 'Forever has nothing saved, so it is not in the backup');
   assert.deepEqual(page.requests.slice(sentBefore).filter((u) => !u.startsWith('blob:') && !u.includes('?clock=')), [], 'nothing is sent');
   // The browser forgets everything (cleared site data, or Safari after 7 days).
   await page.eval('localStorage.clear()');
@@ -1057,8 +1058,12 @@ check('Back up settings: Copy and Download give one line that brings back settin
   await click(page, '#backup-btn');
   await setBackup(page, copied);
   await click(page, '#backup-check');
-  assert.match(await text(page, '#backup-result'), /^This backup can be restored\. Made Tue, Nov 10, 12:00 PM with v\d+\.\d+\.\d+\. It holds: Europe · 2 starred · 1 hidden · reminders 30 min before · 2 checklist tasks\./);
-  assert.match(await text(page, '#backup-result'), /Restoring replaces what this browser has now \(Americas · 0 starred · 0 hidden · reminders off · no checklist tasks\)\./);
+  assert.deepEqual(await texts(page, '#backup-result .backup-plan li'), [
+    'Shared settings: Europe · reminders 30 min before. Changes the region, theme and reminders.',
+    'Retail: 2 starred · 1 hidden · 2 checklist tasks. Replaces 0 starred · 0 hidden · no checklist tasks.',
+    'Forever: not in this backup, so it stays as it is.']);
+  assert.match(await text(page, '#backup-result'), /^This backup can be restored\. Made Tue, Nov 10, 12:00 PM with v\d+\.\d+\.\d+\. Restoring it changes this browser like this:/);
+  assert.match(await text(page, '#backup-result'), /The game version on screen stays Retail\./);
   assert.equal(await page.eval('document.activeElement.id'), 'backup-apply');
   assert.doesNotMatch(await text(page, '#backup-result'), /null|undefined/);
   assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:checklist')`), null, 'nothing replaced before the confirmation');
@@ -1067,7 +1072,8 @@ check('Back up settings: Copy and Download give one line that brings back settin
   assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:checklist') === null && localStorage.getItem('wowtracker:v1:prefs') === null`), true);
   await click(page, '#backup-check');
   await click(page, '#backup-apply');
-  assert.match(await text(page, '#backup-result'), /^Restored: settings, stars, hidden events, reminders and the checklist\.$/);
+  assert.match(await text(page, '#backup-result'), /^Restored: the shared settings and reminders, and the stars, hidden events, categories and checklist of Retail\.$/);
+  assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:edition') === null && localStorage.getItem('wowtracker:v1:forever:prefs') === null`), true, 'no edition choice and nothing of Forever written');
   const check2 = async () => {
     assert.equal(await page.eval(`document.querySelector('[data-region="eu"]').getAttribute('aria-pressed')`), 'true');
     assert.equal(await page.eval(`document.documentElement.getAttribute('data-theme')`), 'light');
@@ -1094,7 +1100,9 @@ check('a damaged, foreign, newer or oversized backup is refused with a reason an
     ['{"app": "wowtracker", "prefs": {', /not valid JSON/],
     ['{"app": "gw2timer", "format": 1, "prefs": {}}', /valid JSON but not a WoW Tracker backup/],
     ['{"app": "wowtracker", "format": 9, "prefs": {}}', /made by a newer WoW Tracker/],
-    ['{"app": "wowtracker", "format": 1, "edition": "forever", "prefs": {}}', /another edition/],
+    ['{"app": "wowtracker", "format": 1, "edition": "classic", "prefs": {}}', /game version this WoW Tracker does not have/],
+    ['{"app": "wowtracker", "format": 2, "editions": {"retail": "all"}}', /backup is damaged/],
+    ['{"app": "wowtracker", "format": 2}', /holds no settings/],
     ['{"app": "wowtracker", "format": 1}', /holds no settings/],
     ['x'.repeat(250000), /far larger than a WoW Tracker backup/],
   ]) {
@@ -1453,6 +1461,245 @@ check('About in Forever names the game and its server clocks, and says every tim
   await page.waitFor("document.querySelector('#summary li') !== null");
   assert.match(await text(page, '#about-intro'), /^A World of Warcraft \(Retail\) dashboard for resets and scheduled events: /);
   await page.close();
+});
+
+// ---- Editions kept apart: reminders, calendar files and backups (v0.3 Phase 3) ----
+
+// The Lunar Festival starts at 09:00 UTC on February 2, 2027 in Europe in both editions: the same event id,
+// region and moment, so anything keyed without the edition would collide here.
+const LUNAR = utc('2027-02-02T09:00:00Z');
+const LUNAR_PREFS = { region: 'eu', starred: ['lunar-festival'] };
+const seedForever = (own) => `if (!sessionStorage.getItem('f-seeded')) { localStorage.setItem('wowtracker:v1:forever:prefs', ${JSON.stringify(JSON.stringify(own))}); sessionStorage.setItem('f-seeded', '1'); }`;
+const attrOf = (page, sel, a) => page.eval(`document.querySelector(${JSON.stringify(sel)}).getAttribute(${JSON.stringify(a)})`);
+const records = (page) => page.eval(`JSON.stringify(['reminded', 'forever:reminded'].map((k) => Object.keys(JSON.parse(localStorage.getItem('wowtracker:v1:' + k) || '{}'))))`).then(JSON.parse);
+
+check('reminders in a Retail tab and a Forever tab side by side: the same event at the same moment is two reminders, each shown once in its own tab and never in a second one; each edition keeps its own record', async () => {
+  const at = LUNAR - 10 * 60000;
+  const retail = await open({ at, prefs: LUNAR_PREFS, reminders: REM_ON, before: seedForever({ starred: ['lunar-festival'] }) });
+  await retail.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 8000);
+  const forever = await open({ at, url: `${BASE}#forever`, keepStorage: true });
+  await forever.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 8000);
+  for (const p of [retail, forever]) assert.match((await trayText(p))[0], /^Lunar Festival \(Predicted time\) starts in \d+m/);
+  const second = await open({ at, url: `${BASE}#forever`, keepStorage: true });
+  const third = await open({ at, keepStorage: true });
+  await sleep(2500);
+  assert.deepEqual([(await trayText(second)).length, (await trayText(third)).length], [0, 0], 'a second tab of either edition: already delivered');
+  assert.deepEqual(await records(second), [[`eu|lunar-festival|${LUNAR}|15`], [`forever|eu|lunar-festival|${LUNAR}|15`]], "Retail's record as in v0.2; Forever's under its own key, named");
+  // Each dialog says which game version its reminders come from.
+  await click(retail, '#reminders-btn');
+  assert.equal(await text(retail, '#rem-edition'), 'Only for Retail, the game version on screen. Starred Forever events remind you while it is on screen.');
+  await click(forever, '#reminders-btn');
+  assert.equal(await text(forever, '#rem-edition'), 'Only for Forever, the game version on screen. Starred Retail events remind you while it is on screen.');
+  assert.equal(await text(forever, '#rem-starred'), '1 starred event in Europe.');
+  // Retail's hourly events (Aqir Invasion, Curse Surge) are not Forever's: the choice is not offered there.
+  assert.deepEqual([await retail.eval(`document.getElementById('rem-hourly').closest('label').offsetParent !== null`), await forever.eval(`document.getElementById('rem-hourly').closest('label').offsetParent !== null`)], [true, false]);
+  for (const p of [retail, forever, second, third]) { assert.deepEqual(p.problems, []); await p.close(); }
+});
+
+check('switching editions never carries a reminder across: each edition notifies once, with its own name and Predicted time; after five round trips and a reload neither comes back', async () => {
+  const at = LUNAR - 10 * 60000;
+  const page = await open({ at, prefs: LUNAR_PREFS, reminders: { ...REM_ON, notify: true }, before: `${seedForever({ starred: ['lunar-festival'] })};${FAKE_NOTIFICATIONS('granted')};window.Notification.requestPermission();` });
+  const shown = async () => { await sleep(1500); return [(await trayText(page)).length, await page.eval('window.__notes.length')]; };
+  await page.waitFor(`window.__notes.length === 1`, 8000);
+  const r = await page.eval('window.__notes[0]');
+  assert.match(r.t, /^Lunar Festival \(Predicted time\) starts in /);
+  assert.match(r.o.body, /\. The start time is a prediction\. Europe\. WoW Tracker$/, "Retail's text as in v0.2");
+  assert.equal(r.o.tag, `eu|lunar-festival|${LUNAR}|15`);
+  await switchTo(page, 'forever');
+  await page.waitFor(`window.__notes.length === 1`, 8000);
+  const f = await page.eval('window.__notes[0]');
+  assert.match(f.t, /^Lunar Festival \(Predicted time\) starts in /);
+  assert.match(f.o.body, /\. The start time is a prediction\. Europe, WoW: Forever\. WoW Tracker$/);
+  assert.equal(f.o.tag, `forever|eu|lunar-festival|${LUNAR}|15`);
+  assert.deepEqual(await shown(), [1, 1], 'Forever shows its own, not Retail\'s');
+  for (let i = 0; i < 5; i++) {
+    await switchTo(page, 'retail');
+    assert.deepEqual(await shown(), [0, 0], `round trip ${i + 1}: Retail's was delivered already`);
+    await switchTo(page, 'forever');
+    assert.deepEqual(await shown(), [0, 0], `round trip ${i + 1}: so was Forever's`);
+  }
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  assert.deepEqual(await shown(), [0, 0]);
+  assert.deepEqual(await records(page), [[`eu|lunar-festival|${LUNAR}|15`], [`forever|eu|lunar-festival|${LUNAR}|15`]]);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+/** A calendar file checked by the independent reader in tests/ics.mjs (CRLF, 75 octets) and for the parts every entry needs. */
+function checkedIcs(text) {
+  const evs = icsEvents(text);
+  assert.ok(text.startsWith('BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:') && text.endsWith('END:VCALENDAR\r\n'));
+  for (const e of evs) {
+    for (const k of ['UID', 'DTSTAMP', 'DTSTART', 'DTEND', 'SUMMARY']) assert.ok(e[k], `${k} in ${e.SUMMARY}`);
+    assert.match(e.DTSTART, /^\d{8}T\d{6}Z$/);
+    assert.ok(e.DTEND > e.DTSTART, e.SUMMARY);
+  }
+  return evs;
+}
+const unescapeIcs = (v) => v.replace(/\\n/g, '\n').replace(/\\([,;\\])/g, '$1');
+const calName = (text) => (text.match(/\r\nX-WR-CALNAME:([^\r]*)\r\n/) || [])[1];
+
+check('calendar files never mix editions: Forever\'s file names, calendar name and every UID name the edition, Retail\'s are as in v0.2; the two files share no entry; both pass the calendar checker', async () => {
+  const at = utc('2026-11-10T18:00:00Z');
+  const exportAll = async (page) => {
+    await click(page, '#export-btn');
+    await page.eval(`(() => { const r = document.querySelector('input[name="export-range"][value="all"]'); r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+    return saved(page, () => click(page, '#export-go'));
+  };
+  const retail = await open({ at });
+  const rf = await exportAll(retail);
+  const forever = await open({ at, url: `${BASE}#forever` });
+  const ff = await exportAll(forever);
+  assert.deepEqual([rf.name, ff.name], ['wowtracker-americas-2026-11-10.ics', 'wowtracker-forever-americas-2026-11-10.ics']);
+  assert.deepEqual([calName(rf.text), calName(ff.text)], ['WoW Tracker (Americas)', 'WoW Tracker\\, WoW: Forever (Americas)']);
+  const R = checkedIcs(rf.text), F = checkedIcs(ff.text);
+  const RETAIL_DATA = require(join(DIR, 'events-data.js'));
+  const uidsOf = (data, edition) => new Set(data.events.flatMap((e) => (e.schedules.us ? Engine.windows(e.schedules.us, at, utc('2027-12-31T00:00:00Z')).map((w) => Ics.eventUid(e.id, 'us', w.start, edition)) : [])));
+  const retailUids = uidsOf(RETAIL_DATA), foreverUids = uidsOf(FOREVER, 'forever');
+  assert.ok(R.every((x) => retailUids.has(x.UID)), 'every Retail UID is v0.2\'s formula');
+  assert.ok(F.every((x) => foreverUids.has(x.UID)), 'every Forever UID names the edition');
+  assert.ok(R.some((x) => x.UID === '35f65e968686e357@radmagelabs.com'), 'the Retail Darkmoon Faire of December 6 keeps its v0.2.0 UID');
+  assert.equal(F.filter((x) => R.some((y) => y.UID === x.UID)).length, 0, 'no entry in both files');
+  assert.ok(!F.some((x) => RETAIL_ONLY.some((n) => x.SUMMARY.includes(n))) && !R.some((x) => x.SUMMARY.startsWith('Stranglethorn')));
+  // Retail's text is as it was; Forever's adds its server time, how it repeats and how far the data goes.
+  const rd = unescapeIcs(R.find((x) => x.SUMMARY === 'Darkmoon Faire').DESCRIPTION);
+  assert.match(rd, /\nA scheduled time from WoW Tracker schedule data r2, checked 2026-11-08\. It is not read from the game/);
+  assert.match(rd, /\nWoW Tracker: https:\/\/radmagelabs\.com\/wow\/$/);
+  assert.doesNotMatch(rd, /Server time|Repeats|Known through/);
+  const fish = F.find((x) => x.SUMMARY === 'Stranglethorn Fishing Extravaganza (Predicted time)');
+  assert.deepEqual(unescapeIcs(fish.DESCRIPTION).split('\n'), [
+    `Predicted time: the dates are confirmed; the start time on Americas and Oceania is not. ${FOREVER.events[1].schedules.us.basis}`,
+    'Region: Americas (Americas and Oceania).',
+    'Server time: Sunday 14:00, read as US Central time (predicted).',
+    'Repeats: Every Sunday, 14:00 to 16:00 server time.',
+    "Known through Nov 7, 2027. After that: not known yet (only one year of the game's calendar data, from build 1.60.1.70862, is read so far).",
+    "A scheduled time from WoW Tracker's World of Warcraft: Forever schedule data r1, checked 2026-11-08. It is not read from the game; a realm can open early or late around maintenance.",
+    'Sources: Game calendar data (1.60.1.70862) https://wago.tools/db2/Holidays?build=1.60.1.70862 ; Game calendar text (1.60.1.70862) https://wago.tools/db2/HolidayDescriptions?build=1.60.1.70862 ; Icy Veins https://www.icy-veins.com/wow-forever/fishing',
+    'WoW Tracker: https://radmagelabs.com/wow/#forever']);
+  // Things the data does not time (Noblegarden without an end, Call to Arms, the raids) are never in a file.
+  assert.ok(!F.some((x) => /Noblegarden|Call to Arms|Raid/.test(x.SUMMARY)));
+  // One occurrence from the details, in each region.
+  await retail.close();
+  await click(forever, '#now-list [data-details="darkmoon-faire"]');
+  const one = await saved(forever, () => click(forever, '#details [data-ics]'));
+  assert.equal(one.name, 'wowtracker-forever-darkmoon-faire-2026-11-09.ics');
+  const [dmf] = checkedIcs(one.text);
+  assert.deepEqual([dmf.UID, dmf.SUMMARY, dmf.DTSTART, dmf.DTEND, dmf.STATUS, unescapeIcs(dmf.LOCATION)], [Ics.eventUid('darkmoon-faire', 'us', utc('2026-11-09T10:00:00Z'), 'forever'), 'Darkmoon Faire: Elwynn Forest (Predicted time)', '20261109T100000Z', '20261116T100000Z', 'TENTATIVE', 'World of Warcraft: Elwynn Forest, or at the foot of Thunder Bluff (it alternates)']);
+  assert.match(unescapeIcs(dmf.DESCRIPTION), /\nServer time: Monday 04:00, read as US Central time \(predicted\)\.\n/);
+  assert.equal(calName(one.text), 'WoW Tracker\\, WoW: Forever (Americas)');
+  await forever.eval(`document.getElementById('details').close()`);
+  await click(forever, '[data-region="eu"]');
+  await click(forever, '#next-list [data-details="stranglethorn-fishing-extravaganza"]');
+  const eu = await saved(forever, () => click(forever, '#details [data-ics]'));
+  const [f2] = checkedIcs(eu.text);
+  assert.deepEqual([eu.name, f2.UID, f2.DTSTART], ['wowtracker-forever-stranglethorn-fishing-extravaganza-2026-11-15.ics', Ics.eventUid('stranglethorn-fishing-extravaganza', 'eu', utc('2026-11-15T13:00:00Z'), 'forever'), '20261115T130000Z']);
+  assert.match(unescapeIcs(f2.DESCRIPTION), /\nServer time: Sunday 14:00, read as Central European time \(predicted\)\.\n/);
+  assert.equal(calName(eu.text), 'WoW Tracker\\, WoW: Forever (Europe)');
+  assert.deepEqual(forever.problems, []);
+  await forever.close();
+});
+
+const FOREVER_OWN = { starred: ['stranglethorn-fishing-extravaganza', 'darkmoon-faire'], hidden: ['fireworks-spectacular'], categories: ['holiday', 'darkmoon', 'outdoor'], filter: 'all', checklistOpen: false };
+const FOREVER_LIST = { tasks: [{ id: 'fff', name: 'Dedicated Study', kind: 'daily' }], done: { 'us:daily:2026-10-01T15:00Z': ['fff'] } };
+const seedForeverAll = `if (!sessionStorage.getItem('f-seeded')) { localStorage.setItem('wowtracker:v1:forever:prefs', ${JSON.stringify(JSON.stringify(FOREVER_OWN))}); localStorage.setItem('wowtracker:v1:forever:checklist', ${JSON.stringify(JSON.stringify(FOREVER_LIST))}); sessionStorage.setItem('f-seeded', '1'); }`;
+
+check('a backup made on the Forever page holds Retail and Forever apart; restored in a fresh browser profile from the Retail page, both come back under their own keys after a preview and Replace, and the game version on screen does not change', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever`, prefs: RETAIL_PREFS, reminders: { ...REM_ON, lead: 30 }, checklist: { ...TASKS, done: { 'eu:weekly:2026-11-04T04:00Z': ['vault'] } }, before: seedForeverAll });
+  const before = await stored(page);
+  await click(page, '#backup-btn');
+  assert.equal(await text(page, '#backup-what'), 'This browser now: Europe · reminders 30 min before. Retail: 2 starred · 1 hidden · 2 checklist tasks. Forever: 2 starred · 1 hidden · 1 checklist task.');
+  const copy = await page.eval(`document.getElementById('backup-out').value`);
+  const raw = JSON.parse(copy);
+  assert.deepEqual([raw.format, Object.keys(raw.editions)], [2, ['retail', 'forever']]);
+  assert.deepEqual(raw.editions.forever, { prefs: { filter: 'all', categories: ['holiday', 'darkmoon', 'outdoor'], starred: FOREVER_OWN.starred, hidden: FOREVER_OWN.hidden, checklistOpen: false }, checklist: FOREVER_LIST }, "Forever's checklist exactly as stored: no reset is known, so no tick expires");
+  assert.equal(raw.editions.retail.prefs.starred.join(), RETAIL_PREFS.starred.join());
+  assert.equal(raw.shared.prefs.starred, undefined, 'the shared part holds no edition\'s stars');
+  await page.close();
+  // A fresh browser profile: nothing saved at all.
+  const fresh = await launchChrome();
+  try {
+    const p2 = await open({ at: utc('2026-11-12T18:00:00Z'), browser: fresh });
+    assert.deepEqual(await stored(p2), {});
+    await click(p2, '#backup-btn');
+    assert.equal(await text(p2, '#backup-what'), 'This browser now: Americas · reminders off. Retail: 0 starred · 0 hidden · no checklist tasks. Forever: nothing saved.');
+    await setBackup(p2, copy);
+    await click(p2, '#backup-check');
+    assert.deepEqual(await texts(p2, '#backup-result .backup-plan li'), [
+      'Shared settings: Europe · reminders 30 min before. Changes the region, theme, times, Coming up span, compact view, news choices and reminders.',
+      'Retail: 2 starred · 1 hidden · 2 checklist tasks. Replaces 0 starred · 0 hidden · no checklist tasks.',
+      'Forever: 2 starred · 1 hidden · 1 checklist task. Replaces nothing saved.']);
+    assert.match(await text(p2, '#backup-result'), /The game version on screen stays Retail\./);
+    assert.deepEqual(await stored(p2), {}, 'nothing written before Replace');
+    await click(p2, '#backup-apply');
+    assert.equal(await text(p2, '#backup-result'), 'Restored: the shared settings and reminders, and the stars, hidden events, categories and checklist of Retail and Forever.');
+    const after = await stored(p2);
+    for (const k of ['wowtracker:v1:prefs', 'wowtracker:v1:reminders', 'wowtracker:v1:forever:prefs', 'wowtracker:v1:forever:checklist']) assert.deepEqual(JSON.parse(after[k]), JSON.parse(before[k]), k);
+    assert.deepEqual(JSON.parse(after['wowtracker:v1:checklist']).tasks, TASKS.tasks);
+    assert.equal(after['wowtracker:v1:edition'], undefined, 'the game version on screen is not a backed-up setting');
+    assert.equal(await pressedEdition(p2), 'retail');
+    assert.equal(await attrOf(p2, '[data-region="eu"]', 'aria-pressed'), 'true');
+    await switchTo(p2, 'forever');
+    assert.deepEqual(await p2.eval(`[...document.querySelectorAll('[data-star][aria-pressed="true"]')].map((b) => b.getAttribute('data-star')).filter((v, i, a) => a.indexOf(v) === i).sort()`), ['darkmoon-faire', 'stranglethorn-fishing-extravaganza']);
+    assert.equal(await text(p2, '#hidden-btn'), 'Hidden (1)');
+    assert.deepEqual(p2.problems, []);
+    await p2.close();
+  } finally { await fresh.close(); }
+});
+
+check('a v0.2 backup (format 1) restores Retail and the shared settings and leaves Forever exactly as stored, also when restored from the Forever page, which stays on screen', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever`, prefs: { region: 'us', theme: 'dark' }, before: seedForeverAll });
+  const forever = (await stored(page));
+  // Exactly what v0.2.0 writes: one edition, prefs whole.
+  const v020 = JSON.stringify({ app: 'wowtracker', format: 1, edition: 'retail', version: '0.2.0', saved: '2026-11-01T12:00:00.000Z', prefs: { ...RETAIL_PREFS, starred: ['feast-of-winter-veil', 'gone-from-the-data'] }, reminders: { on: true, lead: 60, notify: false, hourly: false }, checklist: TASKS });
+  await click(page, '#backup-btn');
+  await setBackup(page, v020);
+  await click(page, '#backup-check');
+  assert.deepEqual(await texts(page, '#backup-result .backup-plan li'), [
+    'Shared settings: Europe · reminders 60 min before. Changes the region, theme, times, Coming up span, compact view, news choices and reminders.',
+    "Retail: 1 starred · 1 hidden · 2 checklist tasks. Replaces nothing saved. 1 starred or hidden event is not in this version's schedule data and will be left out.",
+    'Forever: not in this backup, so it stays as it is.']);
+  assert.match(await text(page, '#backup-result'), /^This backup can be restored\. Made Sun, Nov 1, 6:00 AM with v0\.2\.0\./);
+  assert.match(await text(page, '#backup-result'), /The game version on screen stays Forever\./);
+  await click(page, '#backup-apply');
+  const after = await stored(page);
+  for (const k of ['wowtracker:v1:forever:prefs', 'wowtracker:v1:forever:checklist']) assert.equal(after[k], forever[k], `${k} byte for byte`);
+  const prefs = JSON.parse(after['wowtracker:v1:prefs']);
+  assert.deepEqual([prefs.region, prefs.theme, prefs.starred, prefs.hidden, prefs.filter], ['eu', 'light', ['feast-of-winter-veil'], ['moonkin-festival'], 'starred']);
+  assert.deepEqual(JSON.parse(after['wowtracker:v1:checklist']), TASKS);
+  assert.equal(await pressedEdition(page), 'forever');
+  assert.equal(await attrOf(page, '[data-region="eu"]', 'aria-pressed'), 'true', 'the shared region came along');
+  assert.equal(await text(page, '#hidden-btn'), 'Hidden (1)', "Forever's own hidden event is still its own");
+  assert.equal(await text(page, '#reminders-btn'), 'Reminders: 60 min');
+  // A backup with no Retail part (shared settings and Forever only) leaves Retail's own choices and checklist as they are.
+  const retailNow = await stored(page);
+  const foreverOnly = JSON.stringify({ app: 'wowtracker', format: 2, version: '0.3.0', saved: '2026-11-09T12:00:00.000Z', shared: { prefs: { region: 'us', theme: 'dark' }, reminders: { on: false, lead: 15 } }, editions: { forever: { prefs: { starred: ['hallows-end'] }, checklist: { tasks: [], done: {} } } } });
+  await setBackup(page, foreverOnly);
+  await click(page, '#backup-check');
+  assert.equal((await texts(page, '#backup-result .backup-plan li'))[1], 'Retail: not in this backup, so it stays as it is.');
+  await click(page, '#backup-apply');
+  const p3 = JSON.parse((await stored(page))['wowtracker:v1:prefs']);
+  assert.deepEqual([p3.region, p3.theme, p3.starred, p3.hidden, p3.filter], ['us', 'dark', ['feast-of-winter-veil'], ['moonkin-festival'], 'starred']);
+  assert.equal((await stored(page))['wowtracker:v1:checklist'], retailNow['wowtracker:v1:checklist']);
+  assert.deepEqual(JSON.parse((await stored(page))['wowtracker:v1:forever:prefs']).starred, ['hallows-end']);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('Forever\'s checklist is never cleared by a guessed reset: a month later its ticks are still stored exactly as saved, while the panel says why it is off', async () => {
+  const page = await open({ at: utc('2026-12-10T18:00:00Z'), url: `${BASE}#forever`, prefs: { checklistOpen: true, region: 'us' }, before: seedForeverAll });
+  await sleep(1500);
+  assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:forever:checklist')`), JSON.stringify(FOREVER_LIST), 'not pruned, not rewritten');
+  assert.equal(await text(page, '#checklist-count'), 'Off: resets not published');
+  assert.match(await text(page, '#checklist-note'), /has not published its reset times for the Americas region, so the checklist is off here rather than clearing at a guessed time/);
+  assert.equal(await text(page, '#summary [data-reset="daily"] .value'), 'Not published');
+  // Retail, whose resets are published, still drops ticks from long ago on load (as in v0.2).
+  const retail = await open({ at: utc('2026-12-10T18:00:00Z'), keepStorage: true, checklist: { ...TASKS, done: { 'us:weekly:2026-10-06T15:00Z': ['vault'] } } });
+  await sleep(1000);
+  assert.deepEqual(JSON.parse(await retail.eval(`localStorage.getItem('wowtracker:v1:checklist')`)).done, {});
+  assert.equal(await page.eval(`localStorage.getItem('wowtracker:v1:forever:checklist')`), JSON.stringify(FOREVER_LIST));
+  await page.close();
+  await retail.close();
 });
 
 // ---- Footer ----

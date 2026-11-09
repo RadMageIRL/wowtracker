@@ -121,4 +121,17 @@ export function icsTests(test) {
     assert.deepEqual(write('arena-skirmish-bonus', 'us', '2026-11-01T00:00:00Z', '2026-11-30T00:00:00Z'), ['20261110T150000Z 20261117T140000Z']);
     assert.deepEqual(write('arena-skirmish-bonus', 'eu', '2026-11-01T00:00:00Z', '2026-11-30T00:00:00Z'), ['20261111T040000Z 20261118T030000Z']);
   });
+  test('event UIDs: Retail\'s are v0.2.0\'s, byte for byte (golden values from v0.2.0\'s own code); Forever\'s differ for the same event, region and start', () => {
+    const golden = [['hallows-end', 'eu', '2026-10-19T08:00:00Z', 'a0c920f285165891@radmagelabs.com'], ['darkmoon-faire', 'us', '2026-12-06T08:00:00Z', '35f65e968686e357@radmagelabs.com'], ['lunar-festival', 'eu', '2027-02-02T09:00:00Z', '5525d0b80ad53e61@radmagelabs.com']];
+    for (const [id, r, iso, uid] of golden) {
+      const start = Date.parse(iso);
+      assert.equal(Ics.eventUid(id, r, start), uid, id);
+      assert.equal(Ics.eventUid(id, r, start, 'retail'), uid, id);
+      assert.equal(Ics.uid(`${id}|${r}|${start}`), uid, `${id}: the v0.2 input`);
+      const f = Ics.eventUid(id, r, start, 'forever');
+      assert.equal(f, Ics.uid(`forever|${id}|${r}|${start}`));
+      assert.notEqual(f, uid);
+      assert.match(f, /^[0-9a-f]{16}@radmagelabs\.com$/);
+    }
+  });
 }

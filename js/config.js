@@ -17,8 +17,8 @@
      * from data/<source>.source.json into `file`, which sets window[`data`]); the page shows one per load.
      */
     editions: [
-      { id: 'retail', name: 'Retail', title: 'World of Warcraft (Retail)', source: 'events', file: 'events-data.js', data: 'WOW_DATA' },
-      { id: 'forever', name: 'Forever', title: 'World of Warcraft: Forever', source: 'forever', file: 'forever-data.js', data: 'WOW_DATA_FOREVER' },
+      { id: 'retail', name: 'Retail', short: 'Retail', title: 'World of Warcraft (Retail)', source: 'events', file: 'events-data.js', data: 'WOW_DATA' },
+      { id: 'forever', name: 'Forever', short: 'WoW: Forever', title: 'World of Warcraft: Forever', source: 'forever', file: 'forever-data.js', data: 'WOW_DATA_FOREVER' },
     ],
     links: {
       labs: 'https://radmagelabs.com/',

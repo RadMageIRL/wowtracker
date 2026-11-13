@@ -394,7 +394,7 @@ check('opened from a file: the page works, news links out, nothing errors', asyn
 
 // The page as it is published: Chrome answers for radmagelabs.com/wow/ and the GitHub Pages address from
 // this build (nothing is deployed), and news.json only where RadMage Labs would pass it through.
-async function asPublished(base, newsBody) {
+async function asPublished(base, newsBody, { hash = '', at = '2026-10-28T01:30:00Z' } = {}) {
   const page = await chrome.newPage();
   const root = new URL(base).pathname, asked = [];
   page.on('Fetch.requestPaused', async (p) => {
@@ -412,8 +412,8 @@ async function asPublished(base, newsBody) {
   await page.send('Fetch.enable', { patterns: [{ urlPattern: `${new URL(base).origin}/*` }] });
   await page.emulate({ timezone: 'America/Chicago', locale: 'en-US' });
   await page.viewport(1280, 900, false);
-  await page.startClockAt(utc('2026-10-28T01:30:00Z'));
-  await page.goto(base);
+  await page.startClockAt(utc(at));
+  await page.goto(`${base}${hash}`);
   await page.waitFor("document.querySelector('#summary li') !== null");
   return { page, asked };
 }
@@ -2427,6 +2427,672 @@ for (const w of [390, 320]) {
   });
 }
 
+// ---- Share links (v0.5): "#<edition>/<event>/<region>/<start>" opens one event's details ----
+
+/** Counts this tab's page loads, so a check can say a link reloaded the page once, or not at all. */
+const LOADS = `sessionStorage.setItem('loads', String(Number(sessionStorage.getItem('loads') || 0) + 1));`;
+const loads = (page) => page.eval(`Number(sessionStorage.getItem('loads'))`);
+/** What a share link did: the details it opened, the line under the header, and what the page shows. */
+const linked = (page) => page.eval(`(() => { const g = (id) => document.getElementById(id), d = g('details');
+  const dd = (label) => { const dt = [...d.querySelectorAll('dt')].find((x) => x.textContent === label); return dt ? dt.nextElementSibling.textContent : ''; };
+  const pressed = (attr) => { const b = document.querySelector('[data-' + attr + '][aria-pressed="true"]'); return b ? b.getAttribute('data-' + attr) : null; };
+  return { open: d.open, title: d.open ? g('details-title').textContent : '', note: d.open && d.querySelector('.details-note') ? d.querySelector('.details-note').textContent : '',
+    when: d.open ? dd('When') : '', where: d.open ? dd('Region') : '', start: d.open && d.querySelector('[data-ics]') ? Number(d.querySelector('[data-ics]').dataset.start) : null,
+    notice: g('link-notice').hidden ? '' : [...g('link-notice').querySelectorAll('span')].map((s) => s.textContent).join(' '), buttons: g('link-notice').hidden ? [] : [...g('link-notice').querySelectorAll('button')].map((b) => b.textContent),
+    edition: pressed('edition'), region: pressed('region'), hash: location.hash }; })()`);
+const closeDetails = async (page) => { await page.eval(`document.getElementById('details').close()`); await page.waitFor(`!document.getElementById('details').open`); await sleep(150); };
+/** Follows a link in the open tab, as a click on it or a pasted address would. */
+const follow = (page, hash) => page.eval(`location.hash = ${JSON.stringify(hash)}`);
+/** The link Copy link gives for the details on screen, read from the clipboard. */
+async function copiedLink(page) {
+  await page.eval(`navigator.clipboard.writeText('something else')`);
+  await click(page, '#details-link');
+  await page.waitFor(`/^Link copied/.test(document.getElementById('details-status').textContent)`);
+  return page.eval('navigator.clipboard.readText()');
+}
+const CANON = 'https://radmagelabs.com/wow/';
+
+check('Copy link in an event\'s details gives the canonical address with the game version, event, region and start on screen; followed in a fresh tab it opens those same details, in Retail and Forever', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), before: LOADS });
+  const calendarRow = (id, iso) => page.eval(`[...document.querySelectorAll('#calendar [data-details="${id}"]')].find((b) => Number(b.dataset.start) === ${utc(iso)}).click()`);
+  await calendarRow('darkmoon-faire', '2026-12-06T08:00:00Z');
+  assert.equal(await text(page, '#details-link'), 'Copy link');
+  assert.equal(await page.eval(`document.getElementById('details-link').getAttribute('aria-label')`), 'Copy a link to Darkmoon Faire on Sun, Dec 6, 2:00 AM');
+  const december = await copiedLink(page);
+  assert.equal(december, `${CANON}#retail/darkmoon-faire/us/20261206T0800Z`);
+  assert.equal(await text(page, '#details-status'), 'Link copied (Retail, Americas, Sun, Dec 6, 2:00 AM). It opens these details for whoever follows it.');
+  assert.deepEqual(await page.eval(`[document.getElementById('details-link-field').hidden, location.hash, document.getElementById('details').open]`), [true, '', true], 'the link itself is not shown, the address is not changed, the details stay open');
+  await closeDetails(page);
+  // Another occurrence of the same event is another link; so is the other region, and a slot of an event that repeats every half hour.
+  await calendarRow('darkmoon-faire', '2027-01-03T08:00:00Z');
+  const january = await copiedLink(page);
+  assert.equal(january, `${CANON}#retail/darkmoon-faire/us/20270103T0800Z`);
+  await closeDetails(page);
+  await click(page, '#now-list [data-details="curse-surge"]');
+  const surge = await copiedLink(page);
+  assert.equal(surge, `${CANON}#retail/curse-surge/us/20261110T1800Z`);
+  await closeDetails(page);
+  await click(page, '[data-region="eu"]');
+  await calendarRow('wow-anniversary', '2026-11-17T09:00:00Z');
+  const europe = await copiedLink(page);
+  assert.equal(europe, `${CANON}#retail/wow-anniversary/eu/20261117T0900Z`);
+  assert.match(await text(page, '#details-status'), /^Link copied \(Retail, Europe, Tue, Nov 17, 3:00 AM\)\./);
+  assert.equal(await loads(page), 1, 'nothing here reloaded the page');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+  // Each link, followed in a tab with nothing saved, opens exactly what was copied. (This build answers for the canonical address.)
+  for (const [link, tz, want] of [
+    [december, 'America/Chicago', { title: 'Darkmoon Faire', when: /^Starts Sun, Dec 6, 2:00 AM, ends Sun, Dec 13, 2:00 AM · in 25d 13h$/, where: /^Americas /, start: '2026-12-06T08:00:00Z', region: 'us' }],
+    [january, 'America/Chicago', { title: 'Darkmoon Faire', when: /^Starts Sun, Jan 3, 2:00 AM, /, where: /^Americas /, start: '2027-01-03T08:00:00Z', region: 'us' }],
+    [surge, 'America/Chicago', { title: 'Curse Surge: Mlurkkr Massacre', when: /^On now, ends Tue, Nov 10, 12:30 PM/, where: /^Americas /, start: '2026-11-10T18:00:00Z', region: 'us' }],
+    [europe, 'Europe/Berlin', { title: "WoW's 22nd Anniversary", when: /^Starts Tue, Nov 17, 10:00 AM, /, where: /^Europe /, start: '2026-11-17T09:00:00Z', region: 'eu' }],
+  ]) {
+    const tab = await open({ at: utc('2026-11-10T18:00:00Z'), tz, url: link.replace(CANON, BASE), before: LOADS });
+    const got = await linked(tab);
+    assert.deepEqual([got.open, got.title, got.start, got.edition, got.region, got.note, got.notice], [true, want.title, utc(want.start), 'retail', want.region, '', ''], link);
+    assert.match(got.when, want.when, link);
+    assert.match(got.where, want.where, link);
+    assert.equal(await copiedLink(tab), link, 'the link it gives is the link it was opened from');
+    assert.deepEqual(Object.keys(await stored(tab)), [], 'following a link saves nothing');
+    assert.equal(await tab.eval(`document.activeElement.closest('dialog').id`), 'details', 'focus is in the details');
+    assert.equal(await loads(tab), 1);
+    assert.deepEqual(tab.problems, [], link);
+    await tab.close();
+  }
+  // Forever: the link names the edition, shows it without saving it, and Forever's own Copy link says so.
+  const contest = '#forever/stranglethorn-fishing-extravaganza/eu/20261122T1300Z';
+  const forever = await open({ at: utc('2026-11-10T18:00:00Z'), tz: 'Europe/Berlin', url: `${BASE}${contest}`, before: LOADS });
+  const f = await linked(forever);
+  assert.deepEqual([f.open, f.title, f.start, f.edition, f.region, f.note, f.notice], [true, 'Stranglethorn Fishing Extravaganza', utc('2026-11-22T13:00:00Z'), 'forever', 'eu', '', '']);
+  assert.match(f.when, /^Starts Sun, Nov 22, 2:00 PM, ends Sun, Nov 22, 4:00 PM/);
+  assert.equal(await copiedLink(forever), `${CANON}${contest}`);
+  assert.match(await text(forever, '#details-status'), /^Link copied \(Forever, Europe, Sun, Nov 22, 2:00 PM\)\./);
+  assert.deepEqual(Object.keys(await stored(forever)), [], 'the edition a link shows is not a saved choice');
+  assert.equal(await loads(forever), 1);
+  assert.deepEqual(forever.problems, []);
+  await forever.close();
+});
+
+check('a link for the other region shows that region for this visit and saves nothing: Back returns, Keep and the region buttons save, a reload is the reader\'s own page, and the link is taken out of the address once its details are closed', async () => {
+  const PREFS = { region: 'us', starred: ['darkmoon-faire'], hidden: ['moonkin-festival'], aheadHours: 72 };
+  const europe = '#retail/wow-anniversary/eu/20261117T0900Z';
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}${europe}`, prefs: PREFS, reminders: REM_ON, before: LOADS });
+  const before = await stored(page);
+  assert.deepEqual(before, { 'wowtracker:v1:prefs': JSON.stringify(PREFS), 'wowtracker:v1:reminders': JSON.stringify(REM_ON) }, 'opening the link wrote nothing');
+  let got = await linked(page);
+  assert.deepEqual([got.open, got.title, got.start, got.region, got.hash], [true, "WoW's 22nd Anniversary", utc('2026-11-17T09:00:00Z'), 'eu', europe]);
+  assert.match(got.where, /^Europe \(European realms\)$/);
+  assert.equal(got.note, 'The link is for Europe; your saved region, Americas, is unchanged.');
+  assert.equal(got.notice, 'Showing Europe, the region of the link you opened. Your saved region is still Americas.');
+  assert.deepEqual(got.buttons, ['Back to Americas', 'Keep Europe']);
+  assert.equal(await copiedLink(page), `${CANON}${europe}`, 'Copy link names the region on screen, not the saved one');
+  // The whole page is Europe's for now: its resets, its lists.
+  assert.match(await text(page, '#region-line'), /^Europe · European realms\./);
+  assert.match(await text(page, '[data-reset="weekly"] .sub'), /^Tue, Nov 10, 10:00 PM$/);
+  // Saving something else while the link's region shows (a star, from the details) still leaves the saved region alone.
+  await click(page, '#details [data-star]');
+  let saved = JSON.parse(await item(page, 'prefs'));
+  assert.deepEqual([saved.region, saved.starred, saved.hidden, saved.aheadHours], ['us', ['darkmoon-faire', 'wow-anniversary'], ['moonkin-festival'], 72], 'the star is saved, with Americas still the region');
+  assert.equal((await linked(page)).note, 'The link is for Europe; your saved region, Americas, is unchanged.', 'the line stays when the details are redrawn');
+  await click(page, '#details [data-star]');
+  // Closing the details takes the link out of the address; Europe stays on screen with its line.
+  await closeDetails(page);
+  got = await linked(page);
+  assert.deepEqual([got.hash, got.region, got.buttons.length], ['', 'eu', 2]);
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  got = await linked(page);
+  assert.deepEqual([got.open, got.region, got.notice, got.hash], [false, 'us', '', ''], 'after a reload: the saved region, no link, no line');
+  // The link again, in the open tab (no reload): Back to Americas.
+  const loaded = await loads(page);
+  await follow(page, europe);
+  await page.waitFor(`document.getElementById('details').open`);
+  assert.equal((await linked(page)).region, 'eu');
+  await closeDetails(page);
+  await click(page, '#link-back');
+  got = await linked(page);
+  assert.deepEqual([got.region, got.notice, got.hash], ['us', '', '']);
+  assert.equal(await page.eval(`document.activeElement.getAttribute('data-region')`), 'us', 'focus goes to the region now shown');
+  assert.match(await text(page, '#region-line'), /^Americas · /);
+  assert.equal(JSON.parse(await item(page, 'prefs')).region, 'us');
+  // Again: Keep Europe saves it, and only then.
+  await follow(page, europe);
+  await page.waitFor(`document.getElementById('details').open`);
+  await closeDetails(page);
+  assert.equal(JSON.parse(await item(page, 'prefs')).region, 'us', 'not saved until Keep');
+  await click(page, '#link-keep');
+  got = await linked(page);
+  assert.deepEqual([got.region, got.notice, JSON.parse(await item(page, 'prefs')).region], ['eu', '', 'eu']);
+  // A link for the saved region shows no line; one for the other region ends when a region button is pressed, which saves as it always did.
+  await follow(page, europe);
+  await page.waitFor(`document.getElementById('details').open`);
+  assert.deepEqual([(await linked(page)).notice, (await linked(page)).note], ['', '']);
+  await closeDetails(page);
+  await follow(page, '#retail/wow-anniversary/us/20261117T1800Z');
+  await page.waitFor(`document.getElementById('details').open`);
+  got = await linked(page);
+  assert.deepEqual([got.region, got.start, got.notice], ['us', utc('2026-11-17T18:00:00Z'), 'Showing Americas, the region of the link you opened. Your saved region is still Europe.']);
+  await closeDetails(page);
+  await click(page, '[data-region="us"]');
+  got = await linked(page);
+  assert.deepEqual([got.region, got.notice, got.hash, JSON.parse(await item(page, 'prefs')).region], ['us', '', '', 'us']);
+  // With a link's region on screen, closing its details and pressing the saved region's button at once ends the visit's region, with the link out of the address.
+  await follow(page, europe);
+  await page.waitFor(`document.getElementById('details').open`);
+  await page.eval(`document.getElementById('details').close(); document.querySelector('[data-region="us"]').click()`);
+  await sleep(200);
+  got = await linked(page);
+  assert.deepEqual([got.region, got.notice, got.hash], ['us', '', '']);
+  assert.equal(await loads(page), loaded, 'six links followed in the open tab, not one reload');
+  assert.equal((await stored(page))['wowtracker:v1:reminders'], before['wowtracker:v1:reminders'], 'the reminder settings were never rewritten');
+  assert.deepEqual(Object.keys(await stored(page)).sort(), ['wowtracker:v1:prefs', 'wowtracker:v1:reminders'], 'no new key');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('a share link picks the game version without saving it: a Forever link in a Retail tab reloads once and a Retail link ignores a saved Forever; afterwards the address keeps only the game version, and "#forever" still works', async () => {
+  // Nothing saved, a Forever link without a start: the Faire that is on now, in the reader's own region.
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever/darkmoon-faire`, before: LOADS });
+  let got = await linked(page);
+  assert.deepEqual([got.open, got.title, got.edition, got.region, got.note, got.notice], [true, 'Darkmoon Faire: Elwynn Forest', 'forever', 'us', '', '']);
+  assert.match(got.when, /^On now, ends Mon, Nov 16, 4:00 AM/);
+  assert.equal(await copiedLink(page), `${CANON}#forever/darkmoon-faire/us/20261109T1000Z`, 'its own link names the region and the occurrence');
+  await closeDetails(page);
+  assert.equal((await linked(page)).hash, '#forever', 'the link is put away; the game version it chose stays in the address');
+  assert.equal((await stored(page))['wowtracker:v1:edition'], undefined);
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  got = await linked(page);
+  assert.deepEqual([got.open, got.edition], [false, 'forever'], 'a reload stays on Forever, without the details');
+  // In this Forever tab: a Forever link opens with no reload; a Retail link reloads the page once into Retail.
+  await follow(page, '#forever/stranglethorn-fishing-extravaganza/us/20261115T2000Z');
+  await page.waitFor(`document.getElementById('details').open`);
+  assert.deepEqual([(await linked(page)).title, await loads(page)], ['Stranglethorn Fishing Extravaganza', 2]);
+  await follow(page, '#forever/darkmoon-faire/us');
+  await page.waitFor(`document.getElementById('details-title').textContent === 'Darkmoon Faire: Elwynn Forest'`);
+  assert.equal(await loads(page), 2, 'from one open link to another: the details change, nothing reloads');
+  await follow(page, '#retail/darkmoon-faire/us/20261206T0800Z');
+  await page.waitFor(`document.querySelector('[data-edition="retail"][aria-pressed="true"]') !== null && document.getElementById('details').open`, 10000);
+  got = await linked(page);
+  assert.deepEqual([got.title, got.start, got.edition, await loads(page)], ['Darkmoon Faire', utc('2026-12-06T08:00:00Z'), 'retail', 3]);
+  await sleep(1500);
+  assert.equal(await loads(page), 3, 'once, not in a loop');
+  await closeDetails(page);
+  assert.equal((await linked(page)).hash, '', 'Retail is what a plain address shows here, so nothing is left in it');
+  assert.equal((await stored(page))['wowtracker:v1:edition'], undefined, 'still no saved game version');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+  // A reader who chose Forever follows a Retail link: Retail for this visit, the choice untouched, "#retail" left in the address.
+  const chose = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#retail/darkmoon-faire/us/20261206T0800Z`, before: `${LOADS}${seedItems({ edition: '"forever"' })}` });
+  got = await linked(chose);
+  assert.deepEqual([got.open, got.edition, got.title], [true, 'retail', 'Darkmoon Faire']);
+  await closeDetails(chose);
+  assert.deepEqual([(await linked(chose)).hash, (await stored(chose))['wowtracker:v1:edition']], ['#retail', '"forever"']);
+  await chose.reload();
+  await chose.waitFor("document.querySelector('#summary li') !== null");
+  assert.equal((await linked(chose)).edition, 'retail', 'the address still says Retail');
+  await chose.goto(BASE);
+  await chose.waitFor(`document.querySelector('#summary li') !== null && document.querySelector('[data-edition="forever"][aria-pressed="true"]') !== null`, 10000);
+  assert.equal((await linked(chose)).edition, 'forever', 'and a plain address is the saved Forever, as before');
+  assert.deepEqual(chose.problems, []);
+  await chose.close();
+});
+
+check('links that cannot be used say why and change nothing: an unknown or removed event, another game version, a malformed link; an ended or moved time opens the event now or next and says so; a hidden event says it is hidden', async () => {
+  const PREFS = { region: 'eu', starred: ['darkmoon-faire'], hidden: ['moonkin-festival'], aheadHours: 72, theme: 'light' };
+  const SAVED = { 'wowtracker:v1:prefs': JSON.stringify(PREFS), 'wowtracker:v1:reminders': JSON.stringify(REM_ON) };
+  const tail = ', so it was not opened. Nothing of yours was changed.';
+  for (const [hash, edition, says] of [
+    ['#retail/not-an-event/us', 'retail', `That link is for an event that is not in the Retail schedule now (it may have been removed or renamed)${tail}`],
+    ['#forever/world-boss-thormbelan/us/20261110T1500Z', 'forever', `That link is for an event that is not in the Forever schedule now (it may have been removed or renamed)${tail}`],
+    ['#classic/darkmoon-faire/us', 'retail', `That link is for a game version this page does not have${tail}`],
+    ['#retail/darkmoon-faire/us/2026-12-06', 'retail', `That link could not be read${tail}`],
+    ['#retail/darkmoon-faire/mars', 'retail', `That link could not be read${tail}`],
+    ['#retail/darkmoon-faire/us/20261206T0800Z/extra/parts', 'retail', `That link could not be read${tail}`],
+    ['#retail/%3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E/us', 'retail', `That link could not be read${tail}`],
+    [`#retail/${'a'.repeat(300)}`, 'retail', `That link could not be read${tail}`],
+  ]) {
+    const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}${hash}`, prefs: PREFS, reminders: REM_ON, before: LOADS });
+    const got = await linked(page);
+    assert.deepEqual([got.open, got.notice, got.buttons, got.edition, got.region], [false, says, ['Dismiss'], edition, 'eu'], hash);
+    assert.equal(got.hash, edition === 'retail' ? '' : `#${edition}`, `${hash}: taken out of the address at once`);
+    assert.deepEqual(await stored(page), SAVED, `${hash}: storage byte for byte`);
+    assert.equal(await page.eval(`document.documentElement.getAttribute('data-theme')`), 'light', 'the reader\'s own page');
+    assert.equal(await page.eval(`document.getElementById('link-notice').getAttribute('role')`), 'status');
+    await click(page, '#link-dismiss');
+    assert.deepEqual([(await linked(page)).notice, await page.eval(`document.activeElement.getAttribute('data-region')`)], ['', 'eu'], 'Dismiss removes the line and moves focus to the region');
+    await page.reload();
+    await page.waitFor("document.querySelector('#summary li') !== null");
+    assert.equal((await linked(page)).notice, '', 'not said again after a reload');
+    assert.equal(await loads(page), 2, hash);
+    assert.deepEqual(page.problems, [], hash);
+    await page.close();
+  }
+  // A time that has ended, one the schedule does not have, and one past the end of the data.
+  for (const [at, hash, note, when] of [
+    ['2026-11-10T18:00:00Z', '#retail/darkmoon-faire/us/20261101T0700Z', 'This link was made for Sun, Nov 1, 1:00 AM, which has ended. Shown here: what is on now or comes next.', /^Starts Sun, Dec 6, 2:00 AM/],
+    ['2026-11-10T18:00:00Z', '#retail/darkmoon-faire/us/20261206T0900Z', 'This link was made for Sun, Dec 6, 3:00 AM, which is not in the schedule now (it may have moved). Shown here: what is on now or comes next.', /^Starts Sun, Dec 6, 2:00 AM/],
+    ['2026-11-10T18:00:00Z', '#retail/world-boss-thormbelan/us/20270601T1500Z', 'This link was made for Tue, Jun 1, 10:00 AM, which is not in the schedule now (it may have moved). Shown here: what is on now or comes next.', /^On now, ends Tue, Nov 17, 9:00 AM/],
+    ['2027-06-01T12:00:00Z', '#retail/wow-anniversary/us/20261117T1800Z', 'This link was made for Tue, Nov 17, 12:00 PM, which has ended.', /^Nothing more of it is in the data for this region\.$/],
+  ]) {
+    const page = await open({ at: utc(at), url: `${BASE}${hash}`, prefs: { region: 'us' } });
+    const got = await linked(page);
+    assert.deepEqual([got.open, got.note, got.notice], [true, note, ''], hash);
+    assert.match(got.when, when, hash);
+    assert.deepEqual(page.problems, [], hash);
+    await page.close();
+  }
+  // At the very end of an occurrence its link has ended; a few seconds before, it opens as on now.
+  const ending = await open({ at: utc('2026-11-08T06:59:50Z'), url: `${BASE}#retail/darkmoon-faire/us/20261101T0700Z`, prefs: { region: 'us' } });
+  assert.deepEqual([(await linked(ending)).note, (await linked(ending)).start], ['', utc('2026-11-01T07:00:00Z')]);
+  assert.match((await linked(ending)).when, /^On now, ends Sun, Nov 8, 1:00 AM/);
+  await ending.close();
+  const ended = await open({ at: utc('2026-11-08T07:00:00Z'), url: `${BASE}#retail/darkmoon-faire/us/20261101T0700Z`, prefs: { region: 'us' } });
+  assert.match((await linked(ended)).note, /^This link was made for Sun, Nov 1, 1:00 AM, which has ended\./);
+  assert.equal((await linked(ended)).start, utc('2026-12-06T08:00:00Z'));
+  await ended.close();
+  // An event the reader has hidden opens all the same, says so, and can be shown again from there.
+  const hidden = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#retail/moonkin-festival/us`, prefs: { region: 'us', hidden: ['moonkin-festival'] } });
+  let got = await linked(hidden);
+  assert.deepEqual([got.open, got.title, got.note], [true, 'Moonkin Festival', 'You have hidden this event, so it is not in your lists.']);
+  assert.deepEqual(await texts(hidden, '#details .details-actions button:not(.star-btn)'), ['Add to calendar', 'Copy link', 'Show again']);
+  await click(hidden, '#details [data-unhide]');
+  got = await linked(hidden);
+  assert.deepEqual([got.open, got.note, await text(hidden, '#hidden-btn'), await hidden.eval(`document.activeElement.getAttribute('data-hide')`)], [true, '', 'Hidden (0)', 'moonkin-festival'], 'shown again from its details, which stay open');
+  assert.deepEqual(hidden.problems, []);
+  await hidden.close();
+});
+
+check('share links open from both published addresses and from a file, also after a refresh, and Copy link gives the canonical address from each', async () => {
+  const hash = '#retail/darkmoon-faire/us/20261206T0800Z';
+  const FAKE_CLIPBOARD = `window.__copied = null; navigator.clipboard.writeText = (t) => { window.__copied = t; return Promise.resolve(); };`;
+  for (const base of ['https://radmagelabs.com/wow/', 'https://radmageirl.github.io/wowtracker/']) {
+    const { page } = await asPublished(base, base.includes('radmagelabs') ? FEED : null, { hash, at: '2026-11-10T18:00:00Z' });
+    const same = async (label) => {
+      const got = await linked(page);
+      assert.deepEqual([got.open, got.title, got.start, got.edition, got.region, got.hash, got.notice, got.note], [true, 'Darkmoon Faire', utc('2026-12-06T08:00:00Z'), 'retail', 'us', hash, '', ''], `${base} ${label}`);
+      assert.match(got.when, /^Starts Sun, Dec 6, 2:00 AM/);
+    };
+    await same('opened');
+    await page.reload();
+    await page.waitFor("document.querySelector('#summary li') !== null");
+    await same('after a refresh');
+    // What Copy link hands to the clipboard, wherever the page is published.
+    await page.eval(FAKE_CLIPBOARD);
+    await click(page, '#details-link');
+    await page.waitFor('window.__copied !== null');
+    assert.equal(await page.eval('window.__copied'), `${CANON}${hash}`, base);
+    await closeDetails(page);
+    assert.equal(await page.eval('location.href'), base, 'the address is the page\'s own again, on the same path');
+    // A Forever link from the same path: one reload into Forever, Europe for this visit.
+    await follow(page, '#forever/stranglethorn-fishing-extravaganza/eu/20261115T1300Z');
+    await page.waitFor(`document.readyState === 'complete' && document.querySelector('[data-edition="forever"][aria-pressed="true"]') !== null && document.getElementById('details').open`, 10000);
+    const f = await linked(page);
+    assert.deepEqual([f.title, f.start, f.region, f.notice], ['Stranglethorn Fishing Extravaganza', utc('2026-11-15T13:00:00Z'), 'eu', 'Showing Europe, the region of the link you opened. Your saved region is still Americas.'], base);
+    await closeDetails(page);
+    assert.equal(await page.eval('location.href'), `${base}#forever`);
+    assert.deepEqual(page.requests.filter((u) => !u.startsWith(base)), [], `${base}: no request outside its own path`);
+    assert.deepEqual(page.problems, [], base);
+    await page.close();
+  }
+  const file = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${pathToFileURL(join(DIR, 'index.html')).href}${hash}` });
+  const got = await linked(file);
+  assert.deepEqual([got.open, got.title, got.start], [true, 'Darkmoon Faire', utc('2026-12-06T08:00:00Z')]);
+  await file.eval(FAKE_CLIPBOARD);
+  await click(file, '#details-link');
+  await file.waitFor('window.__copied !== null');
+  assert.equal(await file.eval('window.__copied'), `${CANON}${hash}`);
+  await closeDetails(file);
+  assert.equal(await file.eval('location.hash'), '');
+  assert.deepEqual(file.problems, []);
+  await file.close();
+});
+
+check('the same link names the same occurrence in every time zone and with UTC times: only the words for the time differ', async () => {
+  const hash = '#retail/wow-anniversary/us/20261117T1800Z', start = utc('2026-11-17T18:00:00Z');
+  for (const [tz, prefs, when] of [
+    ['America/Chicago', { region: 'us' }, 'Starts Tue, Nov 17, 12:00 PM, ends Tue, Dec 8, 12:00 PM'],
+    ['America/Los_Angeles', { region: 'us' }, 'Starts Tue, Nov 17, 10:00 AM, ends Tue, Dec 8, 10:00 AM'],
+    ['Europe/Berlin', { region: 'us' }, 'Starts Tue, Nov 17, 7:00 PM, ends Tue, Dec 8, 7:00 PM'],
+    ['Asia/Kolkata', { region: 'us' }, 'Starts Tue, Nov 17, 11:30 PM, ends Tue, Dec 8, 11:30 PM'],
+    ['Australia/Sydney', { region: 'us' }, 'Starts Wed, Nov 18, 5:00 AM, ends Wed, Dec 9, 5:00 AM'],
+    ['America/Chicago', { region: 'us', timeMode: 'utc' }, 'Starts Tue 17 Nov, 18:00 UTC, ends Tue 8 Dec, 18:00 UTC'],
+  ]) {
+    const page = await open({ at: utc('2026-11-10T18:00:00Z'), tz, url: `${BASE}${hash}`, prefs });
+    const got = await linked(page);
+    assert.deepEqual([got.open, got.start, got.region, got.note], [true, start, 'us', ''], tz);
+    assert.equal(got.when.replace(/ · in .*$/, ''), when, tz);
+    assert.equal(await copiedLink(page), `${CANON}${hash}`, `${tz}: the link is the same from every zone`);
+    await page.close();
+  }
+  // A link made where the start is the evening before, opened where it is the evening after.
+  const made = await open({ at: utc('2026-11-10T18:00:00Z'), tz: 'Pacific/Honolulu', url: `${BASE}#retail/darkmoon-faire/us/20261206T0800Z`, prefs: { region: 'us' } });
+  assert.match((await linked(made)).when, /^Starts Sat, Dec 5, 10:00 PM/);
+  const link = await copiedLink(made);
+  await made.close();
+  const read = await open({ at: utc('2026-11-10T18:00:00Z'), tz: 'Pacific/Auckland', url: link.replace(CANON, BASE), prefs: { region: 'us' } });
+  assert.match((await linked(read)).when, /^Starts Sun, Dec 6, 9:00 PM/);
+  assert.equal((await linked(read)).start, utc('2026-12-06T08:00:00Z'));
+  await read.close();
+});
+
+check('when the browser refuses the clipboard, Copy link shows the link selected to copy by hand; an event with nothing more scheduled gives a link without a time', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { region: 'eu' } });
+  await page.eval(`[...document.querySelectorAll('#calendar [data-details="wow-anniversary"]')][0].click()`);
+  await page.eval(`navigator.clipboard.writeText('untouched').then(() => { navigator.clipboard.writeText = () => Promise.reject(new Error('refused')); })`);
+  await click(page, '#details-link');
+  await page.waitFor(`document.getElementById('details-status').textContent !== ''`);
+  assert.equal(await text(page, '#details-status'), 'Could not copy by itself. The link (Retail, Europe, Tue, Nov 17, 3:00 AM) is selected below: copy it with your keyboard or the menu.');
+  const f = await page.eval(`(() => { const f = document.getElementById('details-link-field'); return [f.hidden, document.activeElement === f, f.selectionStart, f.selectionEnd === f.value.length, f.readOnly, f.getAttribute('aria-label'), f.value]; })()`);
+  assert.deepEqual(f, [false, true, 0, true, true, 'Link to this event', `${CANON}#retail/wow-anniversary/eu/20261117T0900Z`]);
+  assert.equal(await page.eval('navigator.clipboard.readText()'), 'untouched');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+  const late = await open({ at: utc('2027-06-01T12:00:00Z'), url: `${BASE}#retail/wow-anniversary/us`, prefs: { region: 'us' } });
+  assert.match((await linked(late)).when, /^Nothing more of it is in the data/);
+  assert.equal((await linked(late)).note, '', 'a link without a time has nothing to explain');
+  assert.equal(await copiedLink(late), `${CANON}#retail/wow-anniversary/us`);
+  assert.equal(await text(late, '#details-status'), 'Link copied (Retail, Americas). It opens these details for whoever follows it.');
+  assert.equal(await late.eval(`document.getElementById('details-link').getAttribute('aria-label')`), "Copy a link to WoW's 22nd Anniversary");
+  await late.close();
+});
+
+for (const w of [390, 320]) {
+  check(`at ${w} px a followed link fits the screen: the details with their line and the copy field, and the region line under the header, with no sideways scrolling`, async () => {
+    const page = await open({ at: utc('2026-11-10T18:00:00Z'), width: w, height: 800, mobile: true, url: `${BASE}#retail/wow-anniversary/eu/20261101T0700Z`, prefs: { region: 'us' } });
+    assert.match((await linked(page)).note, /^This link was made for .* The link is for Europe; your saved region, Americas, is unchanged\.$/);
+    await page.eval(`navigator.clipboard.writeText = () => Promise.reject(new Error('refused'))`);
+    await click(page, '#details-link');
+    await page.waitFor(`!document.getElementById('details-link-field').hidden`);
+    const box = await page.eval(`(() => { const d = document.getElementById('details'), r = d.getBoundingClientRect(), f = document.getElementById('details-link-field').getBoundingClientRect();
+      return { left: r.left, right: r.right, h: r.height, sw: d.scrollWidth, cw: d.clientWidth, fl: f.left, fr: f.right, page: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        small: [...d.querySelectorAll('button, a.btn, input')].filter((e) => e.getBoundingClientRect().height < 28).map((e) => e.id || e.textContent),
+        wide: [...d.querySelectorAll('*')].filter((e) => { const b = e.getBoundingClientRect(); return b.width && (b.right > r.right + 1 || b.left < r.left - 1); }).map((e) => e.tagName + '.' + e.className).slice(0, 5) }; })()`);
+    assert.ok(box.left >= 0 && box.right <= w && box.sw <= box.cw && box.h <= 800 && box.page, JSON.stringify(box));
+    assert.ok(box.fl >= box.left && box.fr <= box.right, JSON.stringify(box));
+    assert.deepEqual([box.small, box.wide], [[], []]);
+    await closeDetails(page);
+    const bar = await page.eval(`(() => { const n = document.getElementById('link-notice'), r = n.getBoundingClientRect();
+      return { left: r.left, right: r.right, h: r.height, page: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        small: [...n.querySelectorAll('button')].filter((e) => e.getBoundingClientRect().height < 28).map((e) => e.textContent),
+        wide: [...n.querySelectorAll('*')].filter((e) => { const b = e.getBoundingClientRect(); return b.right > r.right + 1 || b.left < r.left - 1; }).length }; })()`);
+    assert.ok(bar.left >= 0 && bar.right <= w && bar.page && bar.h > 0 && bar.h <= 160, JSON.stringify(bar));
+    assert.deepEqual([bar.small, bar.wide], [[], 0]);
+    await page.close();
+  });
+}
+
+// ---- Weekly overview order and its Predicted legend (v0.5) ----
+
+/** The overview's columns as lists of { id, name, when, badge }. */
+const weekRows = (page) => page.eval(`[...document.querySelectorAll('#week-grid .week-col')].map((c) => [...c.querySelectorAll('li:not(.none)')].map((li) => ({ id: li.dataset.id, name: li.querySelector('[data-details]').textContent,
+  when: li.querySelector('.span').textContent, badge: (li.querySelector('.badge.predicted') || {}).textContent || '' })))`);
+const weekLegend = (page) => page.eval(`(() => { const l = document.getElementById('week-legend'); return { hidden: l.hidden, shown: l.offsetParent !== null, text: [...l.querySelectorAll('.legend-item')].map((x) => x.textContent), labels: [...l.querySelectorAll('.badge')].map((x) => x.textContent) }; })()`);
+const LEGEND = { time: 'Predicted time means the dates are confirmed, the start time is not.', all: 'Predicted means it follows a pattern Blizzard has not published yet.' };
+/** Test only: copies of the Moonkin Festival and Thorm'belan put into the data, so that items share a start, and a start and a name. */
+const TIES = `(() => { let d; Object.defineProperty(window, 'WOW_DATA', { configurable: true, get: () => d, set: (v) => {
+  const copy = (id, as, name) => { const c = JSON.parse(JSON.stringify(v.events.find((e) => e.id === id))); c.id = as; c.name = name; return c; };
+  v.events.push(copy('moonkin-festival', 'zz-festival', 'Autumn Festival'), copy('moonkin-festival', 'bb-twin', 'Twin Festival'), copy('moonkin-festival', 'aa-twin', 'Twin Festival'), copy('world-boss-thormbelan', 'aa-boss', 'Zed the Last'));
+  d = v; } }); })()`;
+
+check('the Weekly overview lists what runs all week first, then by start, then by name, then by id; hourly events keep their one line at the end; filters and hidden events still apply', async () => {
+  const page = await open({ at: utc('2026-11-11T12:00:00Z'), tz: 'Europe/Berlin', prefs: { region: 'eu' } });
+  const [cur, next] = (await weekRows(page)).map((col) => col.map((r) => `${r.name} | ${r.when}`));
+  assert.deepEqual(cur, [
+    "Thorm'belan | all week · on now",
+    'Arena Skirmish Bonus Event | Wed, Nov 11, 5:00 AM to Wed, Nov 18, 4:00 AM · on now',
+    'Moonkin Festival | Thu, Nov 12, 12:00 AM to Fri, Nov 13, 12:00 AM',
+    "WoW's 22nd Anniversary | from Tue, Nov 17, 10:00 AM",
+    'Aqir Invasion | every hour, until Wed, Nov 18, 4:10 AM',
+    'Curse Surge | every 30 min',
+  ]);
+  // Next week the anniversary runs all week: it moves above the items that only start that week, though it began before them.
+  assert.deepEqual(next, [
+    "WoW's 22nd Anniversary | all week",
+    'Predaxas | all week',
+    'Legion Timewalking | Wed, Nov 18, 5:00 AM to Wed, Nov 25, 4:00 AM',
+    "Pilgrim's Bounty | from Sun, Nov 22, 10:00 AM",
+    'Aqir Invasion | every hour, until Wed, Nov 25, 4:10 AM',
+    'Curse Surge | every 30 min',
+  ]);
+  // Categories, hidden events and quick filters narrow the overview as before; the order holds in what is left, and nothing new is saved.
+  await page.eval(`(() => { const p = JSON.parse(localStorage.getItem('wowtracker:v1:prefs')); p.hidden = ['moonkin-festival']; localStorage.setItem('wowtracker:v1:prefs', JSON.stringify(p)); })()`);
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  await click(page, '[data-category="outdoor"]');
+  assert.deepEqual((await weekRows(page)).map((col) => col.map((r) => r.name)), [["Thorm'belan", 'Arena Skirmish Bonus Event', "WoW's 22nd Anniversary"], ["WoW's 22nd Anniversary", 'Predaxas', 'Legion Timewalking', "Pilgrim's Bounty"]]);
+  const saved = await item(page, 'prefs');
+  await click(page, '[data-quick="holidays"]');
+  assert.deepEqual((await weekRows(page)).map((col) => col.map((r) => r.name)), [["WoW's 22nd Anniversary"], ["WoW's 22nd Anniversary", "Pilgrim's Bounty"]]);
+  await click(page, '[data-quick="holidays"]');
+  await click(page, '[data-quick="today"]');
+  assert.deepEqual((await weekRows(page)).map((col) => col.map((r) => r.name)), [["Thorm'belan", 'Arena Skirmish Bonus Event'], []], 'Today: what is on today, in the same order');
+  await click(page, '[data-quick="week"]');
+  assert.deepEqual((await weekRows(page)).map((col) => col.map((r) => r.name)), [["Thorm'belan", 'Arena Skirmish Bonus Event', "WoW's 22nd Anniversary"], ["WoW's 22nd Anniversary"]], 'This week: the first column as it was, and of the next only what begins this week');
+  assert.equal(await item(page, 'prefs'), saved, 'the quick filters saved nothing');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+  // Ties: the same start goes by the name shown, the same start and name by the event id; the same after a reload and in the other region's week.
+  const ties = await open({ at: utc('2026-11-10T18:00:00Z'), before: TIES });
+  const names = async () => (await weekRows(ties)).map((col) => col.map((r) => `${r.name} (${r.id})`));
+  const want = ["Thorm'belan (world-boss-thormbelan)", 'Zed the Last (aa-boss)', 'Arena Skirmish Bonus Event (arena-skirmish-bonus)',
+    'Autumn Festival (zz-festival)', 'Moonkin Festival (moonkin-festival)', 'Twin Festival (aa-twin)', 'Twin Festival (bb-twin)', 'Aqir Invasion (aqir-invasion)', 'Curse Surge (curse-surge)'];
+  assert.deepEqual((await names())[0], want);
+  await ties.reload();
+  await ties.waitFor("document.querySelector('#summary li') !== null");
+  assert.deepEqual((await names())[0], want, 'the same after a reload');
+  await click(ties, '[data-region="eu"]');
+  assert.deepEqual((await names())[1].filter((n) => /Festival/.test(n)), ['Autumn Festival (zz-festival)', 'Moonkin Festival (moonkin-festival)', 'Twin Festival (aa-twin)', 'Twin Festival (bb-twin)'], 'and in Europe, where the festivals fall in the next reset week');
+  assert.deepEqual(ties.problems, []);
+  await ties.close();
+});
+
+check('the Weekly overview explains its Predicted labels in one line, only while such a label is in it, and only the labels that are', async () => {
+  const kinds = async (p) => [...new Set((await weekRows(p)).flat().map((r) => r.badge).filter(Boolean))].sort();
+  // Europe: both kinds are in the two weeks.
+  const eu = await open({ at: utc('2026-11-11T12:00:00Z'), tz: 'Europe/Berlin', prefs: { region: 'eu' } });
+  assert.deepEqual(await kinds(eu), ['Predicted', 'Predicted time']);
+  assert.deepEqual(await weekLegend(eu), { hidden: false, shown: true, text: [LEGEND.time, LEGEND.all], labels: ['Predicted time', 'Predicted'] });
+  const place = await eu.eval(`(() => { const l = document.getElementById('week-legend').getBoundingClientRect(), h = document.getElementById('week-title').getBoundingClientRect(), g = document.getElementById('week-grid').getBoundingClientRect(); return [l.top >= h.bottom - 1, l.bottom <= g.top + 1, l.height]; })()`);
+  assert.ok(place[0] && place[1] && place[2] > 0 && place[2] <= 48, `under the heading, above the columns, a line or two on a desktop: ${place}`);
+  assert.equal(await eu.eval(`getComputedStyle(document.querySelector('#week-legend .badge')).cursor`), 'default', 'the legend\'s labels are words, not something to point at');
+  // Only holidays: in Europe their start times are predicted, so the legend names that label alone.
+  await click(eu, '[data-quick="holidays"]');
+  assert.deepEqual(await kinds(eu), ['Predicted time']);
+  assert.deepEqual((await weekLegend(eu)).text, [LEGEND.time]);
+  // Hide the holidays of these two weeks: no label is left, and neither is the legend.
+  for (let i = 0; i < 3; i++) await eu.eval(`(() => { const b = document.querySelector('#week-grid [data-details]'); if (!b) return; b.click(); document.querySelector('#details [data-hide]').click(); })()`);
+  assert.deepEqual([await kinds(eu), (await weekRows(eu)).flat().length], [[], 0]);
+  assert.deepEqual(await weekLegend(eu), { hidden: true, shown: false, text: [], labels: [] });
+  await eu.close();
+  // The Americas: the same holidays are confirmed there; with only holidays and the Faire followed, nothing is predicted and nothing is explained.
+  const us = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { categories: ['holiday', 'darkmoon'] } });
+  assert.ok((await weekRows(us)).flat().length >= 2);
+  assert.deepEqual([await kinds(us), (await weekLegend(us)).hidden, (await weekLegend(us)).shown], [[], true, false]);
+  // Turning the world bosses on brings "Predicted" and its line, alone.
+  await click(us, '[data-category="world-boss"]');
+  assert.deepEqual([await kinds(us), (await weekLegend(us)).text], [['Predicted'], [LEGEND.all]]);
+  // A search that leaves only confirmed events takes it away again.
+  await us.eval(`(() => { const i = document.getElementById('search'); i.value = 'anniversary'; i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await us.waitFor(`document.getElementById('week-legend').hidden`, 3000);
+  assert.deepEqual(await kinds(us), []);
+  assert.deepEqual(us.problems, []);
+  await us.close();
+  // Forever: every time is a Predicted time, and that is the one label explained.
+  const forever = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever` });
+  assert.deepEqual([await kinds(forever), (await weekLegend(forever)).text], [['Predicted time'], [LEGEND.time]]);
+  await forever.close();
+});
+
+for (const w of [390, 320]) {
+  check(`at ${w} px the Weekly overview with its legend stays compact: no sideways scrolling, the legend a few lines at most, every name tall enough to press`, async () => {
+    const page = await open({ at: utc('2026-11-11T12:00:00Z'), tz: 'Europe/Berlin', width: w, height: 800, mobile: true, prefs: { region: 'eu' } });
+    const box = await page.eval(`(() => { const s = document.querySelector('section.week'), r = s.getBoundingClientRect(), l = document.getElementById('week-legend').getBoundingClientRect();
+      return { left: r.left, right: r.right, legend: l.height, items: document.querySelectorAll('#week-legend .legend-item').length, page: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        small: [...s.querySelectorAll('button')].filter((e) => e.getBoundingClientRect().height < 28).map((e) => e.textContent),
+        wide: [...s.querySelectorAll('*')].filter((e) => { const b = e.getBoundingClientRect(); return b.width && (b.right > ${w} + 1 || b.left < -1); }).map((e) => e.tagName + '.' + e.className).slice(0, 5) }; })()`);
+    assert.ok(box.left >= 0 && box.right <= w && box.page && box.items === 2, JSON.stringify(box));
+    assert.ok(box.legend > 0 && box.legend <= 120, `the legend is ${box.legend} px tall`);
+    assert.deepEqual([box.small, box.wide], [[], []]);
+    await page.close();
+  });
+}
+
+// ---- The Reminders dialog follows the clock while it is open (v0.5) ----
+
+/** Marks the list's entries and counts what is done to the list from now on: entries added, removed or moved, and words or states rewritten. */
+const WATCH_LIST = `(() => { const list = document.getElementById('rem-upcoming'); [...list.children].forEach((li, i) => { li.__mark = 'entry ' + i + ' ' + li.dataset.event; });
+  window.__list = { moved: 0, written: 0 };
+  new MutationObserver((ms) => { for (const m of ms) { if (m.target === list && m.type === 'childList') window.__list.moved += m.addedNodes.length + m.removedNodes.length; else window.__list.written++; } }).observe(list, { childList: true, subtree: true, characterData: true, attributes: true }); })()`;
+const listWatch = (page) => page.eval(`({ ...window.__list, marks: [...document.querySelectorAll('#rem-upcoming li')].map((li) => li.__mark || 'new ' + li.dataset.event) })`);
+const TWO_AT_RESET = { starred: ['timewalking', 'world-boss-predaxas', 'darkmoon-faire'] }; // Legion Timewalking and Predaxas start 2026-11-17 15:00 UTC in the Americas
+
+check('an open Reminders dialog follows the clock: a reminder coming due and an event starting change their entries in place, at the second they happen; nothing is rebuilt, and a choice in use keeps the focus', async () => {
+  const page = await open({ at: utc('2026-11-17T14:44:50Z'), prefs: TWO_AT_RESET, reminders: REM_ON, before: seedItems({ 'reminder-leads': { 'world-boss-predaxas': 5, 'darkmoon-faire': 1440 } }) });
+  await click(page, '#reminders-btn');
+  const brief = async () => (await upRows(page)).map((r) => `${r.id} ${r.state}`);
+  assert.deepEqual(await brief(), ['timewalking on', 'world-boss-predaxas on', 'darkmoon-faire on']);
+  await page.eval(WATCH_LIST);
+  await page.eval(`document.querySelector('#rem-upcoming [data-lead-for="darkmoon-faire"]').focus()`);
+  // 14:45:00, Timewalking's lead of 15 minutes: its entry alone changes.
+  await page.waitFor(`document.querySelector('#rem-upcoming [data-event="timewalking"]').dataset.state === 'due'`, 20000);
+  const clock = await page.eval('Date.now()');
+  assert.ok(clock >= utc('2026-11-17T14:45:00Z') && clock < utc('2026-11-17T14:45:03Z'), `it changed at its moment: ${new Date(clock).toISOString()}`);
+  let rows = await upRows(page);
+  assert.deepEqual(rows.map((r) => [r.id, r.state, r.said]), [['timewalking', 'due', 'On: its time has come'], ['world-boss-predaxas', 'on', 'On'], ['darkmoon-faire', 'on', 'On']]);
+  let w = await listWatch(page);
+  assert.deepEqual([w.moved, w.marks], [0, ['entry 0 timewalking', 'entry 1 world-boss-predaxas', 'entry 2 darkmoon-faire']], 'no entry was added, removed or moved: the same three elements');
+  assert.ok(w.written > 0 && w.written <= 4, `only the changed words were written (${w.written} changes)`);
+  assert.equal(await page.eval(`document.activeElement.getAttribute('data-lead-for')`), 'darkmoon-faire', 'the choice in use keeps the focus');
+  await page.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 5000); // and the reminder itself is shown, once
+  // Seconds pass with nothing due: nothing at all is written.
+  await sleep(500);
+  const quiet = (await listWatch(page)).written;
+  await sleep(3000);
+  assert.equal((await listWatch(page)).written, quiet, 'three seconds with no change write nothing');
+  // 14:55:00, Predaxas's own lead of 5 minutes.
+  await jumpClock(page, '2026-11-17T14:54:58Z');
+  await page.waitFor(`document.querySelector('#rem-upcoming [data-event="world-boss-predaxas"]').dataset.state === 'due'`, 8000);
+  assert.deepEqual(await brief(), ['timewalking due', 'world-boss-predaxas due', 'darkmoon-faire on']);
+  assert.equal((await listWatch(page)).moved, 0);
+  // 15:00:00: both start. Their entries move on (no next start is known for either), the Faire is now the soonest; the entries are the same elements, moved around the one in use.
+  await page.eval(`(() => { const s = document.querySelector('#rem-upcoming [data-lead-for="darkmoon-faire"]'); s.value = '120'; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await jumpClock(page, '2026-11-17T14:59:58Z');
+  await page.waitFor(`document.querySelector('#rem-upcoming [data-event="world-boss-predaxas"]').dataset.state === 'none'`, 8000);
+  const after = await page.eval('Date.now()');
+  assert.ok(after >= utc('2026-11-17T15:00:00Z') && after < utc('2026-11-17T15:00:03Z'), `it moved on at the start: ${new Date(after).toISOString()}`);
+  rows = await upRows(page);
+  assert.deepEqual(rows.map((r) => [r.id, r.state, r.lead]), [['darkmoon-faire', 'on', '120'], ['world-boss-predaxas', 'none', '5'], ['timewalking', 'none', '']]);
+  assert.deepEqual(rows.slice(1).map((r) => [r.when, r.said]), Array(2).fill(['Nothing more of it is scheduled in this region.', 'No reminder']));
+  w = await listWatch(page);
+  assert.deepEqual(w.marks, ['entry 2 darkmoon-faire', 'entry 1 world-boss-predaxas', 'entry 0 timewalking'], 'reordered, and still the same three elements');
+  assert.equal(await page.eval(`document.activeElement.getAttribute('data-lead-for')`), 'darkmoon-faire', 'focus is still on the choice in use');
+  assert.equal(await page.eval(`document.activeElement.value`), '120', 'with what was chosen');
+  assert.equal(await text(page, '#rem-upcoming-note'), 'The next start of each starred event, soonest reminder first. A reminder is shown only if this page is open at its time.');
+  // Delivery is what it was: each of the two shown once, recorded once, and gone from the tray at the start.
+  assert.deepEqual(Object.keys(JSON.parse(await item(page, 'reminded'))).sort(), [`us|timewalking|${utc('2026-11-17T15:00:00Z')}|15`, `us|world-boss-predaxas|${utc('2026-11-17T15:00:00Z')}|5`]);
+  assert.deepEqual(await trayText(page), []);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('just before a reminder\'s time the open list still says On, and at the start of an event with a next start the entry moves on to it; a clock set back is followed too', async () => {
+  // The Curse Surge slots are 30 minutes apart: 20:30 and 21:00 UTC. Lead 5 minutes.
+  const page = await open({ at: utc('2026-11-08T20:24:50Z'), prefs: { starred: ['curse-surge'] }, reminders: { on: true, lead: 5, notify: false, hourly: true } });
+  await click(page, '#reminders-btn');
+  const row = async () => { const [r] = await upRows(page); return [r.state, r.name, r.when]; };
+  assert.deepEqual(await row(), ['on', 'Curse Surge: The Looming Mutagenitor (Predicted)', 'Starts Sun, Nov 8, 2:30 PM · Reminder Sun, Nov 8, 2:25 PM (5 minutes before)']);
+  await page.eval(WATCH_LIST);
+  await sleep(2000); // still some seconds before the reminder's time
+  const early = await page.eval(`[Date.now(), document.querySelector('#rem-upcoming li').dataset.state, window.__list.written]`);
+  assert.ok(early[0] < utc('2026-11-08T20:25:00Z'), new Date(early[0]).toISOString());
+  assert.deepEqual(early.slice(1), ['on', 0], 'not early');
+  await page.waitFor(`document.querySelector('#rem-upcoming li').dataset.state === 'due'`, 20000);
+  await jumpClock(page, '2026-11-08T20:29:58Z');
+  await page.waitFor(`/Mlurkkr Massacre/.test(document.querySelector('#rem-upcoming .up-name').textContent)`, 8000);
+  assert.deepEqual(await row(), ['on', 'Curse Surge: Mlurkkr Massacre (Predicted)', 'Starts Sun, Nov 8, 3:00 PM · Reminder Sun, Nov 8, 2:55 PM (5 minutes before)'], 'the next slot, with its own place and times');
+  assert.deepEqual((await listWatch(page)).marks, ['entry 0 curse-surge']);
+  // The clock is set back (a correction, a changed device clock): the list goes back with it.
+  await page.eval(`(() => { const base = Date.now, back = base() - ${utc('2026-11-08T20:10:00Z')}; Date.now = () => base() - back; })()`);
+  await page.waitFor(`/Looming Mutagenitor/.test(document.querySelector('#rem-upcoming .up-name').textContent)`, 8000);
+  assert.equal((await row())[0], 'on');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('two tabs with the Reminders dialog open: both lists say a reminder\'s time has come though only one tab shows it, and a change made in one tab is written into the other\'s entries in place', async () => {
+  const at = utc('2026-11-10T14:44:56Z'); // Thorm'belan starts 15:00 UTC
+  const one = await open({ at, prefs: { starred: ['world-boss-thormbelan', 'darkmoon-faire'] }, reminders: REM_ON });
+  const two = await open({ at, keepStorage: true });
+  for (const tab of [one, two]) { await click(tab, '#reminders-btn'); await tab.eval(WATCH_LIST); }
+  for (const tab of [one, two]) await tab.waitFor(`document.querySelector('#rem-upcoming [data-event="world-boss-thormbelan"]').dataset.state === 'due'`, 8000);
+  await sleep(500);
+  const shown = [...await trayText(one), ...await trayText(two)];
+  assert.equal(shown.length, 1, `one notice across the two tabs: ${JSON.stringify(shown)}`);
+  assert.equal(Object.keys(JSON.parse(await item(one, 'reminded'))).length, 1);
+  // Tab one gives the Faire its own time, then turns reminders off, then unstars the Faire: tab two follows each, keeping its elements.
+  await two.eval(`document.querySelector('#rem-upcoming [data-lead-for="world-boss-thormbelan"]').focus()`);
+  await setLead(one, 'darkmoon-faire', 1440);
+  await two.waitFor(`document.querySelector('#rem-upcoming [data-lead-for="darkmoon-faire"]').value === '1440'`);
+  assert.equal((await upRows(two)).find((r) => r.id === 'darkmoon-faire').when, 'Starts Sun, Dec 6, 2:00 AM · Reminder Sat, Dec 5, 2:00 AM (1 day before)');
+  await click(one, '#rem-on');
+  await two.waitFor(`document.querySelector('#rem-upcoming li').dataset.state === 'off'`);
+  assert.deepEqual((await upRows(two)).map((r) => r.state), ['off', 'off']);
+  assert.equal(await two.eval(`document.getElementById('rem-on').checked`), false);
+  let w = await listWatch(two);
+  assert.deepEqual([w.moved, w.marks], [0, ['entry 0 world-boss-thormbelan', 'entry 1 darkmoon-faire']], 'tab two kept both entries');
+  assert.equal(await two.eval(`document.activeElement.getAttribute('data-lead-for')`), 'world-boss-thormbelan', 'and its focus');
+  await click(one, '#rem-on');
+  await click(one, '#reminders-dialog [data-close]');
+  await click(one, '#calendar [data-details="darkmoon-faire"]');
+  await click(one, '#details [data-star]');
+  await closeDetails(one);
+  await two.waitFor(`document.querySelectorAll('#rem-upcoming li').length === 1`);
+  w = await listWatch(two);
+  assert.deepEqual([w.moved, w.marks], [1, ['entry 0 world-boss-thormbelan']], 'only the unstarred entry was taken out');
+  await sleep(2500);
+  // Off and on again in one tab: the one notice may have gone with "off" (if a tick fell in between); it is never shown a second time.
+  const again = [...await trayText(one), ...await trayText(two)];
+  assert.ok(again.length <= 1, JSON.stringify(again));
+  assert.equal(Object.keys(JSON.parse(await item(one, 'reminded'))).length, 1, 'still one record: delivered once');
+  assert.deepEqual([...one.problems, ...two.problems], []);
+  await one.close(); await two.close();
+});
+
+check('a closed Reminders dialog is not touched by the clock and is current when opened; an open one with nothing due writes nothing and restyles about once a second; a new time zone is written into the open list', async () => {
+  const page = await open({ at: utc('2026-11-17T14:44:50Z'), prefs: TWO_AT_RESET, reminders: REM_ON });
+  // How often the list is worked out at all (the page calls WoWReminders.upcoming for nothing else).
+  await page.eval(`window.__worked = 0; { const real = WoWReminders.upcoming; WoWReminders.upcoming = (...a) => { window.__worked++; return real(...a); }; }`);
+  const worked = () => page.eval('window.__worked');
+  // Closed, across a reminder's time: the list is not worked out, and what the closed dialog holds is left as it was.
+  await page.eval(WATCH_LIST);
+  await page.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 2`, 20000);
+  await sleep(1500);
+  assert.equal(await worked(), 0, 'closed: not once, though two reminders came due');
+  assert.deepEqual([(await listWatch(page)).written, (await listWatch(page)).moved], [0, 0], 'nothing was written into the closed list');
+  assert.equal(await page.eval(`document.querySelector('#rem-upcoming [data-event="timewalking"]').dataset.state`), 'on', 'so the closed list is behind');
+  await click(page, '#reminders-btn');
+  assert.deepEqual((await upRows(page)).map((r) => `${r.id} ${r.state}`), ['timewalking due', 'world-boss-predaxas due', 'darkmoon-faire on'], 'and current the moment it opens');
+  // Open and idle: no writes, and no more style work than the page's own clock.
+  await page.send('Performance.enable', {});
+  const recalcs = async () => (await page.send('Performance.getMetrics', {})).metrics.find((m) => m.name === 'RecalcStyleCount').value;
+  const [written, styles, before] = [(await listWatch(page)).written, await recalcs(), await worked()];
+  await sleep(3000);
+  assert.equal(await worked(), before, 'open with nothing due: the list is not worked out on the tick');
+  assert.equal((await listWatch(page)).written, written, 'three idle seconds write nothing into the list');
+  const n = (await recalcs()) - styles;
+  assert.ok(n < 20, `${n} style recalculations in 3 s with the dialog open`);
+  // The device changes time zone with the dialog open: the same entries, their times rewritten.
+  await page.eval(`document.querySelector('#rem-upcoming [data-lead-for="darkmoon-faire"]').focus()`);
+  await page.setTimezone('Europe/Berlin');
+  await page.waitFor(`/Starts Tue, Nov 17, 4:00 PM/.test(document.querySelector('#rem-upcoming [data-event="timewalking"] .up-when').textContent)`, 8000);
+  assert.equal((await upRows(page)).find((r) => r.id === 'darkmoon-faire').when, 'Starts Sun, Dec 6, 9:00 AM · Reminder Sun, Dec 6, 8:45 AM (15 minutes before)');
+  const w = await listWatch(page);
+  assert.deepEqual([w.moved, w.marks.length, await page.eval(`document.activeElement.getAttribute('data-lead-for')`)], [0, 3, 'darkmoon-faire']);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
 // ---- Footer ----
 
 check('the footer links go where config.js says, and Share passes the canonical address', async () => {
@@ -2638,6 +3304,10 @@ const LAYOUT_CHECKS = [
   'at 320 px the Subscribe dialog fits the screen',
   'at 390 px the Reminders dialog with its list fits the screen',
   'at 320 px the Reminders dialog with its list fits the screen',
+  'at 390 px a followed link fits the screen',
+  'at 320 px a followed link fits the screen',
+  'at 390 px the Weekly overview with its legend stays compact',
+  'at 320 px the Weekly overview with its legend stays compact',
 ];
 for (const l of LAYOUT_CHECKS) {
   const n = checks.filter((c) => c.name.startsWith(l)).length;

@@ -5,16 +5,18 @@
   'use strict';
 
   const S = window.WoWSchedule, Store = window.WoWStore, News = window.WoWNews, Clock = window.WoWClock;
-  const CE = window.WoWCalendarEntry;
+  const CE = window.WoWCalendarEntry, Share = window.WoWShare;
   const CONFIG = window.WoWConfig;
   const storage = (() => { try { return window.localStorage; } catch (e) { return null; } })();
   /**
-   * The edition of the game this page shows, chosen once per load: a "#forever" link, else the saved
-   * choice, else Retail. Switching saves the choice and reloads, so a page never holds two editions'
-   * data. Retail keeps every storage key it has always had; the choice itself has a key of its own.
+   * The edition of the game this page shows, chosen once per load: a "#forever" link (or a share link,
+   * which names its edition first), else the saved choice, else Retail. Switching saves the choice and
+   * reloads, so a page never holds two editions' data. Retail keeps every storage key it has always had;
+   * the choice itself has a key of its own.
    */
   const EDITIONS = CONFIG.editions;
-  const EDITION = Store.pickEdition(location.hash, Store.read(storage, 'edition'), EDITIONS.map((e) => e.id));
+  const EDITION_IDS = EDITIONS.map((e) => e.id);
+  const EDITION = Store.pickEdition(location.hash, Store.read(storage, 'edition'), EDITION_IDS);
   const ED = EDITIONS.find((e) => e.id === EDITION);
   const RETAIL = EDITION === EDITIONS[0].id;
   const DATA = window[ED.data];
@@ -142,7 +144,10 @@
     return EVENTS.filter((e) => !hidden.has(e.id) && cats.has(e.category) && (prefs.filter === 'all' || starred.has(e.id)) && found(e)
       && (!quick.holidays || e.category === HOLIDAY) && (!range || occursIn(e, range)));
   }
-  const region = () => prefs.region;
+  // The region on screen is the saved one, unless a share link asked for the other: then that one, for this
+  // visit only. It is never written anywhere; choosing a region (or Keep, in the notice) is what saves one.
+  let visitRegion = null;
+  const region = () => visitRegion || prefs.region;
   const resets = () => DATA.resets[region()];
   /** A reset with a rule. An edition whose resets are not published says "unknown" and has none. */
   const knownReset = (r) => Boolean(r && r.rule);
@@ -363,7 +368,7 @@
 
   // ---- Weekly overview: this reset week and the next ----
 
-  function weekColumn(title, from, to, list, now, range) {
+  function weekColumn(title, from, to, list, now, range, kinds) {
     const items = [];
     for (const e of list) {
       const s = S.scheduleFor(e, region());
@@ -377,8 +382,10 @@
       }
       for (const w of found) items.push({ event: e, start: w.start, end: w.end, name: w.name });
     }
-    items.sort((a, b) => Number(Boolean(a.repeats)) - Number(Boolean(b.repeats)) || a.start - b.start || a.event.name.localeCompare(b.event.name));
-    const li = items.map((i) => {
+    // What runs all week first, then by start, name and id; the lines of hourly events last (js/schedule.js).
+    const li = S.weekOrder(items, from, to).map((i) => {
+      const st = statusFor(i.event);
+      if (st.status === 'predicted') kinds.add(st.part === 'time' ? 'time' : 'all');
       // Dates on every instant: "Wed 5:00 AM to Wed 4:00 AM" once read as an hour backwards, not a week.
       const when = i.repeats ? `${repeatText(i.event)}${i.end < to ? `, until ${at(i.end, 'full')}` : ''}`
         : S.weekSpanText(i, from, to, formats().zone, at);
@@ -386,7 +393,7 @@
       const live = !i.repeats && i.start <= now && now < i.end && from <= now && now < to;
       return h('li', { 'data-cat': i.event.category, 'data-id': i.event.id },
         nameButton(i, `week:${i.event.id}:${i.start}`),
-        predictedBadge(statusFor(i.event)),
+        predictedBadge(st),
         h('span', { class: 'span', text: when + (live ? ' · on now' : '') }));
     });
     const note = gapNote(to);
@@ -401,7 +408,17 @@
     const rule = weekRule();
     const start = S.previousReset(rule, now), next = S.nextReset(rule, now), after = S.nextReset(rule, next);
     const [a, b] = knownReset(resets().weekly) ? ['This reset week', 'Next reset week'] : ['This week', 'Next week'];
-    return [weekColumn(a, start, next, list, now, range), weekColumn(b, next, after, list, now, range)];
+    const kinds = new Set(); // which Predicted labels the two columns show: 'time', 'all'
+    return { columns: [weekColumn(a, start, next, list, now, range, kinds), weekColumn(b, next, after, list, now, range, kinds)], kinds };
+  }
+
+  /** What the labels in the overview mean, one short line, and only the labels that are in it. Nothing when there are none. */
+  function weekLegend(kinds) {
+    const item = (label, means) => h('span', { class: 'legend-item' }, h('span', { class: 'badge predicted', text: label }), ` ${means}`);
+    return [
+      kinds.has('time') ? item('Predicted time', 'means the dates are confirmed, the start time is not.') : null,
+      kinds.has('all') ? item('Predicted', 'means it follows a pattern Blizzard has not published yet.') : null,
+    ].filter(Boolean);
   }
 
   // ---- Event calendar: an agenda by month ----
@@ -449,7 +466,7 @@
   let lastKey = '';
   function structureKey(now, list, nowItems, nextItems, nextItem) {
     const rs = resets();
-    return [prefs.region, prefs.filter, prefs.categories.join(), prefs.starred.join(), prefs.hidden.join(), prefs.aheadHours, prefs.compact, prefs.timeMode, query, quick.scope, quick.holidays,
+    return [region(), prefs.filter, prefs.categories.join(), prefs.starred.join(), prefs.hidden.join(), prefs.aheadHours, prefs.compact, prefs.timeMode, query, quick.scope, quick.holidays,
       formats().local, S.dayKey(now, formats().zone),
       nowItems.map((i) => i.event.id + i.start).join(), nextItems.map((i) => i.event.id + i.start).join(),
       nextItem ? nextItem.event.id + nextItem.start : '', list.length,
@@ -491,7 +508,10 @@
       $('coming-hint').textContent = `next ${aheadText(prefs.aheadHours)}${quick.scope ? `, ${quick.scope === 'today' ? 'today' : 'this week'} only` : ''}, ${zoneName() === 'UTC' ? 'in UTC' : `your time (${zoneName()})`}`;
       const qs = quickStatus();
       if ($('quick-status').textContent !== qs) $('quick-status').textContent = qs; // a new day or week moves Today and This week
-      $('week-grid').replaceChildren(...weekGrid(list, now, range));
+      const week = weekGrid(list, now, range), legend = weekLegend(week.kinds);
+      $('week-grid').replaceChildren(...week.columns);
+      $('week-legend').replaceChildren(...legend);
+      $('week-legend').hidden = !legend.length;
       $('week-hint').textContent = knownReset(resets().weekly) ? `${REGION.get(region()).name} reset weeks` : 'calendar weeks, Monday to Monday in your time (the weekly reset is not published)';
       const months = calendarMonths(list, now, range);
       const anyItem = months.some((m) => m.querySelector('.agenda'));
@@ -522,13 +542,15 @@
     try { history.replaceState(null, '', location.pathname + location.search + hash); } catch (e) { location.hash = hash; }
     location.reload();
   }
-  // A link to another edition opened in this tab ("#forever" typed or clicked): show it.
+  // A link opened in this tab (typed, or clicked): another edition's needs that edition's page, so it reloads,
+  // once; a share link to this edition opens its event here, with no reload. Anything else changes nothing.
   window.addEventListener('hashchange', () => {
-    if (Store.pickEdition(location.hash, EDITION, EDITIONS.map((e) => e.id)) !== EDITION) location.reload();
+    if (Store.pickEdition(location.hash, EDITION, EDITION_IDS) !== EDITION) { location.reload(); return; }
+    applyLink(true);
   });
 
   function syncControls() {
-    for (const b of document.querySelectorAll('[data-region]')) b.setAttribute('aria-pressed', String(b.getAttribute('data-region') === prefs.region));
+    for (const b of document.querySelectorAll('[data-region]')) b.setAttribute('aria-pressed', String(b.getAttribute('data-region') === region()));
     for (const b of document.querySelectorAll('[data-edition]')) b.setAttribute('aria-pressed', String(b.getAttribute('data-edition') === EDITION));
     for (const b of document.querySelectorAll('[data-quick]')) {
       const k = b.getAttribute('data-quick');
@@ -644,7 +666,10 @@
       prefs.starred = toggleIn(prefs.starred, a('data-star')); changed(); renderDetails();
       const again = document.querySelector(`#details [data-star="${CSS.escape(a('data-star'))}"]`);
       if (again) again.focus();
-    } else if (a('data-region')) { prefs.region = a('data-region'); changed(); }
+    } else if (t.id === 'details-link') copyEventLink();
+    else if (t.id === 'link-back' || t.id === 'link-keep' || t.id === 'link-dismiss') linkChoice(t.id);
+    // Choosing a region saves it, as always; a link's region for this visit ends there. (The link itself left the address when its details closed.)
+    else if (a('data-region')) { prefs.region = a('data-region'); visitRegion = null; renderLinkNotice(); changed(); }
     else if (a('data-edition')) switchEdition(a('data-edition'));
     else if (a('data-quick')) toggleQuick(a('data-quick'));
     else if (a('data-category')) { prefs.categories = toggleIn(prefs.categories, a('data-category')); changed(); }
@@ -655,7 +680,12 @@
       toast(`${e.name} is hidden. Show it again from Hidden.`);
       if ($('details').open) $('details').close();
       $('coming-title').focus();
-    } else if (a('data-unhide')) { prefs.hidden = prefs.hidden.filter((x) => x !== a('data-unhide')); changed(); renderHidden(); }
+    } else if (a('data-unhide')) {
+      const inDetails = Boolean(t.closest('#details'));
+      prefs.hidden = prefs.hidden.filter((x) => x !== a('data-unhide')); changed(); renderHidden();
+      // From the details of a hidden event (a link can open one): they stay open, now with Hide.
+      if (inDetails) { renderDetails(); const again = document.querySelector('#details [data-hide]'); if (again) again.focus(); }
+    }
     else if (t.id === 'unhide-all') { prefs.hidden = []; changed(); renderHidden(); }
     else if (t.id === 'compact-btn') { prefs.compact = !prefs.compact; changed(); }
     else if (t.id === 'theme-btn') { prefs.theme = { dark: 'light', light: 'system', system: 'dark' }[prefs.theme]; changed(); }
@@ -712,6 +742,8 @@
     if (ev.key === Store.PREFIX + CL_KEY) { checklist = CL.sanitize(Store.read(storage, CL_KEY)); clRev++; renderChecklist(true); return; }
     if (ev.key !== Store.PREFIX + 'prefs' && ev.key !== Store.PREFIX + PREFS_KEY) return;
     prefs = loadPrefs();
+    if (visitRegion === prefs.region) visitRegion = null; // the other tab saved the region this link is showing
+    renderLinkNotice();
     syncControls(); render(true); renderNews(); renderUpcoming();
     if (!prefs.newsCollapsed && !newsState.items.length) loadNews();
   });
@@ -808,11 +840,14 @@
     const other = DATA.regions.find((x) => x.id !== r);
     const os = other && S.scheduleFor(e, other.id), ow = counterpart(os, w, now);
     const row = (label, ...value) => (value.flat().filter((v) => v !== null && v !== '').length ? [h('dt', { text: label }), h('dd', {}, ...value.flat())] : []);
-    const name = w && w.name ? w.name : e.name;
+    const name = w && w.name ? w.name : e.name, isHidden = prefs.hidden.includes(e.id);
+    detailsOpen.shown = w ? w.start : null; // the occurrence on screen, for Copy link
+    const notes = [detailsOpen.note, isHidden ? 'You have hidden this event, so it is not in your lists.' : null].filter(Boolean);
     $('details').setAttribute('data-cat', e.category); // the category color, as on the cards
-    $('details-body').replaceChildren(
+    $('details-body').replaceChildren(...[ // replaceChildren would write a null out as the text "null"
       h('h2', { id: 'details-title' }, name),
       h('div', { class: 'badges' }, badges(e)),
+      notes.length ? h('p', { class: 'details-note', text: notes.join(' ') }) : null,
       h('dl', { class: 'details-list' },
         row('When', whenLine(w, now) || (s ? 'Nothing more of it is in the data for this region.' : 'It does not run in this region.')),
         row('How long', durationText(s, w)),
@@ -834,12 +869,18 @@
           ` · ${KIND[src.kind] || src.kind}`))), h('span', { class: 'details-checked', text: `Checked ${isoDay(e.lastVerified)}.` }))),
       h('div', { class: 'details-actions' }, star(e, key), h('span', { class: 'star-label', text: prefs.starred.includes(e.id) ? 'Starred' : 'Star' }),
         w ? h('button', { type: 'button', class: 'btn small', 'data-ics': e.id, 'data-start': w.start, 'aria-label': `Add ${name} on ${at(w.start, 'full')} to your calendar (downloads a calendar file)`, text: 'Add to calendar' }) : null,
+        h('button', { type: 'button', class: 'btn small', id: 'details-link', 'aria-label': `Copy a link to ${name}${w ? ` on ${at(w.start, 'full')}` : ''}`, text: 'Copy link' }),
         e.link ? h('a', { class: 'btn small', href: e.link.url, target: '_blank', rel: 'noopener noreferrer', text: e.link.label }, h('span', { class: 'sr-only', text: ' (opens a new tab)' })) : null,
-        h('button', { type: 'button', class: 'btn small', 'data-hide': e.id, 'data-fkey': `${key}:hide`, 'aria-label': `Hide ${e.name}`, text: 'Hide' })));
+        isHidden ? h('button', { type: 'button', class: 'btn small', 'data-unhide': e.id, 'aria-label': `Show ${e.name} again`, text: 'Show again' })
+          : h('button', { type: 'button', class: 'btn small', 'data-hide': e.id, 'data-fkey': `${key}:hide`, 'aria-label': `Hide ${e.name}`, text: 'Hide' })),
+      // What Copy link did, and the link itself to copy by hand where the browser refuses the clipboard.
+      h('p', { class: 'details-status', id: 'details-status', role: 'status' }),
+      h('input', { type: 'text', class: 'details-link-field', id: 'details-link-field', readonly: true, hidden: true, spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Link to this event' })].filter(Boolean));
   }
 
-  function openDetails(id, atMs, trigger) {
-    detailsOpen = { id, at: atMs, trigger, fkey: trigger && trigger.getAttribute('data-fkey') };
+  /** note: a line for the top of the details, when a share link opened them and something about it needs saying. */
+  function openDetails(id, atMs, trigger, note) {
+    detailsOpen = { id, at: atMs, trigger, fkey: trigger && trigger.getAttribute('data-fkey'), note: note || '' };
     renderDetails();
     const d = $('details');
     if (!d.open) d.showModal();
@@ -847,10 +888,108 @@
   $('details').addEventListener('close', () => {
     const t = detailsOpen && detailsOpen.trigger, fkey = detailsOpen && detailsOpen.fkey;
     detailsOpen = null;
+    putAwayLink(); // a share link has done its work once its details are closed
     // Back to the name that opened it, or the same name after the lists were rebuilt.
     const back = t && t.isConnected ? t : fkey ? document.querySelector(`[data-fkey="${CSS.escape(fkey)}"]`) : null;
     if (back) back.focus();
   });
+
+  // ---- Share links: "#<edition>/<event>/<region>/<start>" (js/share.js) opens one event's details ----
+
+  // Reading a link changes nothing that is saved. Its edition was chosen when the page loaded (not saved, as with
+  // "#forever"); its region is shown for this visit only; its event opens in the details. A link that cannot be
+  // used says so in a line under the header and the page is the reader's own, as if there had been no link.
+  const linkOf = () => Share.parse(location.hash, { editions: EDITION_IDS, regions: DATA.regions.map((r) => r.id) });
+  let linkProblem = '';
+
+  /** This page's address without a link's event. The edition stays in it when a plain address would show another one. */
+  const plainAddress = () => location.pathname + location.search + (Store.pickEdition('', Store.read(storage, 'edition'), EDITION_IDS) === EDITION ? '' : `#${EDITION}`);
+  /** Takes a used link out of the address, so a reload or a bookmark is the reader's own page. Nothing loads or navigates. */
+  function putAwayLink() {
+    if (!linkOf()) return;
+    try { history.replaceState(null, '', plainAddress()); } catch (e) { /* an address that cannot be rewritten keeps the link */ }
+  }
+
+  function renderLinkNotice() {
+    const el = $('link-notice'), parts = [];
+    if (linkProblem) parts.push(h('span', { text: linkProblem }), h('button', { type: 'button', class: 'link-btn', id: 'link-dismiss', text: 'Dismiss' }));
+    if (visitRegion) {
+      const shown = REGION.get(visitRegion).name, saved = REGION.get(prefs.region).name;
+      parts.push(h('span', { text: `Showing ${shown}, the region of the link you opened. Your saved region is still ${saved}.` }),
+        h('button', { type: 'button', class: 'link-btn', id: 'link-back', text: `Back to ${saved}` }),
+        h('button', { type: 'button', class: 'link-btn', id: 'link-keep', text: `Keep ${shown}` }));
+    }
+    el.replaceChildren(...parts);
+    el.hidden = !parts.length;
+  }
+
+  /** The notice's buttons: back to the saved region, keep the link's (the one thing here that saves), or dismiss a message. */
+  function linkChoice(id) {
+    if (id === 'link-dismiss') linkProblem = '';
+    else {
+      if (id === 'link-keep' && visitRegion) prefs.region = visitRegion;
+      visitRegion = null;
+      if (id === 'link-keep') changed(); else { syncControls(); render(true); }
+    }
+    renderLinkNotice();
+    const next = $('link-notice').querySelector('button') || document.querySelector('[data-region][aria-pressed="true"]');
+    if (next) next.focus();
+  }
+
+  /**
+   * Opens what the address's share link asks for, if it holds one. redraw: the page is already drawn (a link followed
+   * in an open tab), so a change of region redraws it; on load the first drawing comes after this.
+   */
+  function applyLink(redraw) {
+    const link = linkOf();
+    if (!link) return;
+    const e = link.ok ? BY_ID.get(link.event) : null;
+    if (!e) {
+      linkProblem = `${!link.ok && link.reason === 'edition' ? 'That link is for a game version this page does not have'
+        : !link.ok ? 'That link could not be read'
+          : `That link is for an event that is not in the ${ED.name} schedule now (it may have been removed or renamed)`}, so it was not opened. Nothing of yours was changed.`;
+      putAwayLink();
+      renderLinkNotice();
+      return;
+    }
+    linkProblem = '';
+    const before = region();
+    if (link.region) visitRegion = link.region === prefs.region ? null : link.region;
+    if (redraw && region() !== before) { syncControls(); render(true); }
+    renderLinkNotice();
+    for (const d of document.querySelectorAll('dialog[open]')) if (d.id !== 'details') d.close();
+    // The occurrence the link names, if the schedule still has it and it has not ended; else the event now or next, and why.
+    const now = nowMs(), s = S.scheduleFor(e, region());
+    const named = link.start !== null && s ? S.windows(s, link.start, link.start + 1).find((x) => x.start === link.start) : null;
+    const usable = Boolean(named && named.end > now);
+    const notes = [];
+    if (link.start !== null && !usable) {
+      notes.push(`This link was made for ${at(link.start, 'full')}, which ${named ? 'has ended' : 'is not in the schedule now (it may have moved)'}.${occurrence(s, NaN, now) ? ' Shown here: what is on now or comes next.' : ''}`);
+    }
+    if (visitRegion) notes.push(`The link is for ${REGION.get(visitRegion).name}; your saved region, ${REGION.get(prefs.region).name}, is unchanged.`);
+    openDetails(e.id, usable ? named.start : NaN, null, notes.join(' '));
+  }
+
+  /** The link to the occurrence the details show: the canonical address, this edition, the event, the region on screen and that start. */
+  function eventLink() {
+    if (!detailsOpen || !BY_ID.has(detailsOpen.id)) return null;
+    return PAGE_URL + Share.make({ edition: EDITION, event: detailsOpen.id, region: region(), start: detailsOpen.shown });
+  }
+
+  async function copyEventLink() {
+    const url = eventLink();
+    if (!url) return;
+    const what = `${ED.name}, ${REGION.get(region()).name}${detailsOpen.shown === null ? '' : `, ${at(detailsOpen.shown, 'full')}`}`;
+    let copied = true;
+    try { await navigator.clipboard.writeText(url); } catch (err) { copied = false; }
+    const say = $('details-status'), field = $('details-link-field');
+    if (!say || !field) return; // the details were closed meanwhile
+    field.value = url;
+    field.hidden = copied;
+    say.textContent = copied ? `Link copied (${what}). It opens these details for whoever follows it.`
+      : `Could not copy by itself. The link (${what}) is selected below: copy it with your keyboard or the menu.`;
+    if (!copied) { field.focus(); field.select(); }
+  }
 
   // ---- Calendar export (.ics): the engine's own windows, worded by js/calendar-entry.js, written by js/ics.js ----
 
@@ -1033,7 +1172,6 @@
     tray.push(it);
     tray.sort((a, b) => a.start - b.start || a.name.localeCompare(b.name)); // soonest first
     renderTray();
-    if ($('reminders-dialog').open) renderUpcoming();
     announce(`Reminder: ${it.title}, ${at(it.start, 'time')}.`);
     notifyBrowser(it);
   }
@@ -1104,36 +1242,74 @@
   }
 
   // Upcoming reminders, in the dialog: the next start of each starred event, when its reminder comes and how
-  // long before, soonest reminder first, with the event's own lead to choose. Built when the dialog opens and
-  // when something it shows changes, never on the one-second tick (a list being chosen from must not move).
+  // long before, soonest reminder first, with the event's own lead to choose. The list is kept, not rebuilt:
+  // each entry stays the element it was and only the words that changed are written, so a control being used
+  // keeps the focus and what it shows. While the dialog is open the clock brings it up to date too, but only at
+  // the moments something in it changes (a reminder coming due, an event starting), never every second.
   const UP_STATE = {
     on: 'On', due: 'On: its time has come', off: 'Off: reminders are off', hidden: 'Off: the event is hidden',
     hourly: 'Off: it repeats every hour or more often (tick that box above)', none: 'No reminder',
   };
+  const setText = (el, text) => { if (el.textContent !== text) el.textContent = text; };
+  const upcomingZone = () => `${formats().local}|${formats().zone}`;
+  let upNext = Infinity, upZone = ''; // when time next changes the list, and the zone its times are written in
+
+  /** A new, empty entry of the list for an event; renderUpcoming writes what it says. */
+  function upcomingEntry(e) {
+    return h('li', { 'data-event': e.id, 'data-cat': e.category },
+      h('p', { class: 'up-name' }, h('strong', {}), ' ', h('span', { class: 'up-where' })),
+      h('p', { class: 'up-when' }),
+      h('p', { class: 'up-set' }, h('span', { class: 'up-state' }),
+        h('label', {}, 'Remind me ', h('select', { 'data-lead-for': e.id, 'aria-label': `When to remind me of ${e.name}` }))));
+  }
+
+  /** Puts the entries in order by moving the others around the one in use, which is never taken out of the page (that would drop its focus). */
+  function orderEntries(list, nodes) {
+    if (nodes.length === list.children.length && nodes.every((n, i) => list.children[i] === n)) return;
+    const held = document.activeElement ? document.activeElement.closest('#rem-upcoming > li') : null, k = nodes.indexOf(held);
+    if (k < 0) { list.append(...nodes); return; }
+    for (const n of nodes.slice(0, k)) list.insertBefore(n, held);
+    for (const n of nodes.slice(k + 1)) list.append(n);
+  }
+
   function renderUpcoming() {
     const now = nowMs(), where = `${ED.name} · ${REGION.get(region()).name}`;
     const rows = Rem.upcoming({ events: EVENTS, region: region(), now, settings: rem, leads, starred: prefs.starred, hidden: prefs.hidden, engine: REM_ENGINE, edition: EDITION });
+    upNext = Rem.nextChange(rows, now); upZone = upcomingZone();
     const coming = rows.filter((r) => r.state === 'on' || r.state === 'due').length;
-    $('rem-upcoming-note').textContent = !rows.length ? 'Nothing to list: no event is starred.'
+    setText($('rem-upcoming-note'), !rows.length ? 'Nothing to list: no event is starred.'
       : !rem.on ? 'Reminders are off, so none of these will be shown. Turn them on above.'
         : !coming ? 'No reminder is coming. Each event below says why.'
-          : 'The next start of each starred event, soonest reminder first. A reminder is shown only if this page is open at its time.';
-    const list = $('rem-upcoming'), f = list.contains(document.activeElement) ? document.activeElement.getAttribute('data-lead-for') : null;
-    list.replaceChildren(...rows.map((r) => {
-      const e = r.event, label = `${r.name}${predictedLabel(statusFor(e))}`;
-      return h('li', { 'data-event': e.id, 'data-state': r.state, 'data-cat': e.category },
-        h('p', { class: 'up-name' }, h('strong', { text: label }), ' ', h('span', { class: 'up-where', text: where })),
-        h('p', { class: 'up-when' }, r.start === null ? 'Nothing more of it is scheduled in this region.'
-          : [`Starts ${at(r.start, 'full')} · Reminder ${at(r.trigger, 'full')} (${Rem.leadText(r.lead)} before)`]),
-        h('p', { class: 'up-set' },
-          h('span', { class: 'up-state', text: UP_STATE[r.state] }),
-          h('label', {}, 'Remind me ',
-            h('select', { 'data-lead-for': e.id, 'aria-label': `When to remind me of ${e.name}` },
-              h('option', { value: '', selected: !r.own }, `as set above (${Rem.leadText(rem.lead)} before)`),
-              Rem.choices(r.frequent).map((m) => h('option', { value: m, selected: r.own && r.lead === m }, `${Rem.leadText(m)} before`))))));
-    }));
+          : 'The next start of each starred event, soonest reminder first. A reminder is shown only if this page is open at its time.');
+    const list = $('rem-upcoming'), old = new Map([...list.children].map((li) => [li.getAttribute('data-event'), li]));
+    const nodes = rows.map((r) => {
+      const e = r.event, li = old.get(e.id) || upcomingEntry(e), select = li.querySelector('select');
+      old.delete(e.id);
+      if (li.getAttribute('data-state') !== r.state) li.setAttribute('data-state', r.state);
+      setText(li.querySelector('.up-name strong'), `${r.name}${predictedLabel(statusFor(e))}`);
+      setText(li.querySelector('.up-where'), where);
+      setText(li.querySelector('.up-when'), r.start === null ? 'Nothing more of it is scheduled in this region.'
+        : `Starts ${at(r.start, 'full')} · Reminder ${at(r.trigger, 'full')} (${Rem.leadText(r.lead)} before)`);
+      setText(li.querySelector('.up-state'), UP_STATE[r.state]);
+      // The choices are written again only when they differ (the setting changed, or the region made the event hourly).
+      const options = [['', `as set above (${Rem.leadText(rem.lead)} before)`], ...Rem.choices(r.frequent).map((m) => [String(m), `${Rem.leadText(m)} before`])];
+      const key = JSON.stringify(options), value = r.own ? String(r.lead) : '';
+      if (select.getAttribute('data-options') !== key) {
+        select.replaceChildren(...options.map(([v, label]) => h('option', { value: v }, label)));
+        select.setAttribute('data-options', key);
+      }
+      if (select.value !== value) select.value = value;
+      return li;
+    });
+    for (const li of old.values()) li.remove();
+    orderEntries(list, nodes);
     list.hidden = !rows.length;
-    if (f) { const back = list.querySelector(`[data-lead-for="${CSS.escape(f)}"]`); if (back) back.focus(); }
+  }
+
+  /** On each tick: nothing unless the Reminders dialog is open and something in its list has changed with time. force: the clock jumped (a sleep, a changed or corrected clock), in either direction. */
+  function refreshUpcoming(now, force) {
+    if (!$('reminders-dialog').open) return;
+    if (force || now >= upNext || upcomingZone() !== upZone) renderUpcoming();
   }
 
   /** An event's own lead, or none (it follows the setting). Saved for this edition only. */
@@ -1517,6 +1693,8 @@
     }
     if (prefsTouched) writes.push(Store.write(storage, 'prefs', base));
     if (r.shared) { Object.assign(prefs, r.shared); rem = r.reminders; }
+    if (visitRegion === prefs.region) visitRegion = null; // the restored region is the one a link was showing
+    renderLinkNotice();
     const saved = writes.every(Boolean);
     $('backup-in').value = '';
     syncControls();
@@ -1706,11 +1884,13 @@
     lastWall = wall; lastSteady = steady;
     render(Boolean(resumed));
     checkReminders(nowMs()); // after sleep or a clock change too: what has started is never shown late
+    refreshUpcoming(nowMs(), Boolean(resumed)); // the open Reminders dialog follows the clock
     if (!prefs.newsCollapsed && Date.now() - newsTried > News.REFRESH_MS) loadNews();
     timer = setTimeout(tick, 1000 - (nowMs() % 1000) + 5);
   }
   document.addEventListener('visibilitychange', () => { clearTimeout(timer); tick(); });
 
+  applyLink(false); // a share link's region and event, before the first drawing
   syncControls();
   renderMeta();
   seedNews();

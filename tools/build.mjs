@@ -14,7 +14,7 @@ import { FEEDS } from './feeds.mjs';
 /** The files the site is made of, relative to the repo root. Nothing else is published. */
 export const SITE_FILES = [
   'index.html', 'style.css', 'events-data.js', 'forever-data.js', '.nojekyll', ...FEEDS.map((f) => f.file),
-  'js/config.js', 'js/theme-boot.js', 'js/schedule.js', 'js/store.js', 'js/news.js', 'js/search.js', 'js/ics.js', 'js/calendar-entry.js', 'js/reminders.js', 'js/checklist.js', 'js/backup.js', 'js/clock.js', 'js/app.js',
+  'js/config.js', 'js/theme-boot.js', 'js/schedule.js', 'js/store.js', 'js/news.js', 'js/search.js', 'js/ics.js', 'js/calendar-entry.js', 'js/share.js', 'js/reminders.js', 'js/checklist.js', 'js/backup.js', 'js/clock.js', 'js/app.js',
 ];
 
 export function build(outDir = join(ROOT, 'dist')) {

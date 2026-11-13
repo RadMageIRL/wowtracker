@@ -90,4 +90,17 @@ test('reminder times, order and keys are the same in every device zone, with the
   assert.deepEqual(due(FOREVER.events, 'eu', '2027-03-28T11:00:00Z', { 'stranglethorn-fishing-extravaganza': 60 }, ['stranglethorn-fishing-extravaganza'], 'forever'), [`forever|eu|stranglethorn-fishing-extravaganza|${utc('2027-03-28T12:00:00Z')}|60`]);
 });
 
+test('a share link names the same occurrence in every device zone: the start is written in UTC and read back to the same instant', () => {
+  const Share = require('../js/share.js');
+  const faire = DATA.events.find((x) => x.id === 'darkmoon-faire');
+  const links = S.windows(faire.schedules.us, utc('2026-10-28T00:00:00Z'), utc('2027-01-31T00:00:00Z')).map((w) => Share.make({ edition: 'retail', event: faire.id, region: 'us', start: w.start }));
+  assert.deepEqual(links, ['#retail/darkmoon-faire/us/20261101T0700Z', '#retail/darkmoon-faire/us/20261206T0800Z', '#retail/darkmoon-faire/us/20270103T0800Z']);
+  // The night the device's own clock changes (where it does), and the first and last minute of a year.
+  for (const at of ['2026-11-01T06:30:00Z', '2026-10-25T01:00:00Z', '2027-03-14T08:00:00Z', '2027-03-28T01:00:00Z', '2026-12-31T23:59:00Z', '2027-01-01T00:00:00Z']) {
+    const hash = Share.make({ edition: 'forever', event: 'stranglethorn-fishing-extravaganza', region: 'eu', start: utc(at) });
+    assert.equal(hash, `#forever/stranglethorn-fishing-extravaganza/eu/${at.replace(/[-:]/g, '').replace('00Z', 'Z')}`);
+    assert.equal(Share.parse(hash, { editions: ['retail', 'forever'], regions: ['us', 'eu'] }).start, utc(at));
+  }
+});
+
 if (failed) process.exit(1);

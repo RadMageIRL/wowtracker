@@ -89,9 +89,10 @@
   /**
    * The edition a page shows: a link's "#forever" first (it is not saved), then the reader's saved
    * choice, then the default (the first id). Anything else, such as "#coming-title", is ignored.
+   * A share link ("#forever/darkmoon-faire/eu/...", js/share.js) names its edition first, and that is read here.
    */
   function pickEdition(hash, saved, ids) {
-    const h = typeof hash === 'string' ? hash.replace(/^#/, '') : '';
+    const h = typeof hash === 'string' ? hash.replace(/^#/, '').split('/')[0] : '';
     if (ids.includes(h)) return h;
     if (typeof saved === 'string' && ids.includes(saved)) return saved;
     return ids[0];

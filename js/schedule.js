@@ -261,6 +261,20 @@
     return `${fmt(item.start, 'full')} to ${fmt(item.end, sameDay ? 'time' : 'full')}`;
   }
 
+  /**
+   * The order of a Weekly overview column [from, to): what runs the whole week first (the items weekSpanText calls
+   * "all week"), then everything else by its start, then the one-line summaries of things that repeat every hour or
+   * so (`repeats`), which would otherwise always sit on top. Within each, by start, then by the name shown, then by
+   * the event's id, so two items at one moment come the same way round on every device and every rebuild.
+   * Items: { event: { id, name }, start, end, name?, repeats? }. Returns a new array.
+   */
+  function weekOrder(items, from, to) {
+    const tier = (i) => (i.repeats ? 2 : i.start <= from && i.end >= to ? 0 : 1);
+    const shown = (i) => i.name || i.event.name;
+    const byId = (a, b) => (a.event.id < b.event.id ? -1 : a.event.id > b.event.id ? 1 : 0);
+    return items.slice().sort((a, b) => tier(a) - tier(b) || a.start - b.start || shown(a).localeCompare(shown(b), 'en') || byId(a, b));
+  }
+
   /** Whole calendar days from nowMs's day to ms's day, both read in `zone`. */
   function dayDiff(ms, nowMs, zone) {
     const a = wallClock(zone, nowMs), b = wallClock(zone, ms);
@@ -280,7 +294,7 @@
     wallClock, offsetMin, wallToUtc, addDays,
     resetInstants, nextReset, previousReset, dayRange, weekRange,
     rotationName, windows, currentWindow, scheduleFor, happening, upcoming, nextOf,
-    duration, dayKey, dayDiff, dayLabel, weekSpanText,
+    duration, dayKey, dayDiff, dayLabel, weekSpanText, weekOrder,
   };
   if (typeof module === 'object' && module.exports) module.exports = Schedule;
   else root.WoWSchedule = Schedule;

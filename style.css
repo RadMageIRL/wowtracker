@@ -128,6 +128,10 @@ main {
 main > * { min-width: 0; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
 .notice-bar { margin: 0; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--warn); color: var(--warn); font-size: 13px; }
+/* What a share link did: the region it shows for this visit, or why it was not opened. Quieter than a warning. */
+.link-notice { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; padding: 4px 12px; border-color: var(--line-strong); color: var(--text-dim); }
+.link-notice[hidden] { display: none; }
+.link-notice span { flex: 1 1 240px; min-width: 0; padding: 4px 0; overflow-wrap: anywhere; }
 .section-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 8px; }
 .section-head h2 { margin: 0; font: 600 18px/1.2 var(--serif); letter-spacing: 0.02em; }
 .section-head h2:focus { outline: none; }
@@ -275,6 +279,11 @@ main > * { min-width: 0; }
 
 .week { padding: 14px 16px; }
 .week-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px 22px; }
+/* What the Predicted labels in the two columns mean: one quiet line, only while such a label is there. */
+.week-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 10px; color: var(--text-dim); font-size: 12.5px; }
+.week-legend[hidden] { display: none; }
+.week-legend .legend-item { min-width: 0; }
+.week-legend .badge { cursor: default; }
 .week-col h3 { margin: 0 0 6px; font-size: 13px; color: var(--text-dim); font-weight: 600; }
 .week-col h3 .dates { color: var(--text-faint); font-weight: 400; }
 .week-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
@@ -512,6 +521,12 @@ dialog a { color: var(--text); }
 .details-checked { display: block; margin-top: 2px; color: var(--text-faint); font-size: 12.5px; }
 .details-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
 .details-actions .star-label { margin: 0 6px 0 -4px; color: var(--text-dim); font-size: 13px; }
+/* A line a share link adds (its time has ended or moved, its region), and what Copy link did. */
+.details .details-note { margin: 0 0 10px; padding: 6px 10px; border-left: 3px solid var(--warn); border-radius: 0 6px 6px 0; background: var(--surface-2); color: var(--text); font-size: 13px; }
+.details .details-status { margin: 8px 0 0; font-size: 13px; }
+.details-status:empty { display: none; }
+.details-link-field { display: block; width: 100%; min-height: 32px; margin-top: 6px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--text); font: 13px/1.3 ui-monospace, Consolas, monospace; }
+.details-link-field[hidden] { display: none; }
 .hidden-list { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
 .hidden-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 

@@ -138,6 +138,17 @@
       || a.name.localeCompare(b.name, 'en') || byId(a, b));
   }
 
+  /**
+   * The next moment after now at which time alone changes a row of upcoming(): a reminder coming due (its
+   * trigger) or an event starting (the row then moves on to the event's next start). Infinity when nothing will.
+   * A list on screen needs working out again only then, not every second.
+   */
+  function nextChange(rows, now) {
+    let next = Infinity;
+    for (const r of rows || []) for (const t of [r.trigger, r.start]) if (typeof t === 'number' && t > now && t < next) next = t;
+    return next;
+  }
+
   /** The delivered keys still worth keeping (younger than KEEP_MS, well formed, and this edition's). */
   function prune(delivered, now, edition) {
     const out = {}, pattern = keyPattern(edition);
@@ -151,7 +162,7 @@
     return item.start > now && item.key.startsWith(prefix(region, edition)) && (starred || []).includes(item.event.id) && !(hidden || []).includes(item.event.id);
   }
 
-  const Reminders = { LEADS, LONG_LEADS, EVENT_LEADS, KEEP_MS, defaults, sanitize, sanitizeLeads, choices, leadFor, leadText, key, occurrence, wasDelivered, due, upcoming, prune, stillDue };
+  const Reminders = { LEADS, LONG_LEADS, EVENT_LEADS, KEEP_MS, defaults, sanitize, sanitizeLeads, choices, leadFor, leadText, key, occurrence, wasDelivered, due, upcoming, nextChange, prune, stillDue };
   if (typeof module === 'object' && module.exports) module.exports = Reminders;
   else root.WoWReminders = Reminders;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

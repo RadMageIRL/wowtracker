@@ -5,7 +5,8 @@
 // change and replaces settings only after the reader confirms.
 //
 // Format 2 (v0.3): { app, format: 2, version, saved, shared: { prefs, reminders }, editions: { retail:
-// { prefs, checklist }, forever: { prefs, checklist } } }. An edition missing from a backup is left as it
+// { prefs, checklist }, forever: { prefs, checklist } } }. Since v0.5 an edition also holds reminderLeads
+// ({ [event id]: minutes }, single events' reminder times); earlier versions read past it, so the format is still 2. An edition missing from a backup is left as it
 // is when the backup is restored. Format 1 (v0.1 and v0.2): { app, format: 1, edition, version, saved,
 // prefs, reminders, checklist }, one edition (Retail, unless it names another): it restores the shared
 // settings, the reminder settings and that edition only.
@@ -58,7 +59,7 @@
       for (const id of Object.keys(eds)) {
         if (!known.includes(id)) { unknown.push(/^[a-z][a-z0-9-]{0,19}$/.test(id) ? id : 'unnamed'); continue; }
         if (!isObj(eds[id])) return { ok: false, error: 'damaged' };
-        parts[id] = { prefs: eds[id].prefs, checklist: eds[id].checklist };
+        parts[id] = { prefs: eds[id].prefs, checklist: eds[id].checklist, leads: eds[id].reminderLeads };
       }
       if (isObj(raw.shared)) { sharedRaw = isObj(raw.shared.prefs) ? raw.shared.prefs : {}; remRaw = raw.shared.reminders; }
       if (sharedRaw === null && !Object.keys(parts).length) return { ok: false, error: unknown.length ? 'edition' : 'nothing' };
@@ -70,6 +71,9 @@
       if (!own(parts, id)) continue;
       const p = isObj(parts[id].prefs) ? parts[id].prefs : {}, c = isObj(parts[id].checklist) ? parts[id].checklist : {};
       const e = { prefs: clean.editions[id].prefs(parts[id].prefs), checklist: clean.editions[id].checklist(parts[id].checklist) };
+      // Single events' reminder times (v0.5). A backup without them (format 1, or format 2 before v0.5) says
+      // nothing about them: null, and a restore leaves them as they are instead of clearing them.
+      e.leads = parts[id].leads === undefined || !clean.editions[id].leads ? null : clean.editions[id].leads(parts[id].leads);
       editions[id] = e;
       dropped[id] = {
         starred: Math.max(0, count(p.starred) - e.prefs.starred.length),

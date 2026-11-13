@@ -71,4 +71,23 @@ test('the calendar feeds are the same bytes in every device zone', () => {
   for (const f of feeds({ retail: pageData(src('events')), forever: pageData(src('forever')) })) assert.equal(f.text, readFileSync(new URL(f.file, root), 'utf8'), f.file);
 });
 
+// Reminders are instants: when one comes, in what order, and under what key never depends on the device zone
+// (a reader who travels, or whose device changes zone, is reminded at the same moment).
+test('reminder times, order and keys are the same in every device zone, with the setting and with an event\'s own lead', () => {
+  const Rem = require('../js/reminders.js');
+  const FOREVER = require('../forever-data.js');
+  const engine = { scheduleFor: S.scheduleFor, windows: S.windows, isFrequent: (s) => s.type === 'every' && s.periodMin < 1440 };
+  const on = { on: true, lead: 15, notify: false, hourly: false };
+  const up = Rem.upcoming({ events: DATA.events, region: 'us', now: utc('2026-10-30T12:00:00Z'), settings: on, leads: { 'darkmoon-faire': 1440, 'wow-anniversary': 120 }, starred: ['darkmoon-faire', 'wow-anniversary', 'timewalking'], hidden: [], engine });
+  assert.deepEqual(up.map((r) => `${r.event.id} ${iso(r.start)} ${iso(r.trigger)} ${r.key}`), [
+    `darkmoon-faire 2026-11-01T07:00:00Z 2026-10-31T07:00:00Z us|darkmoon-faire|${utc('2026-11-01T07:00:00Z')}|1440`,
+    `timewalking 2026-11-17T15:00:00Z 2026-11-17T14:45:00Z us|timewalking|${utc('2026-11-17T15:00:00Z')}|15`,
+    `wow-anniversary 2026-11-17T18:00:00Z 2026-11-17T16:00:00Z us|wow-anniversary|${utc('2026-11-17T18:00:00Z')}|120`,
+  ]);
+  const due = (events, region, at, leads, starred, edition) => Rem.due({ events, region, now: utc(at), settings: on, leads, starred, hidden: [], engine, edition }).map((x) => x.key);
+  assert.deepEqual(due(DATA.events, 'us', '2026-10-31T07:00:00Z', { 'darkmoon-faire': 1440 }, ['darkmoon-faire']), [`us|darkmoon-faire|${utc('2026-11-01T07:00:00Z')}|1440`]);
+  assert.deepEqual(due(DATA.events, 'us', '2026-10-31T06:59:59Z', { 'darkmoon-faire': 1440 }, ['darkmoon-faire']), []);
+  assert.deepEqual(due(FOREVER.events, 'eu', '2027-03-28T11:00:00Z', { 'stranglethorn-fishing-extravaganza': 60 }, ['stranglethorn-fishing-extravaganza'], 'forever'), [`forever|eu|stranglethorn-fishing-extravaganza|${utc('2027-03-28T12:00:00Z')}|60`]);
+});
+
 if (failed) process.exit(1);

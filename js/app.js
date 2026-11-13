@@ -708,10 +708,11 @@
   // Another tab of this page changed the settings: follow it.
   window.addEventListener('storage', (ev) => {
     if (ev.key === Store.PREFIX + 'reminders') { rem = Rem.sanitize(Store.read(storage, 'reminders')); renderRemindersUi(); syncControls(); return; }
+    if (ev.key === Store.PREFIX + LEADS_KEY) { leads = Rem.sanitizeLeads(Store.read(storage, LEADS_KEY), EVENT_IDS); renderUpcoming(); return; }
     if (ev.key === Store.PREFIX + CL_KEY) { checklist = CL.sanitize(Store.read(storage, CL_KEY)); clRev++; renderChecklist(true); return; }
     if (ev.key !== Store.PREFIX + 'prefs' && ev.key !== Store.PREFIX + PREFS_KEY) return;
     prefs = loadPrefs();
-    syncControls(); render(true); renderNews();
+    syncControls(); render(true); renderNews(); renderUpcoming();
     if (!prefs.newsCollapsed && !newsState.items.length) loadNews();
   });
 
@@ -978,8 +979,13 @@
   const REMINDED_KEY = Store.editionKey('reminded', EDITION);
   let rem = Rem.sanitize(Store.read(storage, 'reminders'));
   const saveRem = () => Store.write(storage, 'reminders', rem);
+  // Leads of single events are this edition's own, under a key of their own ("reminder-leads" in Retail,
+  // "forever:reminder-leads"), so the settings above stay exactly what every earlier version reads and writes.
+  const LEADS_KEY = Store.editionKey('reminder-leads', EDITION);
+  const EVENT_IDS = EVENTS.map((e) => e.id);
+  let leads = Rem.sanitizeLeads(Store.read(storage, LEADS_KEY), EVENT_IDS);
   let tray = [];                 // reminders shown on the page: { key, event, start, name, title, body }
-  const tried = new Set();       // keys this tab has already tried to deliver
+  const tried = new Set();       // occurrences (a key without its lead) this tab has already tried to deliver
   let notifyBroken = false;      // the browser has Notification but refuses it (Android Chrome needs a service worker)
   const BASE_TITLE = document.title;
   const REM_ENGINE = { scheduleFor: S.scheduleFor, windows: S.windows, isFrequent: (s) => s.type === 'every' && s.periodMin < 1440 };
@@ -996,11 +1002,14 @@
     };
   }
 
-  /** Only one tab delivers each reminder: the key is claimed under a lock shared by every tab. */
+  /**
+   * Only one tab delivers each reminder: the key is claimed under a lock shared by every tab. An occurrence
+   * already recorded under another lead (the lead was changed since, or another tab has an older one) is taken.
+   */
   async function claim(k) {
     const run = () => {
       const d = Rem.prune(Store.read(storage, REMINDED_KEY), Date.now(), EDITION);
-      if (d[k]) return false;
+      if (Rem.wasDelivered(d, k)) return false;
       d[k] = Date.now();
       Store.write(storage, REMINDED_KEY, d);
       return true;
@@ -1018,12 +1027,13 @@
   }
 
   async function deliver(it, now) {
-    tried.add(it.key);
+    tried.add(Rem.occurrence(it.key));
     if (!(await claim(it.key))) return;
     Object.assign(it, reminderText(it, now));
     tray.push(it);
     tray.sort((a, b) => a.start - b.start || a.name.localeCompare(b.name)); // soonest first
     renderTray();
+    if ($('reminders-dialog').open) renderUpcoming();
     announce(`Reminder: ${it.title}, ${at(it.start, 'time')}.`);
     notifyBrowser(it);
   }
@@ -1049,8 +1059,10 @@
       h('button', { type: 'button', class: 'link-btn', 'data-dismiss': it.key, 'aria-label': `Dismiss the reminder for ${it.name}`, text: 'Dismiss' }));
   }
 
+  let trayZone = ''; // the display zone the notices' times were written in
   function renderTray() {
     const el = $('reminders-tray'), cap = trayCap(), extra = Math.max(0, tray.length - cap);
+    trayZone = zoneName();
     if (!extra) trayOpen = false;
     // Focus inside the tray stays on the same control, or the nearest one, when it is rebuilt.
     const f = el.contains(document.activeElement) ? document.activeElement : null;
@@ -1082,13 +1094,58 @@
     if (tray.length) {
       const ctx = { region: region(), now, starred: prefs.starred, hidden: prefs.hidden, edition: EDITION };
       const keep = tray.filter((it) => rem.on && Rem.stillDue(it, ctx));
-      if (keep.length !== tray.length) { tray = keep; renderTray(); }
+      // Rebuilt when a notice leaves, and when the device's zone (or Local / UTC) changed: the start times are written in it.
+      if (keep.length !== tray.length || zoneName() !== trayZone) { tray = keep; renderTray(); }
     }
     if (!rem.on || !prefs.starred.length) return;
-    for (const it of Rem.due({ events: EVENTS, region: region(), now, settings: rem, starred: prefs.starred, hidden: prefs.hidden, engine: REM_ENGINE, edition: EDITION })) {
-      if (!tried.has(it.key)) deliver(it, now);
+    for (const it of Rem.due({ events: EVENTS, region: region(), now, settings: rem, leads, starred: prefs.starred, hidden: prefs.hidden, engine: REM_ENGINE, edition: EDITION })) {
+      if (!tried.has(Rem.occurrence(it.key))) deliver(it, now);
     }
   }
+
+  // Upcoming reminders, in the dialog: the next start of each starred event, when its reminder comes and how
+  // long before, soonest reminder first, with the event's own lead to choose. Built when the dialog opens and
+  // when something it shows changes, never on the one-second tick (a list being chosen from must not move).
+  const UP_STATE = {
+    on: 'On', due: 'On: its time has come', off: 'Off: reminders are off', hidden: 'Off: the event is hidden',
+    hourly: 'Off: it repeats every hour or more often (tick that box above)', none: 'No reminder',
+  };
+  function renderUpcoming() {
+    const now = nowMs(), where = `${ED.name} · ${REGION.get(region()).name}`;
+    const rows = Rem.upcoming({ events: EVENTS, region: region(), now, settings: rem, leads, starred: prefs.starred, hidden: prefs.hidden, engine: REM_ENGINE, edition: EDITION });
+    const coming = rows.filter((r) => r.state === 'on' || r.state === 'due').length;
+    $('rem-upcoming-note').textContent = !rows.length ? 'Nothing to list: no event is starred.'
+      : !rem.on ? 'Reminders are off, so none of these will be shown. Turn them on above.'
+        : !coming ? 'No reminder is coming. Each event below says why.'
+          : 'The next start of each starred event, soonest reminder first. A reminder is shown only if this page is open at its time.';
+    const list = $('rem-upcoming'), f = list.contains(document.activeElement) ? document.activeElement.getAttribute('data-lead-for') : null;
+    list.replaceChildren(...rows.map((r) => {
+      const e = r.event, label = `${r.name}${predictedLabel(statusFor(e))}`;
+      return h('li', { 'data-event': e.id, 'data-state': r.state, 'data-cat': e.category },
+        h('p', { class: 'up-name' }, h('strong', { text: label }), ' ', h('span', { class: 'up-where', text: where })),
+        h('p', { class: 'up-when' }, r.start === null ? 'Nothing more of it is scheduled in this region.'
+          : [`Starts ${at(r.start, 'full')} · Reminder ${at(r.trigger, 'full')} (${Rem.leadText(r.lead)} before)`]),
+        h('p', { class: 'up-set' },
+          h('span', { class: 'up-state', text: UP_STATE[r.state] }),
+          h('label', {}, 'Remind me ',
+            h('select', { 'data-lead-for': e.id, 'aria-label': `When to remind me of ${e.name}` },
+              h('option', { value: '', selected: !r.own }, `as set above (${Rem.leadText(rem.lead)} before)`),
+              Rem.choices(r.frequent).map((m) => h('option', { value: m, selected: r.own && r.lead === m }, `${Rem.leadText(m)} before`))))));
+    }));
+    list.hidden = !rows.length;
+    if (f) { const back = list.querySelector(`[data-lead-for="${CSS.escape(f)}"]`); if (back) back.focus(); }
+  }
+
+  /** An event's own lead, or none (it follows the setting). Saved for this edition only. */
+  function setEventLead(id, value) {
+    const next = Object.assign({}, leads), m = Number(value);
+    if (value === '' || !Rem.EVENT_LEADS.includes(m)) delete next[id]; else next[id] = m;
+    leads = Rem.sanitizeLeads(next, EVENT_IDS);
+    Store.write(storage, LEADS_KEY, leads);
+    renderUpcoming();
+    checkReminders(nowMs());
+  }
+  $('rem-upcoming').addEventListener('change', (ev) => { const id = ev.target.getAttribute('data-lead-for'); if (id && BY_ID.has(id)) setEventLead(id, ev.target.value); });
 
   function renderRemindersUi() {
     $('reminders-btn').textContent = rem.on ? `Reminders: ${rem.lead} min` : 'Reminders: off';
@@ -1115,6 +1172,7 @@
     $('rem-hourly').closest('label').hidden = !HAS_HOURLY;
     const others = EDITIONS.filter((x) => x.id !== EDITION).map((x) => x.name);
     $('rem-edition').textContent = `Only for ${ED.name}, the game version on screen.${others.length ? ` Starred ${others.join(' and ')} events remind you while ${others.length === 1 ? 'it is' : 'they are'} on screen.` : ''}`;
+    renderUpcoming();
   }
 
   function remChanged() { saveRem(); renderRemindersUi(); syncControls(); checkReminders(nowMs()); }
@@ -1338,6 +1396,7 @@
     editions: Object.fromEntries([...DATASETS].map(([id, d]) => [id, {
       prefs: (raw) => Store.sanitizeEditionPrefs(raw, d.events.map((e) => e.id), d.categories.map((c) => c.id)),
       checklist: (raw) => CL.sanitize(raw),
+      leads: (raw) => Rem.sanitizeLeads(raw, d.events.map((e) => e.id)),
     }])),
   };
   let pendingBackup = null;
@@ -1345,26 +1404,28 @@
   /** A checklist as kept: old ticks are dropped only where that edition's resets are published (as on load). */
   const clKept = (id, c) => (resetsKnownIn(DATASETS.get(id)) ? CL.prune(c, nowMs()) : c);
 
-  /** What this browser has for an edition: { prefs, checklist } of its own, or null when nothing of its own is saved. */
+  /** What this browser has for an edition: { prefs, checklist, leads } of its own, or null when nothing of its own is saved. */
   function editionNow(id) {
-    if (id === EDITION) return { prefs: Store.editionPrefs(prefs), checklist };
+    if (id === EDITION) return { prefs: Store.editionPrefs(prefs), checklist, leads };
     const raw = Store.read(storage, Store.editionKey('prefs', id)), cl = Store.read(storage, Store.editionKey('checklist', id));
+    const own = backupClean.editions[id].leads(Store.read(storage, Store.editionKey('reminder-leads', id)));
     const has = raw !== null && typeof raw === 'object' && !Array.isArray(raw) && Store.EDITION_PREFS.some((k) => Object.prototype.hasOwnProperty.call(raw, k));
-    if (!has && cl === null) return null;
-    return { prefs: backupClean.editions[id].prefs(raw), checklist: CL.sanitize(cl) };
+    if (!has && cl === null && !Object.keys(own).length) return null;
+    return { prefs: backupClean.editions[id].prefs(raw), checklist: CL.sanitize(cl), leads: own };
   }
 
   const sharedSummary = (p, r) => `${REGION.get(p.region).name} · ${r.on ? `reminders ${r.lead} min before` : 'reminders off'}`;
   function editionSummary(e) {
     if (!e) return 'nothing saved';
-    const n = e.checklist.tasks.length;
-    return [`${e.prefs.starred.length} starred`, `${e.prefs.hidden.length} hidden`, n ? `${n} checklist ${n === 1 ? 'task' : 'tasks'}` : 'no checklist tasks'].join(' · ');
+    const n = e.checklist.tasks.length, own = e.leads ? Object.keys(e.leads).length : 0;
+    return [`${e.prefs.starred.length} starred`, `${e.prefs.hidden.length} hidden`, n ? `${n} checklist ${n === 1 ? 'task' : 'tasks'}` : 'no checklist tasks',
+      own ? `${own} ${own === 1 ? 'event with its own reminder time' : 'events with their own reminder times'}` : null].filter(Boolean).join(' · ');
   }
   const browserSummary = () => [sharedSummary(prefs, rem), ...[...DATASETS.keys()].map((id) => `${editionLabel(id)}: ${editionSummary(editionNow(id))}`)].join('. ');
 
   function backupText() {
     const editions = {};
-    for (const id of DATASETS.keys()) { const e = editionNow(id); if (e) editions[id] = { prefs: e.prefs, checklist: clKept(id, e.checklist) }; }
+    for (const id of DATASETS.keys()) { const e = editionNow(id); if (e) editions[id] = { prefs: e.prefs, checklist: clKept(id, e.checklist), reminderLeads: e.leads }; }
     return Backup.make({ shared: Store.sanitizeShared(prefs, deviceZone()), reminders: rem, editions, version: APP_VERSION, now: nowMs() });
   }
 
@@ -1408,7 +1469,9 @@
       if (!part) { items.push(h('li', {}, h('strong', { text: `${editionLabel(id)}: ` }), 'not in this backup, so it stays as it is.')); continue; }
       const d = r.dropped[id], lost = d.starred + d.hidden;
       items.push(h('li', {}, h('strong', { text: `${editionLabel(id)}: ` }), `${editionSummary(part)}. `,
-        cur && same(cur.prefs, part.prefs) && same(cur.checklist, part.checklist) ? 'The same as now.' : `Replaces ${editionSummary(cur)}.`,
+        cur && same(cur.prefs, part.prefs) && same(cur.checklist, part.checklist) && (part.leads === null || same(cur.leads, part.leads)) ? 'The same as now.' : `Replaces ${editionSummary(cur)}.`,
+        // A backup from before v0.5 says nothing about single events' reminder times: they are kept, not reset.
+        part.leads === null && cur && Object.keys(cur.leads).length ? ' This backup is from before events had their own reminder times, so yours stay as they are.' : '',
         lost ? ` ${lost} starred or hidden ${lost === 1 ? 'event is' : 'events are'} not in this version's schedule data and will be left out.` : '',
         d.tasks ? ` ${d.tasks} damaged checklist ${d.tasks === 1 ? 'task' : 'tasks'} will be left out.` : ''));
     }
@@ -1448,7 +1511,8 @@
       const key = Store.editionKey('prefs', id), list = clKept(id, part.checklist);
       if (key === 'prefs') { Object.assign(base, part.prefs); prefsTouched = true; } else writes.push(Store.write(storage, key, part.prefs));
       writes.push(Store.write(storage, Store.editionKey('checklist', id), list));
-      if (id === EDITION) { Object.assign(prefs, part.prefs); checklist = list; clRev++; }
+      if (part.leads !== null) writes.push(Store.write(storage, Store.editionKey('reminder-leads', id), part.leads));
+      if (id === EDITION) { Object.assign(prefs, part.prefs); checklist = list; clRev++; if (part.leads !== null) leads = part.leads; }
       restored.push(editionLabel(id));
     }
     if (prefsTouched) writes.push(Store.write(storage, 'prefs', base));

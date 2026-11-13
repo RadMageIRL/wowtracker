@@ -159,7 +159,7 @@ export function checklistTests(test) {
   // ---- Settings backup (format 2: shared settings, reminders and each edition; format 1 from v0.1 and v0.2) ----
 
   const FOREVER = require('../forever-data.js');
-  const editionClean = (data) => ({ prefs: (raw) => Store.sanitizeEditionPrefs(raw, data.events.map((e) => e.id), data.categories.map((c) => c.id)), checklist: (raw) => CL.sanitize(raw) });
+  const editionClean = (data) => ({ prefs: (raw) => Store.sanitizeEditionPrefs(raw, data.events.map((e) => e.id), data.categories.map((c) => c.id)), checklist: (raw) => CL.sanitize(raw), leads: (raw) => Rem.sanitizeLeads(raw, data.events.map((e) => e.id)) });
   const clean = {
     shared: (raw) => Store.sanitizeShared(raw, 'America/Chicago'),
     reminders: (raw) => Rem.sanitize(raw),
@@ -188,7 +188,8 @@ export function checklistTests(test) {
     const r = Backup.read(text, clean);
     assert.equal(r.ok, true);
     assert.deepEqual([r.format, r.shared, r.reminders], [2, SHARED, REM]);
-    assert.deepEqual(r.editions, { retail: { prefs: RETAIL_OWN, checklist: LISTED }, forever: { prefs: FOREVER_OWN, checklist: FOREVER_LIST } });
+    // Made before v0.5: no reminder times of single events in it, which reads as null (kept as they are), not as none.
+    assert.deepEqual(r.editions, { retail: { prefs: RETAIL_OWN, checklist: LISTED, leads: null }, forever: { prefs: FOREVER_OWN, checklist: FOREVER_LIST, leads: null } });
     assert.deepEqual([r.saved, r.version, r.unknown], [t('2026-11-10T16:00:00Z'), '0.3.0', []]);
     assert.deepEqual(r.dropped, { retail: { starred: 0, hidden: 0, tasks: 0 }, forever: { starred: 0, hidden: 0, tasks: 0 } });
   });
@@ -198,7 +199,7 @@ export function checklistTests(test) {
     assert.equal(r.ok, true);
     assert.deepEqual([r.format, r.shared, r.reminders], [1, SHARED, REM]);
     assert.deepEqual(Object.keys(r.editions), ['retail'], 'Forever is left as it is');
-    assert.deepEqual(r.editions.retail, { prefs: RETAIL_OWN, checklist: LISTED });
+    assert.deepEqual(r.editions.retail, { prefs: RETAIL_OWN, checklist: LISTED, leads: null });
     // Put back together, the shared and Retail parts are exactly what v0.2 had in "prefs".
     assert.deepEqual({ ...r.shared, ...r.editions.retail.prefs }, ALL);
     // One without an edition (v0.1) is Retail's; one naming Forever (a v0.3 development copy) is Forever's, checked against Forever's events.
@@ -230,6 +231,31 @@ export function checklistTests(test) {
     r = Backup.read(JSON.stringify(raw), clean);
     assert.deepEqual([r.ok, r.unknown, Object.keys(r.editions)], [true, ['classic', 'unnamed'], ['forever']]);
     assert.equal(Backup.read(JSON.stringify({ app: 'wowtracker', format: 2, editions: { classic: {} } }), clean).error, 'edition');
+  });
+
+  test('single events\' reminder times travel in a backup, each edition\'s apart and checked against its own events; a backup without them leaves them alone', () => {
+    const text = backup({ retail: { prefs: RETAIL_OWN, checklist: LISTED, reminderLeads: { 'darkmoon-faire': 1440, 'hallows-end': 30 } }, forever: { prefs: FOREVER_OWN, checklist: FOREVER_LIST, reminderLeads: { 'stranglethorn-fishing-extravaganza': 60 } } });
+    const raw = JSON.parse(text);
+    assert.deepEqual([raw.format, Object.keys(raw.editions.retail), Object.keys(raw.shared.reminders)], [2, ['prefs', 'checklist', 'reminderLeads'], ['on', 'lead', 'notify', 'hourly']], 'still format 2; the shared reminder settings are as they were');
+    let r = Backup.read(text, clean);
+    assert.deepEqual([r.editions.retail.leads, r.editions.forever.leads], [{ 'darkmoon-faire': 1440, 'hallows-end': 30 }, { 'stranglethorn-fishing-extravaganza': 60 }]);
+    assert.deepEqual(r.reminders, REM, 'the setting itself is untouched by them');
+    // None set is said as none, and replaces; absent (an older backup) is null, and replaces nothing.
+    r = Backup.read(backup({ retail: { prefs: RETAIL_OWN, checklist: LISTED, reminderLeads: {} } }), clean);
+    assert.deepEqual(r.editions.retail.leads, {});
+    assert.equal(Backup.read(backup(), clean).editions.retail.leads, null);
+    assert.equal(Backup.read(V020, clean).editions.retail.leads, null, 'a v0.2 backup');
+    // Cleaned like saved ones: another edition's event, an event that is gone, a lead not offered, a wrong shape.
+    raw.editions.retail.reminderLeads = { 'darkmoon-faire': 45, 'stranglethorn-fishing-extravaganza': 30, 'not-an-event': 15, 'hallows-end': 5, 'wow-anniversary': '60' };
+    raw.editions.forever.reminderLeads = ['stranglethorn-fishing-extravaganza', 60];
+    r = Backup.read(JSON.stringify(raw), clean);
+    assert.deepEqual([r.ok, r.editions.retail.leads, r.editions.forever.leads], [true, { 'hallows-end': 5 }, {}]);
+    raw.editions.retail.reminderLeads = null;
+    assert.deepEqual(Backup.read(JSON.stringify(raw), clean).editions.retail.leads, {}, 'present but empty or damaged: none, as the backup says');
+    // A reader of backups that knows nothing of them (v0.4's own cleaners) reads the rest exactly as before.
+    const v04 = { ...clean, editions: { retail: { prefs: clean.editions.retail.prefs, checklist: clean.editions.retail.checklist }, forever: { prefs: clean.editions.forever.prefs, checklist: clean.editions.forever.checklist } } };
+    const old = Backup.read(text, v04);
+    assert.deepEqual([old.ok, old.editions.retail.prefs, old.editions.retail.checklist, old.editions.retail.leads, old.reminders], [true, RETAIL_OWN, LISTED, null, REM]);
   });
 
   test('a backup that is empty, not JSON, too big, someone else\'s, newer, damaged or for a game version this page lacks is refused', () => {
@@ -271,7 +297,7 @@ export function checklistTests(test) {
     assert.deepEqual(r.reminders, Rem.defaults());
     assert.deepEqual(r.editions.retail.checklist.tasks.map((x) => x.name.length), [60]);
     assert.deepEqual(r.editions.retail.checklist.done, {});
-    assert.deepEqual(r.editions.forever, { prefs: clean.editions.forever.prefs(null), checklist: CL.defaults() });
+    assert.deepEqual(r.editions.forever, { prefs: clean.editions.forever.prefs(null), checklist: CL.defaults(), leads: null });
     assert.deepEqual([r.saved, r.version, r.unknown], [null, null, ['unnamed']]);
     assert.equal({}.polluted, undefined);
   });

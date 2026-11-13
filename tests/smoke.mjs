@@ -1960,7 +1960,7 @@ check('a backup made on the Forever page holds Retail and Forever apart; restore
   const raw = JSON.parse(copy);
   assert.deepEqual([raw.format, Object.keys(raw.editions)], [2, ['retail', 'forever']]);
   assert.equal(raw.version, /<span class="tag">v(\d+\.\d+\.\d+) /.exec(readFileSync(join(DIR, 'index.html'), 'utf8'))[1], 'the backup names the version of the page that made it');
-  assert.deepEqual(raw.editions.forever, { prefs: { filter: 'all', categories: ['holiday', 'darkmoon', 'outdoor'], starred: FOREVER_OWN.starred, hidden: FOREVER_OWN.hidden, checklistOpen: false }, checklist: FOREVER_LIST }, "Forever's checklist exactly as stored: no reset is known, so no tick expires");
+  assert.deepEqual(raw.editions.forever, { prefs: { filter: 'all', categories: ['holiday', 'darkmoon', 'outdoor'], starred: FOREVER_OWN.starred, hidden: FOREVER_OWN.hidden, checklistOpen: false }, checklist: FOREVER_LIST, reminderLeads: {} }, "Forever's checklist exactly as stored: no reset is known, so no tick expires");
   assert.equal(raw.editions.retail.prefs.starred.join(), RETAIL_PREFS.starred.join());
   assert.equal(raw.shared.prefs.starred, undefined, 'the shared part holds no edition\'s stars');
   await page.close();
@@ -2082,6 +2082,350 @@ check('the page draws once, complete: no layout shift while it loads, in Retail 
   }
   assert.equal(seen.length, 4, seen.join(', '));
 });
+
+// ---- Upcoming reminders and an event's own reminder time (v0.5) ----
+
+/** The rows of Upcoming reminders, as the open dialog shows them. */
+const upRows = (page) => page.eval(`[...document.querySelectorAll('#rem-upcoming li')].map((li) => ({ id: li.dataset.event, state: li.dataset.state, name: li.querySelector('.up-name strong').textContent, where: li.querySelector('.up-where').textContent,
+  when: li.querySelector('.up-when').textContent, said: li.querySelector('.up-state').textContent, lead: li.querySelector('select').value, options: [...li.querySelectorAll('option')].map((o) => o.textContent) }))`);
+const setLead = (page, id, value) => page.eval(`(() => { const s = document.querySelector('#rem-upcoming [data-lead-for="${id}"]'); s.value = ${JSON.stringify(String(value))}; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+const item = (page, key) => page.eval(`localStorage.getItem('wowtracker:v1:${key}')`);
+const seedItems = (items) => `if (!sessionStorage.getItem('seeded2')) { for (const [k, v] of Object.entries(${JSON.stringify(items)})) localStorage.setItem('wowtracker:v1:' + k, typeof v === 'string' ? v : JSON.stringify(v)); sessionStorage.setItem('seeded2', '1'); }`;
+const FIVE = { starred: ['darkmoon-faire', 'wow-anniversary', 'timewalking', 'world-boss-predaxas', 'aqir-invasion'] };
+
+check('Upcoming reminders, in the Reminders dialog: each starred event\'s next start, its reminder time and lead, the game version and region, soonest reminder first; off, nothing starred and hourly events each say so', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: FIVE });
+  await click(page, '#reminders-btn');
+  assert.equal(await text(page, '#rem-upcoming-title'), 'Upcoming reminders');
+  assert.equal(await text(page, '#rem-upcoming-note'), 'Reminders are off, so none of these will be shown. Turn them on above.');
+  let rows = await upRows(page);
+  assert.deepEqual(rows.map((r) => [r.state, r.said]), Array(5).fill(['off', 'Off: reminders are off']), 'off: every event says so');
+  assert.equal(rows[1].when, 'Starts Tue, Nov 17, 9:00 AM · Reminder Tue, Nov 17, 8:45 AM (15 minutes before)', 'and still says when it would be');
+  await click(page, '#rem-on');
+  assert.equal(await text(page, '#rem-upcoming-note'), 'The next start of each starred event, soonest reminder first. A reminder is shown only if this page is open at its time.');
+  rows = await upRows(page);
+  assert.deepEqual(rows.map((r) => [r.id, r.state]), [['aqir-invasion', 'hourly'], ['timewalking', 'on'], ['world-boss-predaxas', 'on'], ['wow-anniversary', 'on'], ['darkmoon-faire', 'on']]);
+  assert.deepEqual(rows.map((r) => r.name), ["Aqir Invasion: Zul'Aman (Predicted)", 'Legion Timewalking', 'Predaxas (Predicted)', "WoW's 22nd Anniversary", 'Darkmoon Faire'], 'the two at 9:00 AM always in this order');
+  assert.ok(rows.every((r) => r.where === 'Retail · Americas'), JSON.stringify(rows.map((r) => r.where)));
+  assert.deepEqual(rows.map((r) => r.when).slice(1), [
+    'Starts Tue, Nov 17, 9:00 AM · Reminder Tue, Nov 17, 8:45 AM (15 minutes before)',
+    'Starts Tue, Nov 17, 9:00 AM · Reminder Tue, Nov 17, 8:45 AM (15 minutes before)',
+    'Starts Tue, Nov 17, 12:00 PM · Reminder Tue, Nov 17, 11:45 AM (15 minutes before)',
+    'Starts Sun, Dec 6, 2:00 AM · Reminder Sun, Dec 6, 1:45 AM (15 minutes before)',
+  ]);
+  assert.deepEqual(rows.map((r) => r.said), ['Off: it repeats every hour or more often (tick that box above)', 'On', 'On', 'On', 'On']);
+  assert.ok(rows.every((r) => r.lead === ''), 'every event follows the setting until given its own');
+  assert.deepEqual(rows[4].options, ['as set above (15 minutes before)', '5 minutes before', '15 minutes before', '30 minutes before', '60 minutes before', '2 hours before', '1 day before']);
+  assert.deepEqual(rows[0].options, ['as set above (15 minutes before)', '5 minutes before', '15 minutes before', '30 minutes before', '60 minutes before'], 'an hourly event is not offered hours or a day');
+  await click(page, '#rem-hourly');
+  assert.deepEqual((await upRows(page))[0], { ...rows[0], state: 'on', said: 'On', when: 'Starts Tue, Nov 10, 1:00 PM · Reminder Tue, Nov 10, 12:45 PM (15 minutes before)' });
+  // Every control in it has a name, and the list is tied to its heading.
+  assert.equal(await page.eval(`[...document.querySelectorAll('#rem-upcoming select')].every((s) => /^When to remind me of /.test(s.getAttribute('aria-label'))) && document.getElementById('rem-upcoming').getAttribute('aria-labelledby') === 'rem-upcoming-title'`), true);
+  // Europe is its own list; a hidden starred event says it is hidden.
+  await click(page, '#reminders-dialog [data-close]');
+  await click(page, '[data-region="eu"]');
+  await click(page, '#next-list [data-hide="wow-anniversary"], #calendar [data-hide="wow-anniversary"], [data-details="wow-anniversary"]');
+  if (await page.eval(`document.getElementById('details').open`)) await click(page, '#details [data-hide]');
+  await click(page, '#reminders-btn');
+  rows = await upRows(page);
+  const ann = rows.find((r) => r.id === 'wow-anniversary');
+  assert.deepEqual([ann.where, ann.state, ann.said, ann.name, ann.when], ['Retail · Europe', 'hidden', 'Off: the event is hidden', "WoW's 22nd Anniversary (Predicted time)", 'Starts Tue, Nov 17, 3:00 AM · Reminder Tue, Nov 17, 2:45 AM (15 minutes before)']);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+  // Nothing starred: the list is not there at all, and the line says why.
+  const none = await open({ at: utc('2026-11-10T18:00:00Z'), reminders: REM_ON });
+  await click(none, '#reminders-btn');
+  assert.deepEqual([await text(none, '#rem-upcoming-note'), await none.eval(`document.getElementById('rem-upcoming').hidden`), (await upRows(none)).length], ['Nothing to list: no event is starred.', true, 0]);
+  await none.close();
+  // Starred, on, and still nothing coming: said as such.
+  const idle = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { starred: ['aqir-invasion'] }, reminders: REM_ON });
+  await click(idle, '#reminders-btn');
+  assert.equal(await text(idle, '#rem-upcoming-note'), 'No reminder is coming. Each event below says why.');
+  await idle.close();
+  // Past the end of the data: no time is made up.
+  const late = await open({ at: utc('2027-06-01T12:00:00Z'), prefs: { starred: ['wow-anniversary'] }, reminders: REM_ON });
+  await click(late, '#reminders-btn');
+  assert.deepEqual((await upRows(late)).map((r) => [r.state, r.when, r.said]), [['none', 'Nothing more of it is scheduled in this region.', 'No reminder']]);
+  await late.close();
+});
+
+check('an event\'s own reminder time is chosen in the list and saved for that game version only; the setting stays what it was, and "as set above" gives the event back to it', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { starred: ['darkmoon-faire', 'wow-anniversary', 'lunar-festival'] }, reminders: REM_ON });
+  const settings = await item(page, 'reminders');
+  assert.equal(await item(page, 'reminder-leads'), null, 'nothing is written until an event is given a time of its own');
+  await click(page, '#reminders-btn');
+  await page.eval(`document.querySelector('#rem-upcoming [data-lead-for="darkmoon-faire"]').focus()`);
+  await setLead(page, 'darkmoon-faire', 1440);
+  let rows = await upRows(page);
+  const faire = rows.find((r) => r.id === 'darkmoon-faire');
+  assert.deepEqual([faire.lead, faire.when], ['1440', 'Starts Sun, Dec 6, 2:00 AM · Reminder Sat, Dec 5, 2:00 AM (1 day before)']);
+  assert.equal(await page.eval(`document.activeElement.getAttribute('data-lead-for')`), 'darkmoon-faire', 'focus stays on the list rebuilt under it');
+  assert.deepEqual(JSON.parse(await item(page, 'reminder-leads')), { 'darkmoon-faire': 1440 });
+  assert.equal(await item(page, 'reminders'), settings, 'the reminder settings are not rewritten');
+  // The setting changes: only the events that follow it move.
+  await page.eval(`(() => { const s = document.getElementById('rem-lead'); s.value = '60'; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  rows = await upRows(page);
+  assert.deepEqual(rows.map((r) => [r.id, r.when.replace(/^.*\(/, '('), r.options[0]]), [
+    ['wow-anniversary', '(60 minutes before)', 'as set above (60 minutes before)'],
+    ['darkmoon-faire', '(1 day before)', 'as set above (60 minutes before)'],
+    ['lunar-festival', '(60 minutes before)', 'as set above (60 minutes before)'],
+  ]);
+  assert.deepEqual([JSON.parse(await item(page, 'reminders')), JSON.parse(await item(page, 'reminder-leads'))], [{ ...REM_ON, lead: 60 }, { 'darkmoon-faire': 1440 }]);
+  assert.equal(await text(page, '#reminders-btn'), 'Reminders: 60 min');
+  // Kept across a reload; Forever has its own, under its own key, and never sees Retail's.
+  await setLead(page, 'lunar-festival', 5);
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  await click(page, '#reminders-btn');
+  assert.deepEqual((await upRows(page)).map((r) => [r.id, r.lead]), [['wow-anniversary', ''], ['darkmoon-faire', '1440'], ['lunar-festival', '5']]);
+  await click(page, '#reminders-dialog [data-close]');
+  const retail = await stored(page);
+  await page.eval(`localStorage.setItem('wowtracker:v1:forever:prefs', JSON.stringify({ starred: ['lunar-festival', 'darkmoon-faire'] }))`);
+  await switchTo(page, 'forever');
+  await click(page, '#reminders-btn');
+  rows = await upRows(page);
+  assert.deepEqual(rows.map((r) => [r.id, r.lead, r.where]).sort(), [['darkmoon-faire', '', 'Forever · Americas'], ['lunar-festival', '', 'Forever · Americas']], "Retail's own times are not Forever's");
+  assert.ok(rows.every((r) => / \(Predicted time\)$/.test(r.name)), JSON.stringify(rows.map((r) => r.name)));
+  await setLead(page, 'lunar-festival', 120);
+  const both = await stored(page);
+  assert.deepEqual(JSON.parse(both['wowtracker:v1:forever:reminder-leads']), { 'lunar-festival': 120 });
+  assert.equal(both['wowtracker:v1:reminder-leads'], retail['wowtracker:v1:reminder-leads'], "Retail's key byte for byte");
+  assert.equal(both['wowtracker:v1:reminders'], retail['wowtracker:v1:reminders'], 'the shared settings byte for byte');
+  // Back in Retail: "as set above" removes the event's own time.
+  await click(page, '#reminders-dialog [data-close]');
+  await switchTo(page, 'retail');
+  await click(page, '#reminders-btn');
+  await setLead(page, 'darkmoon-faire', '');
+  assert.deepEqual([(await upRows(page)).find((r) => r.id === 'darkmoon-faire').when.replace(/^.*\(/, '('), JSON.parse(await item(page, 'reminder-leads'))], ['(60 minutes before)', { 'lunar-festival': 5 }]);
+  assert.deepEqual(JSON.parse(await item(page, 'forever:reminder-leads')), { 'lunar-festival': 120 });
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('a reminder with its own time is shown at that time, once across two tabs, and changing the time afterwards never shows it again; with reminders off nothing is shown', async () => {
+  const at = utc('2026-11-10T13:59:56Z'); // Thorm'belan starts 15:00 UTC; its own time is 60 minutes, the setting 15
+  const seed = seedItems({ 'reminder-leads': { 'world-boss-thormbelan': 60 } });
+  const one = await open({ at, prefs: THORM, reminders: REM_ON, before: seed });
+  const two = await open({ at, keepStorage: true });
+  await sleep(6000); // both tabs pass 14:00:00
+  const shown = [...await trayText(one), ...await trayText(two)];
+  assert.equal(shown.length, 1, `once across two tabs: ${JSON.stringify(shown)}`);
+  assert.match(shown[0], /^Thorm'belan \(Predicted\) starts in 59m \d\ds · 9:00 AM$/);
+  assert.deepEqual(Object.keys(JSON.parse(await item(one, 'reminded'))), [`us|world-boss-thormbelan|${utc('2026-11-10T15:00:00Z')}|60`], 'recorded under the lead it was shown at');
+  // The list says its time has come, in the tab that shows it and in the other.
+  for (const tab of [one, two]) {
+    await click(tab, '#reminders-btn');
+    assert.deepEqual((await upRows(tab)).map((r) => [r.state, r.said, r.lead]), [['due', 'On: its time has come', '60']]);
+  }
+  // Its time is changed in one tab: the other follows, and neither shows it a second time, at the new time or the setting's.
+  await setLead(one, 'world-boss-thormbelan', 30);
+  await two.waitFor(`document.querySelector('#rem-upcoming select').value === '30'`);
+  assert.equal((await upRows(two))[0].when, 'Starts Tue, Nov 10, 9:00 AM · Reminder Tue, Nov 10, 8:30 AM (30 minutes before)');
+  for (const tab of [one, two]) { await click(tab, '#reminders-dialog [data-close]'); await tab.eval(`[...document.querySelectorAll('[data-dismiss]')].forEach((b) => b.click())`); await jumpClock(tab, '2026-11-10T14:30:01Z'); }
+  await sleep(2500);
+  assert.deepEqual([...await trayText(one), ...await trayText(two)], [], 'not again at 30 minutes');
+  await click(one, '#reminders-btn');
+  await setLead(one, 'world-boss-thormbelan', '');
+  await click(one, '#reminders-dialog [data-close]');
+  for (const tab of [one, two]) await jumpClock(tab, '2026-11-10T14:45:01Z');
+  await sleep(2500);
+  assert.deepEqual([...await trayText(one), ...await trayText(two)], [], 'not again at the setting\'s 15 minutes');
+  assert.equal(Object.keys(JSON.parse(await item(one, 'reminded'))).length, 1, 'still one record for the occurrence');
+  await one.reload();
+  await one.waitFor("document.querySelector('#summary li') !== null");
+  await sleep(2500);
+  assert.deepEqual(await trayText(one), [], 'not after a reload either');
+  assert.deepEqual([...one.problems, ...two.problems], []);
+  await one.close(); await two.close();
+  // Off: an event's own time shows nothing, and the list says off.
+  const off = await open({ at, prefs: THORM, reminders: { ...REM_ON, on: false }, before: seed });
+  await sleep(6000);
+  assert.deepEqual([await trayText(off), await item(off, 'reminded')], [[], null]);
+  await click(off, '#reminders-btn');
+  assert.deepEqual((await upRows(off)).map((r) => [r.state, r.lead]), [['off', '60']], 'its own time is kept while reminders are off');
+  await off.close();
+});
+
+check('a tab that still has an older time for an event cannot show its reminder twice: the occurrence is claimed once, whichever lead each tab holds', async () => {
+  const at = utc('2026-11-10T13:59:56Z');
+  const one = await open({ at, prefs: THORM, reminders: REM_ON, before: seedItems({ 'reminder-leads': { 'world-boss-thormbelan': 60 } }) });
+  // Tab two never hears of a change (its storage events are lost before the page sees them): it goes on with 60 minutes
+  // while the stored time becomes 2 hours.
+  const two = await open({ at, keepStorage: true, before: `window.addEventListener('storage', (ev) => ev.stopImmediatePropagation(), true);` });
+  await click(one, '#reminders-btn');
+  await setLead(one, 'world-boss-thormbelan', 120); // due at once in tab one (13:00 has passed)
+  await sleep(6000); // and tab two reaches its own 14:00:00
+  const shown = [...await trayText(one), ...await trayText(two)];
+  assert.equal(shown.length, 1, `one notice, not one per lead: ${JSON.stringify(shown)}`);
+  await click(two, '#reminders-btn');
+  assert.deepEqual((await upRows(two)).map((r) => r.lead), ['60'], 'tab two really was still on the older time');
+  assert.deepEqual(Object.keys(JSON.parse(await item(one, 'reminded'))), [`us|world-boss-thormbelan|${utc('2026-11-10T15:00:00Z')}|120`]);
+  await one.close(); await two.close();
+});
+
+check('two events that start together are each reminded at their own time, and the device changing time zone moves the times shown but not the moments', async () => {
+  const start = utc('2026-11-17T15:00:00Z'); // the Americas' weekly reset: Predaxas and Legion Timewalking
+  const page = await open({ at: utc('2026-11-17T13:59:57Z'), prefs: { starred: ['timewalking', 'world-boss-predaxas'] }, reminders: REM_ON, before: seedItems({ 'reminder-leads': { 'world-boss-predaxas': 60 } }) });
+  await click(page, '#reminders-btn');
+  assert.deepEqual((await upRows(page)).map((r) => [r.id, r.when]), [
+    ['world-boss-predaxas', 'Starts Tue, Nov 17, 9:00 AM · Reminder Tue, Nov 17, 8:00 AM (60 minutes before)'],
+    ['timewalking', 'Starts Tue, Nov 17, 9:00 AM · Reminder Tue, Nov 17, 8:45 AM (15 minutes before)'],
+  ]);
+  await click(page, '#reminders-dialog [data-close]');
+  await sleep(5000); // 14:00:00 passes
+  assert.equal((await trayText(page)).length, 1);
+  assert.match((await trayText(page))[0], /^Predaxas \(Predicted\) starts in 59m \d\ds · 9:00 AM$/);
+  // The device moves to Berlin (a flight, or a changed setting): the same moments, read in the new zone.
+  await page.setTimezone('Europe/Berlin');
+  await page.waitFor(`/4:00 PM$/.test((document.querySelector('#reminders-tray .reminder p') || {}).textContent || '')`, 8000);
+  assert.match((await trayText(page))[0], /^Predaxas \(Predicted\) starts in 59m \d\ds · 4:00 PM$/);
+  await click(page, '#reminders-btn');
+  assert.deepEqual((await upRows(page)).map((r) => [r.id, r.state, r.when]), [
+    ['world-boss-predaxas', 'due', 'Starts Tue, Nov 17, 4:00 PM · Reminder Tue, Nov 17, 3:00 PM (60 minutes before)'],
+    ['timewalking', 'on', 'Starts Tue, Nov 17, 4:00 PM · Reminder Tue, Nov 17, 3:45 PM (15 minutes before)'],
+  ]);
+  await click(page, '#reminders-dialog [data-close]');
+  await jumpClock(page, '2026-11-17T14:45:00Z');
+  await sleep(2500);
+  assert.deepEqual((await trayText(page)).map((t) => t.replace(/ starts.*$/, '')), ['Legion Timewalking', 'Predaxas (Predicted)'], 'the second comes at its own time; the first is not repeated');
+  assert.deepEqual(Object.keys(JSON.parse(await item(page, 'reminded'))).sort(), [`us|timewalking|${start}|15`, `us|world-boss-predaxas|${start}|60`]);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('across the daylight-saving change a day-before reminder comes 24 hours before the start, in Forever\'s Americas on March 13, 2027 and in Retail on October 31, 2026', async () => {
+  // Forever: the contest of Sunday March 14, 2027 is at 14:00 server time, 19:00 UTC, the day the clocks go forward.
+  const fish = await open({ at: utc('2027-03-13T18:59:57Z'), url: `${BASE}#forever`, before: seedItems({ 'forever:prefs': { starred: ['stranglethorn-fishing-extravaganza'] }, reminders: REM_ON, 'forever:reminder-leads': { 'stranglethorn-fishing-extravaganza': 1440 } }) });
+  await click(fish, '#reminders-btn');
+  assert.deepEqual((await upRows(fish)).map((r) => [r.where, r.state, r.when]), [['Forever · Americas', 'on', 'Starts Sun, Mar 14, 2:00 PM · Reminder Sat, Mar 13, 1:00 PM (1 day before)']], 'a day is 24 hours: 1:00 PM the day before, on the old clock');
+  assert.deepEqual(await trayText(fish), []);
+  await sleep(5000); // the dialog stays open across the reminder's time
+  assert.equal((await trayText(fish)).length, 1);
+  assert.deepEqual((await upRows(fish)).map((r) => [r.state, r.said]), [['due', 'On: its time has come']], 'the open list follows the reminder being shown');
+  await click(fish, '#reminders-dialog [data-close]');
+  assert.match((await trayText(fish))[0], /^Stranglethorn Fishing Extravaganza \(Predicted time\) starts in 23h 59m · 2:00 PM$/);
+  assert.deepEqual(Object.keys(JSON.parse(await item(fish, 'forever:reminded'))), [`forever|us|stranglethorn-fishing-extravaganza|${utc('2027-03-14T19:00:00Z')}|1440`]);
+  assert.equal(await item(fish, 'reminded'), null, 'nothing in Retail\'s records');
+  await fish.close();
+  // Retail: the Darkmoon Faire opens at 07:00 UTC on November 1, 2026, the night the Americas' clocks go back.
+  const faire = await open({ at: utc('2026-10-31T06:59:57Z'), prefs: { starred: ['darkmoon-faire'] }, reminders: REM_ON, before: seedItems({ 'reminder-leads': { 'darkmoon-faire': 1440 } }) });
+  await click(faire, '#reminders-btn');
+  assert.equal((await upRows(faire))[0].when, 'Starts Sun, Nov 1, 1:00 AM · Reminder Sat, Oct 31, 2:00 AM (1 day before)');
+  await click(faire, '#reminders-dialog [data-close]');
+  await sleep(5000);
+  assert.equal((await trayText(faire)).length, 1);
+  assert.deepEqual(Object.keys(JSON.parse(await item(faire, 'reminded'))), [`us|darkmoon-faire|${utc('2026-11-01T07:00:00Z')}|1440`]);
+  await faire.close();
+});
+
+check('settings saved by v0.4 load as they are and nothing new is written; saved times that are damaged, stale or not offered are ignored without being rewritten', async () => {
+  // Exactly what v0.4.0 leaves behind: no key for single events' times.
+  const v04 = { prefs: JSON.stringify({ region: 'us', starred: ['darkmoon-faire', 'wow-anniversary'], hidden: ['moonkin-festival'], aheadHours: 72 }), reminders: JSON.stringify({ on: true, lead: 30, notify: false, hourly: true }),
+    reminded: JSON.stringify({ [`us|wow-anniversary|${utc('2026-11-17T18:00:00Z')}|30`]: utc('2026-11-17T17:31:00Z') }) };
+  const page = await open({ at: utc('2026-11-17T17:40:00Z'), before: seedItems(v04) });
+  await sleep(2500);
+  assert.deepEqual(await trayText(page), [], 'what v0.4 already showed is not shown again');
+  await click(page, '#reminders-btn');
+  assert.deepEqual((await upRows(page)).map((r) => [r.id, r.state, r.lead, r.options[0]]), [['wow-anniversary', 'due', '', 'as set above (30 minutes before)'], ['darkmoon-faire', 'on', '', 'as set above (30 minutes before)']]);
+  assert.deepEqual([await page.eval(`document.getElementById('rem-lead').value`), await page.eval(`document.getElementById('rem-hourly').checked`), await text(page, '#reminders-btn')], ['30', true, 'Reminders: 30 min']);
+  const now = await stored(page);
+  assert.deepEqual([now['wowtracker:v1:reminders'], now['wowtracker:v1:reminded'], now['wowtracker:v1:reminder-leads']], [v04.reminders, v04.reminded, undefined], 'byte for byte, and no new key');
+  await page.close();
+  // Times of single events that cannot be used: each event falls back to the setting, and the stored text is left alone.
+  for (const bad of ['{"darkmoon-faire":45,"not-an-event":15,"wow-anniversary":"60","stranglethorn-fishing-extravaganza":30}', '[1,2]', '"soon"', '{broken', 'null']) {
+    const p = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { starred: ['darkmoon-faire', 'wow-anniversary'] }, reminders: REM_ON, before: seedItems({ 'reminder-leads': bad }) });
+    await click(p, '#reminders-btn');
+    assert.deepEqual((await upRows(p)).map((r) => [r.id, r.lead, r.when.replace(/^.*\(/, '(')]), [['wow-anniversary', '', '(15 minutes before)'], ['darkmoon-faire', '', '(15 minutes before)']], bad);
+    assert.equal(await item(p, 'reminder-leads'), bad, `left as stored: ${bad}`);
+    assert.deepEqual(p.problems, [], bad);
+    await p.close();
+  }
+  // One good entry among bad ones is used; the bad ones go only when the reader next changes a time.
+  const mixed = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { starred: ['darkmoon-faire', 'wow-anniversary'] }, reminders: REM_ON, before: seedItems({ 'reminder-leads': '{"darkmoon-faire":120,"gone-event":15,"wow-anniversary":7}' }) });
+  await click(mixed, '#reminders-btn');
+  assert.deepEqual((await upRows(mixed)).map((r) => [r.id, r.lead]), [['wow-anniversary', ''], ['darkmoon-faire', '120']]);
+  await setLead(mixed, 'wow-anniversary', 5);
+  assert.deepEqual(JSON.parse(await item(mixed, 'reminder-leads')), { 'darkmoon-faire': 120, 'wow-anniversary': 5 });
+  await mixed.close();
+});
+
+check('a backup carries each game version\'s own reminder times and restores them after a preview; a backup from before v0.5 leaves them as they are and says so', async () => {
+  const leadsR = { 'darkmoon-faire': 1440, 'wow-anniversary': 5 }, leadsF = { 'stranglethorn-fishing-extravaganza': 120 };
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { starred: ['darkmoon-faire', 'wow-anniversary'] }, reminders: { ...REM_ON, lead: 30 },
+    before: seedItems({ 'reminder-leads': leadsR, 'forever:prefs': { starred: ['stranglethorn-fishing-extravaganza'] }, 'forever:reminder-leads': leadsF }) });
+  await click(page, '#backup-btn');
+  assert.equal(await text(page, '#backup-what'), 'This browser now: Americas · reminders 30 min before. Retail: 2 starred · 0 hidden · no checklist tasks · 2 events with their own reminder times. Forever: 1 starred · 0 hidden · no checklist tasks · 1 event with its own reminder time.');
+  const copy = await page.eval(`document.getElementById('backup-out').value`), raw = JSON.parse(copy);
+  assert.deepEqual([raw.format, raw.editions.retail.reminderLeads, raw.editions.forever.reminderLeads, raw.shared.reminders], [2, leadsR, leadsF, { ...REM_ON, lead: 30 }]);
+  // Everything is lost; the backup brings both game versions' times back under their own keys, only after Replace.
+  await page.eval('localStorage.clear()');
+  await page.reload();
+  await page.waitFor("document.querySelector('#summary li') !== null");
+  await click(page, '#backup-btn');
+  await setBackup(page, copy);
+  await click(page, '#backup-check');
+  assert.deepEqual([await item(page, 'reminder-leads'), await item(page, 'forever:reminder-leads')], [null, null], 'nothing before Replace');
+  const plan = await texts(page, '#backup-result .backup-plan li');
+  assert.match(plan[1], /^Retail: 2 starred · 0 hidden · no checklist tasks · 2 events with their own reminder times\. Replaces /);
+  assert.match(plan[2], /^Forever: 1 starred · 0 hidden · no checklist tasks · 1 event with its own reminder time\. Replaces nothing saved\./);
+  await click(page, '#backup-apply');
+  assert.deepEqual([JSON.parse(await item(page, 'reminder-leads')), JSON.parse(await item(page, 'forever:reminder-leads'))], [leadsR, leadsF]);
+  await click(page, '#backup-dialog [data-close]');
+  await click(page, '#reminders-btn');
+  assert.deepEqual((await upRows(page)).map((r) => [r.id, r.lead]), [['wow-anniversary', '5'], ['darkmoon-faire', '1440']], 'in use at once, without a reload');
+  await click(page, '#reminders-dialog [data-close]');
+  // The same backup again changes nothing and says so.
+  await click(page, '#backup-btn');
+  await setBackup(page, copy);
+  await click(page, '#backup-check');
+  assert.match((await texts(page, '#backup-result .backup-plan li'))[1], /with their own reminder times\. The same as now\.$/);
+  // One event's time changed since: that alone is a difference the preview names.
+  await click(page, '#backup-dialog [data-close]');
+  await click(page, '#reminders-btn');
+  await setLead(page, 'wow-anniversary', 30);
+  await click(page, '#reminders-dialog [data-close]');
+  await click(page, '#backup-btn');
+  await setBackup(page, copy);
+  await click(page, '#backup-check');
+  assert.match((await texts(page, '#backup-result .backup-plan li'))[1], /with their own reminder times\. Replaces 2 starred · 0 hidden · no checklist tasks · 2 events with their own reminder times\.$/);
+  await click(page, '#backup-apply');
+  assert.deepEqual(JSON.parse(await item(page, 'reminder-leads')), leadsR);
+  // A backup made by v0.4 (no reminder times in it): the stars are replaced, the times kept, and the preview says so.
+  const v04 = JSON.stringify({ app: 'wowtracker', format: 2, version: '0.4.0', saved: '2026-11-09T12:00:00.000Z', shared: { prefs: { region: 'eu' }, reminders: { on: true, lead: 60, notify: false, hourly: false } },
+    editions: { retail: { prefs: { starred: ['darkmoon-faire'] }, checklist: { tasks: [], done: {} } } } });
+  await setBackup(page, v04);
+  await click(page, '#backup-check');
+  assert.match((await texts(page, '#backup-result .backup-plan li'))[1], /^Retail: 1 starred · 0 hidden · no checklist tasks\. Replaces 2 starred .* This backup is from before events had their own reminder times, so yours stay as they are\.$/);
+  await click(page, '#backup-apply');
+  const after = await stored(page);
+  assert.deepEqual([JSON.parse(after['wowtracker:v1:reminder-leads']), JSON.parse(after['wowtracker:v1:forever:reminder-leads']), JSON.parse(after['wowtracker:v1:reminders']).lead, JSON.parse(after['wowtracker:v1:prefs']).starred], [leadsR, leadsF, 60, ['darkmoon-faire']]);
+  // A backup that says "none" clears them; one with times that cannot be used drops only those.
+  const none = JSON.parse(copy);
+  none.editions.retail.reminderLeads = { 'darkmoon-faire': 45, 'gone-event': 5, 'wow-anniversary': 30 };
+  none.editions.forever.reminderLeads = {};
+  await setBackup(page, JSON.stringify(none));
+  await click(page, '#backup-check');
+  await click(page, '#backup-apply');
+  assert.deepEqual([JSON.parse(await item(page, 'reminder-leads')), JSON.parse(await item(page, 'forever:reminder-leads'))], [{ 'wow-anniversary': 30 }, {}]);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+for (const w of [390, 320]) {
+  check(`at ${w} px the Reminders dialog with its list fits the screen: no sideways scrolling, and every choice tall enough to press`, async () => {
+    const page = await open({ at: utc('2026-11-10T18:00:00Z'), width: w, height: 800, mobile: true, prefs: FIVE, reminders: { ...REM_ON, hourly: true }, before: seedItems({ 'reminder-leads': { 'darkmoon-faire': 1440 } }) });
+    await click(page, '#reminders-btn');
+    const box = await page.eval(`(() => { const d = document.getElementById('reminders-dialog'), r = d.getBoundingClientRect();
+      return { left: r.left, right: r.right, h: r.height, sw: d.scrollWidth, cw: d.clientWidth, rows: d.querySelectorAll('#rem-upcoming li').length, page: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        small: [...d.querySelectorAll('button, select')].filter((e) => e.getBoundingClientRect().height < 28).map((e) => e.id || e.getAttribute('aria-label')),
+        wide: [...d.querySelectorAll('*')].filter((e) => { const b = e.getBoundingClientRect(); return b.width && (b.right > r.right + 1 || b.left < r.left - 1); }).map((e) => e.tagName + '.' + e.className).slice(0, 5),
+        tall: Math.max(...[...d.querySelectorAll('#rem-upcoming li')].map((li) => li.getBoundingClientRect().height)) }; })()`);
+    assert.ok(box.left >= 0 && box.right <= w && box.sw <= box.cw && box.h <= 800 && box.page && box.rows === 5, JSON.stringify(box));
+    assert.deepEqual([box.small, box.wide], [[], []]);
+    assert.ok(box.tall <= 190, `compact: the tallest entry is ${box.tall} px`);
+    await page.close();
+  });
+}
 
 // ---- Footer ----
 
@@ -2292,6 +2636,8 @@ const LAYOUT_CHECKS = [
   'on phones the filters fold behind one button',
   'at 390 px the Subscribe dialog fits the screen',
   'at 320 px the Subscribe dialog fits the screen',
+  'at 390 px the Reminders dialog with its list fits the screen',
+  'at 320 px the Reminders dialog with its list fits the screen',
 ];
 for (const l of LAYOUT_CHECKS) {
   const n = checks.filter((c) => c.name.startsWith(l)).length;

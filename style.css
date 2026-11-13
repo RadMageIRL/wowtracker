@@ -439,6 +439,19 @@ dialog a { color: var(--text); }
 .reminders .check input { width: 18px; height: 18px; margin: 0; accent-color: var(--gold); }
 .reminders .check:has(input:disabled) { color: var(--text-faint); cursor: default; }
 .rem-starred, .rem-status { font-size: 13px; }
+/* Upcoming reminders: one compact entry per starred event, its own lead on the last line. */
+.rem-upcoming { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; }
+.rem-upcoming[hidden] { display: none; }
+.rem-upcoming li { min-width: 0; padding: 6px 10px; border: 1px solid var(--line); border-left: 3px solid var(--line-strong); border-radius: 6px; }
+.rem-upcoming li[data-state="on"], .rem-upcoming li[data-state="due"] { border-left-color: var(--gold); }
+.rem-upcoming p { margin: 0; font-size: 13px; }
+.rem-upcoming .up-name strong { color: var(--text); font-size: 14px; }
+.rem-upcoming .up-where { color: var(--text-faint); font-size: 12.5px; white-space: nowrap; }
+.rem-upcoming .up-set { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 12px; margin-top: 2px; }
+.rem-upcoming .up-state { color: var(--text); }
+.rem-upcoming li:not([data-state="on"]):not([data-state="due"]) .up-state { color: var(--text-dim); }
+.rem-upcoming label { display: flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; white-space: nowrap; }
+.rem-upcoming select { min-height: 30px; min-width: 0; flex: 0 1 auto; padding: 0 8px; border-radius: 7px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--text); font-size: 13px; }
 /* Notices: one on a phone and three elsewhere, soonest first; the rest open as one-line rows. */
 .reminders-tray {
   position: fixed; right: 16px; bottom: 16px; z-index: 20; display: grid; gap: 6px;

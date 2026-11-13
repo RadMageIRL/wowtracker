@@ -622,6 +622,8 @@
     else if (a('data-ics')) addOneToCalendar(a('data-ics'), Number(a('data-start')));
     else if (t.id === 'export-btn') { renderExport(); $('export-dialog').showModal(); }
     else if (t.id === 'export-go') exportNow();
+    else if (t.id === 'subscribe-btn') { renderSubscribe(); $('subscribe-dialog').showModal(); }
+    else if (t.id === 'subscribe-copy') copySubscribeAddress();
     else if (t.id === 'reminders-btn') { renderRemindersUi(); $('reminders-dialog').showModal(); }
     else if (a('data-dismiss')) dismissReminders([a('data-dismiss')]);
     else if (t.id === 'reminders-clear') dismissReminders(tray.map((x) => x.key));
@@ -942,6 +944,31 @@
     const w = s && S.windows(s, startMs, startMs + 1).find((x) => x.start === startMs);
     if (!w) { toast('That time is no longer in the schedule.'); return; }
     saveIcs(`${FILE_PREFIX}-${e.id}-${fileDay(w.start)}.ics`, calendarName(), [icsEntry(e, w)]);
+  }
+
+  // ---- Calendar subscription: the feed of this edition and region, at its canonical address (js/calendar-entry.js) ----
+
+  // The feeds live next to the canonical page, so the address is the same wherever this page was opened from.
+  const subscription = () => CE.subscribeLinks(PAGE_URL, EDITION, region());
+  $('subscribe-btn').hidden = !subscription();
+
+  function renderSubscribe() {
+    const sub = subscription(), reg = REGION.get(region());
+    if (!sub) return;
+    $('subscribe-which').replaceChildren(h('strong', { text: calendarName() }), `: ${DATA.meta.game} events for the ${reg.name} region (${reg.realms}). For another game version or region, switch it on the page first; each has its own calendar.`);
+    $('subscribe-address').value = sub.address;
+    $('subscribe-google').setAttribute('href', sub.google);
+    $('subscribe-webcal').setAttribute('href', sub.webcal);
+    $('subscribe-coverage').textContent = `Scheduled events through ${isoDay(DATA.meta.coversUntil)} at most, with an all-day entry, "Not known yet from here", where each schedule stops being known. More is added when WoW Tracker's schedule data is updated.`;
+    $('subscribe-status').textContent = '';
+  }
+
+  async function copySubscribeAddress() {
+    const field = $('subscribe-address'), say = (msg) => { $('subscribe-status').textContent = msg; };
+    try { await navigator.clipboard.writeText(field.value); say('Address copied. Paste it where your calendar app asks for a calendar address.'); } catch (e) {
+      field.focus(); field.select();
+      say('Could not copy by itself. The address is selected: copy it with your keyboard or the menu.');
+    }
   }
 
   // ---- Reminders for starred events (only while this page is open) ----

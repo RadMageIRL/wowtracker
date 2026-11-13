@@ -81,7 +81,32 @@
     };
   }
 
-  const CalendarEntry = { KIND, statusFor, predictedLabel, isFrequent, calendarName, coverageText, entry };
+  /**
+   * The subscription feeds the build publishes next to the page (tools/feeds.mjs writes them): one per edition
+   * and region. An address lives in people's calendars for years, so these names never change.
+   */
+  const FEED_FILES = {
+    retail: { us: 'calendar/retail-americas.ics', eu: 'calendar/retail-europe.ics' },
+    forever: { us: 'calendar/forever-americas.ics', eu: 'calendar/forever-europe.ics' },
+  };
+
+  /**
+   * How to subscribe to the feed of an edition and region, from the page's canonical address (base, https):
+   *   address  what a calendar app reads again and again; paste it where an app asks for a calendar's address
+   *   webcal   the same address as a webcal: link, which a device hands to its calendar app as a subscription
+   *            (an https link to the file would only download it: a one-time copy, not a subscription)
+   *   google   Google Calendar's own "Add calendar" question for that address, on the web
+   * null when there is no such feed or the base is not an https address (a page opened from a file).
+   */
+  function subscribeLinks(base, edition, region) {
+    const own = (o, k) => (o && Object.prototype.hasOwnProperty.call(o, k) ? o[k] : null);
+    const file = own(own(FEED_FILES, isRetail(edition) ? 'retail' : edition), region);
+    if (!file || !/^https:\/\/[^/]+\/(.*\/)?$/.test(String(base))) return null;
+    const address = `${base}${file}`, webcal = `webcal://${address.slice('https://'.length)}`;
+    return { file, address, webcal, google: `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcal)}` };
+  }
+
+  const CalendarEntry = { KIND, statusFor, predictedLabel, isFrequent, calendarName, coverageText, entry, FEED_FILES, subscribeLinks };
   if (node) module.exports = CalendarEntry;
   else root.WoWCalendarEntry = CalendarEntry;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

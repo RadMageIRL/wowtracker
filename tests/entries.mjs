@@ -103,4 +103,33 @@ export function entryTests(test) {
     assert.deepEqual(['confirmed', 'predicted'].map((status) => CE.predictedLabel({ status })), ['', ' (Predicted)']);
     assert.equal(CE.predictedLabel({ status: 'predicted', part: 'time' }), ' (Predicted time)');
   });
+
+  test('subscribing: each edition and region has its own feed address on the canonical host, a webcal link to exactly that address, and Google\'s add-by-address link', () => {
+    const base = 'https://radmagelabs.com/wow/';
+    const got = (ed, r) => CE.subscribeLinks(base, ed, r);
+    assert.deepEqual(got('retail', 'us'), {
+      file: 'calendar/retail-americas.ics',
+      address: 'https://radmagelabs.com/wow/calendar/retail-americas.ics',
+      webcal: 'webcal://radmagelabs.com/wow/calendar/retail-americas.ics',
+      google: 'https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fradmagelabs.com%2Fwow%2Fcalendar%2Fretail-americas.ics',
+    });
+    assert.equal(got('retail', 'eu').address, 'https://radmagelabs.com/wow/calendar/retail-europe.ics');
+    assert.equal(got('forever', 'us').address, 'https://radmagelabs.com/wow/calendar/forever-americas.ics');
+    assert.equal(got('forever', 'eu').address, 'https://radmagelabs.com/wow/calendar/forever-europe.ics');
+    assert.deepEqual(got(undefined, 'eu'), got('retail', 'eu'), 'no edition is Retail, as everywhere');
+    // Four different calendars: an edition or region never gets another's feed.
+    const all = ['retail', 'forever'].flatMap((ed) => ['us', 'eu'].map((r) => got(ed, r)));
+    for (const k of ['file', 'address', 'webcal', 'google']) assert.equal(new Set(all.map((x) => x[k])).size, 4, k);
+    for (const x of all) {
+      assert.equal(x.webcal.replace(/^webcal:/, 'https:'), x.address, 'the webcal link is the address itself, never another host or file');
+      assert.equal(decodeURIComponent(new URL(x.google).searchParams.get('cid')), x.webcal, 'Google is handed the webcal address, whole');
+      assert.equal(new URL(x.google).origin + new URL(x.google).pathname, 'https://calendar.google.com/calendar/r');
+    }
+    // Nothing to offer: an unknown edition or region, or a page with no https address (opened from a file).
+    assert.equal(got('classic', 'us'), null);
+    assert.equal(got('retail', 'kr'), null);
+    assert.equal(got('retail', 'constructor'), null);
+    for (const b of [null, '', 'file:///C:/wowtracker/', 'http://radmagelabs.com/wow/', 'https://radmagelabs.com/wow', 'https:///wow/']) assert.equal(CE.subscribeLinks(b, 'retail', 'us'), null, String(b));
+    assert.equal(CE.subscribeLinks('https://radmageirl.github.io/', 'retail', 'us').address, 'https://radmageirl.github.io/calendar/retail-americas.ics', 'a site at the root of its host');
+  });
 }

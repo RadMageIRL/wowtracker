@@ -34,6 +34,17 @@ export function feedTests(test) {
     for (const f of feeds(PAGES)) assert.equal(committed(f.file), f.text, `${f.file} is what the data makes (run node tools/build-data.mjs)`);
   });
 
+  test('what the page offers to subscribe to is what the build publishes: the same four files, each under its own edition and region, at the address the feed gives as its own', () => {
+    assert.deepEqual(Object.entries(CE.FEED_FILES).flatMap(([edition, byRegion]) => Object.entries(byRegion).map(([region, file]) => ({ file, edition, region }))), FEEDS);
+    for (const f of FEEDS) {
+      const sub = CE.subscribeLinks(CONFIG.shareUrl, f.edition, f.region);
+      assert.equal(sub.file, f.file);
+      assert.ok(head(committed(f.file)).includes(`SOURCE;VALUE=URI:${sub.address}`), `${f.file}: the address offered is the feed's own SOURCE`);
+      const reg = PAGES[f.edition].regions.find((r) => r.id === f.region);
+      assert.ok(head(committed(f.file)).includes(`X-WR-CALNAME:${Ics.escapeText(CE.calendarName(f.edition, EDITION[f.edition].short, reg.name))}`), `${f.file}: named as the page names it`);
+    }
+  });
+
   test('a feed is a subscription: its name, description, own canonical address and a daily refresh; no METHOD, no alarms', () => {
     for (const f of FEEDS) {
       const text = committed(f.file), h = head(text), reg = PAGES[f.edition].regions.find((r) => r.id === f.region);

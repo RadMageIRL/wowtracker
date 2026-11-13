@@ -836,7 +836,7 @@ check('at the moment a bonus week ends it is not exported, and the next one is',
   await page.close();
 });
 
-check('the built site serves the four calendar feeds next to the page as text/calendar, byte for byte with CRLF, and nothing on the page links to them yet', async () => {
+check('the built site serves the four calendar feeds next to the page as text/calendar, byte for byte with CRLF, and the page links to one only inside Subscribe to calendar', async () => {
   const page = await open({ at: utc('2026-11-10T18:00:00Z') });
   for (const f of ['retail-americas', 'retail-europe', 'forever-americas', 'forever-europe']) {
     const got = await page.eval(`fetch('calendar/${f}.ics').then(async (r) => ({ status: r.status, type: r.headers.get('content-type'), text: await r.text() }))`);
@@ -844,9 +844,129 @@ check('the built site serves the four calendar feeds next to the page as text/ca
     assert.equal(got.text, readFileSync(join(DIR, 'calendar', `${f}.ics`), 'utf8'), f);
     assert.ok(got.text.startsWith('BEGIN:VCALENDAR\r\n') && !/[^\r]\n/.test(got.text), `${f}: CRLF`);
   }
-  assert.equal(await page.eval(`[...document.querySelectorAll('a[href]')].filter((a) => /calendar\\/|webcal:/.test(a.getAttribute('href'))).length`), 0, 'no subscribe link until the real-client test passes');
+  assert.equal(await page.eval(`[...document.querySelectorAll('a')].filter((a) => /calendar\\/|webcal:/.test(a.getAttribute('href') || '') && !a.closest('#subscribe-dialog')).length`), 0, 'no feed link outside the Subscribe dialog');
+  assert.equal(await page.eval(`document.querySelectorAll('#subscribe-dialog a[href]').length`), 0, 'and none there before the dialog is opened');
   await page.close();
 });
+// ---- Calendar subscription ----
+
+/** What the open Subscribe dialog offers. */
+const subscribeOffer = (page) => page.eval(`(() => { const g = (id) => document.getElementById(id); return {
+  open: g('subscribe-dialog').open, which: g('subscribe-which').textContent, name: g('subscribe-which').querySelector('strong').textContent,
+  address: g('subscribe-address').value, readOnly: g('subscribe-address').readOnly, google: g('subscribe-google').getAttribute('href'), webcal: g('subscribe-webcal').getAttribute('href'),
+  coverage: g('subscribe-coverage').textContent, status: g('subscribe-status').textContent,
+  links: [...g('subscribe-dialog').querySelectorAll('a')].map((a) => [a.id, a.hasAttribute('download'), a.target, a.rel]) }; })()`);
+const FEED_OF = { 'retail us': 'retail-americas', 'retail eu': 'retail-europe', 'forever us': 'forever-americas', 'forever eu': 'forever-europe' };
+
+check('Subscribe to calendar offers the feed of the game version and region on screen, at its canonical address, as an address to copy, a webcal link and Google\'s own link; never a download', async () => {
+  const seen = [];
+  for (const edition of ['retail', 'forever']) {
+    const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: edition === 'retail' ? BASE : `${BASE}#forever` });
+    assert.equal(await text(page, '#subscribe-btn'), 'Subscribe to calendar');
+    assert.equal(await page.eval(`document.getElementById('subscribe-btn').offsetParent !== null && document.getElementById('export-btn').offsetParent !== null`), true, 'beside Export to calendar, which stays');
+    for (const region of ['us', 'eu']) {
+      await click(page, `[data-region="${region}"]`);
+      const before = page.requests.length;
+      await click(page, '#subscribe-btn');
+      const got = await subscribeOffer(page), feed = FEED_OF[`${edition} ${region}`];
+      assert.equal(got.open, true);
+      assert.equal(got.address, `https://radmagelabs.com/wow/calendar/${feed}.ics`, 'the canonical host, wherever the page is opened');
+      assert.equal(got.readOnly, true);
+      assert.equal(got.webcal, `webcal://radmagelabs.com/wow/calendar/${feed}.ics`, 'a webcal link subscribes; an https link to the file would only import it once');
+      assert.equal(got.google, `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(got.webcal)}`);
+      assert.deepEqual(got.links, [['subscribe-google', false, '_blank', 'noopener noreferrer'], ['subscribe-webcal', false, '', '']], 'two links, neither saves a file');
+      // The calendar it names is the one the published file names, and the address is the file's own.
+      const file = readFileSync(join(DIR, 'calendar', `${feed}.ics`), 'utf8').replace(/\r\n /g, '');
+      assert.ok(file.includes(`\r\nX-WR-CALNAME:${got.name.replace(/,/g, '\\,')}\r\n`), `${feed}: ${got.name}`);
+      assert.ok(file.includes(`\r\nSOURCE;VALUE=URI:${got.address}\r\n`), feed);
+      assert.match(got.which, new RegExp(`^${got.name.replace(/[()]/g, '\\$&')}: World of Warcraft.* events for the ${region === 'us' ? 'Americas' : 'Europe'} region \\(`));
+      assert.match(got.coverage, edition === 'retail' ? /^Scheduled events through Mar 31, 2027 at most, with an all-day entry, "Not known yet from here"/ : /^Scheduled events through Nov 7, 2027 at most/);
+      assert.deepEqual(page.requests.slice(before).filter((u) => !u.includes('?clock=')), [], 'opening it asks nothing of the network');
+      seen.push(got.address);
+      await click(page, '#subscribe-dialog [data-close]');
+      assert.equal(await page.eval(`document.getElementById('subscribe-dialog').open`), false);
+    }
+    assert.deepEqual(page.problems, []);
+    await page.close();
+  }
+  assert.equal(new Set(seen).size, 4, 'four calendars, one per game version and region');
+});
+
+check('the Subscribe dialog says what to expect: not instant, no WoW Tracker reminders, predicted titles, a fallback, and which apps were tried; Export to calendar says a file is a one-time copy', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z') });
+  await click(page, '#subscribe-btn');
+  const said = (await text(page, '#subscribe-dialog')).replace(/\s+/g, ' ');
+  assert.match(said, /Changes are not instant\. Your calendar app decides when it looks again: often within a few hours, sometimes a day or more/);
+  assert.match(said, /No WoW Tracker reminders: those work only on this page while it is open\. For alerts on subscribed events, set them in your calendar app\./);
+  assert.match(said, /Predicted times say "\(Predicted\)" or "\(Predicted time\)" in the title, as on this page\./);
+  assert.match(said, /Any other app, or if a button does nothing: copy the address and paste it where your calendar app asks for a calendar's address/);
+  assert.match(said, /I have not tested it on an Apple device\./);
+  assert.match(said, /I have not tested it in Outlook\./);
+  assert.match(said, /gives a one-time copy that never updates: that is not a subscription\. For a one-time copy with your own filters, use Export to calendar\./);
+  assert.equal(await page.eval(`document.activeElement.closest('dialog').id`), 'subscribe-dialog', 'focus moves into the dialog');
+  await click(page, '#subscribe-dialog [data-close]');
+  await click(page, '#export-btn');
+  assert.match(await text(page, '#export-dialog .export-help'), /A file is a one-time copy: it does not follow later schedule changes\. For a calendar that does, use Subscribe to calendar\.$/);
+  assert.match(await text(page, '#export-go'), /^Download \d+ events \(\.ics\)$/, 'the manual export is still there');
+  await page.close();
+});
+
+check('Copy address puts the feed address on the clipboard and says so; when the browser refuses, the address is selected to copy by hand', async () => {
+  const page = await open({ at: utc('2026-11-10T18:00:00Z'), prefs: { region: 'eu' } });
+  await click(page, '#subscribe-btn');
+  await page.eval(`navigator.clipboard.writeText('something else')`);
+  await click(page, '#subscribe-copy');
+  await page.waitFor(`document.getElementById('subscribe-status').textContent !== ''`);
+  assert.equal(await page.eval('navigator.clipboard.readText()'), 'https://radmagelabs.com/wow/calendar/retail-europe.ics');
+  assert.equal(await text(page, '#subscribe-status'), 'Address copied. Paste it where your calendar app asks for a calendar address.');
+  // A browser that refuses the clipboard (an old one, or a page without permission): nothing is lost.
+  await click(page, '#subscribe-dialog [data-close]');
+  await click(page, '#subscribe-btn');
+  assert.equal(await text(page, '#subscribe-status'), '', 'a reopened dialog starts without an old message');
+  await page.eval(`navigator.clipboard.writeText('untouched').then(() => { navigator.clipboard.writeText = () => Promise.reject(new Error('refused')); })`);
+  await click(page, '#subscribe-copy');
+  await page.waitFor(`document.getElementById('subscribe-status').textContent !== ''`);
+  assert.equal(await text(page, '#subscribe-status'), 'Could not copy by itself. The address is selected: copy it with your keyboard or the menu.');
+  assert.deepEqual(await page.eval(`(() => { const f = document.getElementById('subscribe-address'); return [document.activeElement === f, f.selectionStart, f.selectionEnd === f.value.length, f.value]; })()`), [true, 0, true, 'https://radmagelabs.com/wow/calendar/retail-europe.ics']);
+  await page.close();
+});
+
+check('from both published addresses and from a file, Subscribe to calendar gives the same canonical feed address, with no request and no error', async () => {
+  for (const base of ['https://radmagelabs.com/wow/', 'https://radmageirl.github.io/wowtracker/']) {
+    const { page } = await asPublished(base, base.includes('radmagelabs') ? FEED : null);
+    const before = page.requests.length;
+    await click(page, '#subscribe-btn');
+    const got = await subscribeOffer(page);
+    assert.deepEqual([got.address, got.webcal], ['https://radmagelabs.com/wow/calendar/retail-americas.ics', 'webcal://radmagelabs.com/wow/calendar/retail-americas.ics'], base);
+    assert.deepEqual(page.requests.slice(before).filter((u) => /calendar\/|google/.test(u)), [], base);
+    assert.deepEqual(page.problems, [], base);
+    await page.close();
+  }
+  const file = await open({ at: utc('2026-10-28T01:30:00Z'), url: pathToFileURL(join(DIR, 'index.html')).href });
+  await click(file, '#subscribe-btn');
+  assert.equal((await subscribeOffer(file)).address, 'https://radmagelabs.com/wow/calendar/retail-americas.ics');
+  assert.deepEqual(file.problems, []);
+  await file.close();
+});
+
+for (const w of [390, 320]) {
+  check(`at ${w} px the Subscribe dialog fits the screen: no sideways scrolling, the whole address field in view, and every control tall enough to press`, async () => {
+    const page = await open({ at: utc('2026-11-10T18:00:00Z'), url: `${BASE}#forever`, width: w, height: 800, mobile: true });
+    await click(page, '#subscribe-btn');
+    const box = await page.eval(`(() => { const d = document.getElementById('subscribe-dialog'), r = d.getBoundingClientRect(), f = document.getElementById('subscribe-address').getBoundingClientRect();
+      return { left: r.left, right: r.right, h: r.height, sw: d.scrollWidth, cw: d.clientWidth, fl: f.left, fr: f.right, page: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        small: [...d.querySelectorAll('button, a.btn, input')].filter((e) => e.getBoundingClientRect().height < 28).map((e) => e.id || e.textContent),
+        wide: [...d.querySelectorAll('*')].filter((e) => { const b = e.getBoundingClientRect(); return b.width && (b.right > r.right + 1 || b.left < r.left - 1); }).map((e) => e.tagName + '#' + e.id).slice(0, 5) }; })()`);
+    assert.ok(box.left >= 0 && box.right <= w && box.sw <= box.cw && box.h <= 800 && box.page, JSON.stringify(box));
+    assert.ok(box.fl >= box.left && box.fr <= box.right, JSON.stringify(box));
+    assert.deepEqual([box.small, box.wide], [[], []]);
+    await click(page, '#subscribe-dialog [data-close]');
+    // Coming up's heading keeps both calendar buttons in reach.
+    const head = await page.eval(`['export-btn', 'subscribe-btn'].map((id) => { const r = document.getElementById(id).getBoundingClientRect(); return [r.left >= 0, r.right <= ${w}, r.height >= 28]; })`);
+    assert.deepEqual(head, [[true, true, true], [true, true, true]]);
+    await page.close();
+  });
+}
 
 // ---- Reminders ----
 
@@ -2170,6 +2290,8 @@ const LAYOUT_CHECKS = [
   'at 360 px nothing scrolls sideways',
   'at 768 px nothing scrolls sideways',
   'on phones the filters fold behind one button',
+  'at 390 px the Subscribe dialog fits the screen',
+  'at 320 px the Subscribe dialog fits the screen',
 ];
 for (const l of LAYOUT_CHECKS) {
   const n = checks.filter((c) => c.name.startsWith(l)).length;

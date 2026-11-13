@@ -149,6 +149,7 @@
         <h2 id="coming-title" tabindex="-1">Coming up</h2>
         <span class="hint" id="coming-hint"></span>
         <button type="button" class="link-btn" id="export-btn" aria-haspopup="dialog">Export to calendar</button>
+        <button type="button" class="link-btn" id="subscribe-btn" aria-haspopup="dialog">Subscribe to calendar</button>
       </div>
       <ol class="rows" id="next-list"></ol>
       <p class="empty" id="next-empty" hidden></p>
@@ -276,7 +277,37 @@
     </fieldset>
     <ul class="export-notes" id="export-notes"></ul>
     <p><button type="button" class="btn" id="export-go">Download</button></p>
-    <p class="export-help">A calendar file (.ics) is made in your browser; nothing is sent anywhere. Open it with your calendar app, or import it (Google Calendar: on a computer, Settings, Import). Times are in UTC, so your calendar shows them in your own time zone. Each event keeps the same identifier in every export, so a calendar that matches identifiers updates it instead of adding a copy.</p>
+    <p class="export-help">A calendar file (.ics) is made in your browser; nothing is sent anywhere. Open it with your calendar app, or import it (Google Calendar: on a computer, Settings, Import). Times are in UTC, so your calendar shows them in your own time zone. Each event keeps the same identifier in every export, so a calendar that matches identifiers updates it instead of adding a copy. A file is a one-time copy: it does not follow later schedule changes. For a calendar that does, use Subscribe to calendar.</p>
+  </dialog>
+
+  <dialog id="subscribe-dialog" class="subscribe" aria-labelledby="subscribe-title">
+    <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
+    <h2 id="subscribe-title">Subscribe to calendar</h2>
+    <p class="subscribe-which" id="subscribe-which"></p>
+    <p>A subscription is a calendar that your calendar app keeps up to date by itself: it reads the address below again from time to time and follows changes to the schedule. Changes are not instant. Your calendar app decides when it looks again: often within a few hours, sometimes a day or more, and nothing here can hurry it.</p>
+    <label class="subscribe-label" for="subscribe-address">Calendar address</label>
+    <input type="text" id="subscribe-address" readonly spellcheck="false" autocomplete="off">
+    <p class="subscribe-actions">
+      <button type="button" class="btn small" id="subscribe-copy">Copy address</button>
+      <a class="btn small" id="subscribe-google" target="_blank" rel="noopener noreferrer">Add to Google Calendar<span class="sr-only"> (opens a new tab)</span></a>
+      <a class="btn small" id="subscribe-webcal">Open in a calendar app</a>
+    </p>
+    <p class="subscribe-status" id="subscribe-status" role="status"></p>
+    <h3>Which way to use</h3>
+    <ul class="subscribe-ways">
+      <li><strong>Google Calendar:</strong> Add to Google Calendar opens Google's own "Add calendar" question, on a computer. In my test it added a test calendar and followed later changes about an hour and a half after they were published. The Google Calendar phone apps cannot add a calendar by address: add it on a computer and it shows on your phone too.</li>
+      <li><strong>Apple Calendar (iPhone, iPad, Mac):</strong> Open in a calendar app is a webcal link, which Apple devices offer to subscribe to. I have not tested it on an Apple device.</li>
+      <li><strong>Outlook:</strong> copy the address, then in Outlook's calendar choose Add calendar, Subscribe from web, and paste it. I have not tested it in Outlook.</li>
+      <li><strong>Any other app, or if a button does nothing:</strong> copy the address and paste it where your calendar app asks for a calendar's address (often called Subscribe, Add by URL or From internet).</li>
+    </ul>
+    <h3>What you get</h3>
+    <ul class="subscribe-what">
+      <li id="subscribe-coverage"></li>
+      <li>Predicted times say "(Predicted)" or "(Predicted time)" in the title, as on this page.</li>
+      <li>The same calendar for everyone: your filters, stars and hidden events do not apply. Resets and events that repeat every hour or more often are not in it.</li>
+      <li>No WoW Tracker reminders: those work only on this page while it is open. For alerts on subscribed events, set them in your calendar app.</li>
+    </ul>
+    <p class="export-help">Opening the address in a browser, or importing the file it saves, gives a one-time copy that never updates: that is not a subscription. For a one-time copy with your own filters, use Export to calendar.</p>
   </dialog>
 
   <dialog id="details" class="details" aria-labelledby="details-title">

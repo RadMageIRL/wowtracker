@@ -126,10 +126,34 @@ test('the only network calls in the page code are news.json and the same-origin 
   assert.deepEqual(calls.sort(), ['app.js: News.NEWS_PATH', 'app.js: url']);
 });
 
-// The feeds are published as files, but nothing offers them until a real calendar app has been seen to subscribe,
-// pick up a change and keep its entries (the v0.4 real-client test). Offering them is a deliberate later change.
-test('no subscription controls yet: the page and its code never name a feed address or webcal:', () => {
-  for (const f of ['index.html', ...readdirSync(join(ROOT, 'js')).map((n) => `js/${n}`)]) assert.ok(!/calendar\/[a-z-]+\.ics|webcal:|Subscribe/.test(file(f)), f);
+// The page offers the feeds through one place: js/calendar-entry.js names the four files and makes every link
+// from the canonical address. Nothing else may spell a feed address or a webcal: link, so a link can never point
+// at another host, another edition's feed, or the file as a plain download dressed up as a subscription.
+test('subscription links come from one place: only js/calendar-entry.js names a feed file or webcal:, and the page holds no written-out feed link', () => {
+  for (const f of ['index.html', ...readdirSync(join(ROOT, 'js')).map((n) => `js/${n}`)]) {
+    if (f === 'js/calendar-entry.js') continue;
+    assert.ok(!/calendar\/[a-z-]+\.ics|webcal:|calendar\.google\.com/.test(file(f)), f);
+  }
+  const ce = file('js/calendar-entry.js');
+  assert.deepEqual([...ce.matchAll(/calendar\/[a-z-]+\.ics/g)].map((m) => m[0]), ['calendar/retail-americas.ics', 'calendar/retail-europe.ics', 'calendar/forever-americas.ics', 'calendar/forever-europe.ics']);
+  // The dialog's links get their addresses from the code; in the page they are written without one.
+  assert.match(html, /<a class="btn small" id="subscribe-google" target="_blank" rel="noopener noreferrer">/);
+  assert.match(html, /<a class="btn small" id="subscribe-webcal">/);
+  assert.ok(!/download=/.test(html), 'no link in the page saves a file: a feed address is never offered as a download');
+});
+
+test('the Subscribe dialog says what a subscription is and is not: not instant, no WoW Tracker reminders, predicted titles, coverage, and only Google as tested', () => {
+  const dialog = /<dialog id="subscribe-dialog"[\s\S]*?<\/dialog>/.exec(html)[0].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(dialog, /Changes are not instant\. Your calendar app decides when it looks again/);
+  assert.match(dialog, /No WoW Tracker reminders: those work only on this page while it is open\./);
+  assert.match(dialog, /Predicted times say "\(Predicted\)" or "\(Predicted time\)" in the title/);
+  assert.match(dialog, /gives a one-time copy that never updates: that is not a subscription/);
+  assert.match(dialog, /if a button does nothing: copy the address and paste it/);
+  // What has been tried is said per app, and nothing claims more.
+  assert.match(dialog, /Apple Calendar \(iPhone, iPad, Mac\): [^.]*\. I have not tested it on an Apple device\./);
+  assert.match(dialog, /Outlook: [^.]*\. I have not tested it in Outlook\./);
+  assert.ok(!/works (with|in) (every|all)|compatible with|guaranteed|instantly/i.test(dialog), dialog);
+  assert.match(/<p class="export-help">[^<]*/.exec(html)[0], /A file is a one-time copy: it does not follow later schedule changes\. For a calendar that does, use Subscribe to calendar\./);
 });
 
 test('no innerHTML, outerHTML, insertAdjacentHTML, document.write or eval in the page code', () => {

@@ -20,7 +20,7 @@
   const ED = EDITIONS.find((e) => e.id === EDITION);
   const RETAIL = EDITION === EDITIONS[0].id;
   const DATA = window[ED.data];
-  /** This page's version, from its own script address (app.js?v=0.4.0), for backups. */
+  /** This page's version, from its own script address (app.js?v=0.5.0), for backups. */
   const APP_VERSION = (() => { try { return new URL(document.currentScript.src).searchParams.get('v') || ''; } catch (e) { return ''; } })();
   const $ = (id) => document.getElementById(id);
   // Without the schedule data there is nothing to count down: say so instead of showing a broken page.
@@ -745,6 +745,7 @@
     if (visitRegion === prefs.region) visitRegion = null; // the other tab saved the region this link is showing
     renderLinkNotice();
     syncControls(); render(true); renderNews(); renderUpcoming();
+    if (detailsOpen) redrawDetails(); // open details are in the region and the times the page now shows
     if (!prefs.newsCollapsed && !newsState.items.length) loadNews();
   });
 
@@ -830,10 +831,13 @@
   const coverage = (e) => CE.coverageText(CATEGORY.get(e.category), region(), { day: isoDay, moment: (ms) => at(ms, 'full') }) || null;
 
   let detailsOpen = null; // { id, at, trigger }
-  function renderDetails() {
-    if (!detailsOpen) return;
+  let detailsNext = Infinity, detailsZone = ''; // when time next changes the open details, and the zone their times are written in
+
+  /** What the details say now, as new elements not yet on the page. Also notes the occurrence shown and when time next changes it. */
+  function detailsParts() {
+    if (!detailsOpen) return null;
     const e = BY_ID.get(detailsOpen.id);
-    if (!e) return;
+    if (!e) return null;
     const now = nowMs(), r = region(), s = S.scheduleFor(e, r), st = statusFor(e), key = `details:${e.id}`;
     const w = occurrence(s, detailsOpen.at, now);
     const later = s && w ? S.windows(s, w.end, now + HORIZON_MS).filter((x) => x.start >= w.end).slice(0, 3) : [];
@@ -842,9 +846,11 @@
     const row = (label, ...value) => (value.flat().filter((v) => v !== null && v !== '').length ? [h('dt', { text: label }), h('dd', {}, ...value.flat())] : []);
     const name = w && w.name ? w.name : e.name, isHidden = prefs.hidden.includes(e.id);
     detailsOpen.shown = w ? w.start : null; // the occurrence on screen, for Copy link
+    // The details stay with the occurrence they opened on: when it ends they say so, they do not move on to another.
+    if (w) detailsOpen.at = w.start;
+    detailsNext = S.nextBoundary([w, ow], now); detailsZone = upcomingZone();
     const notes = [detailsOpen.note, isHidden ? 'You have hidden this event, so it is not in your lists.' : null].filter(Boolean);
-    $('details').setAttribute('data-cat', e.category); // the category color, as on the cards
-    $('details-body').replaceChildren(...[ // replaceChildren would write a null out as the text "null"
+    const nodes = [ // replaceChildren would write a null out as the text "null"
       h('h2', { id: 'details-title' }, name),
       h('div', { class: 'badges' }, badges(e)),
       notes.length ? h('p', { class: 'details-note', text: notes.join(' ') }) : null,
@@ -875,13 +881,52 @@
           : h('button', { type: 'button', class: 'btn small', 'data-hide': e.id, 'data-fkey': `${key}:hide`, 'aria-label': `Hide ${e.name}`, text: 'Hide' })),
       // What Copy link did, and the link itself to copy by hand where the browser refuses the clipboard.
       h('p', { class: 'details-status', id: 'details-status', role: 'status' }),
-      h('input', { type: 'text', class: 'details-link-field', id: 'details-link-field', readonly: true, hidden: true, spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Link to this event' })].filter(Boolean));
+      h('input', { type: 'text', class: 'details-link-field', id: 'details-link-field', readonly: true, hidden: true, spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Link to this event' })].filter(Boolean);
+    return { e, name, nodes, phase: S.phase(w, now) };
+  }
+
+  function renderDetails() {
+    const p = detailsParts();
+    if (!p) return;
+    detailsOpen.phase = p.phase;
+    $('details').setAttribute('data-cat', p.e.category); // the category color, as on the cards
+    $('details-body').replaceChildren(...p.nodes);
+  }
+
+  /** Draws open details again in full, keeping the focus on the same control, or on Close if that control is gone. */
+  function redrawDetails() {
+    const body = $('details-body'), sign = (el) => el.id || el.getAttribute('data-fkey') || el.getAttribute('href') || el.textContent;
+    const held = body.contains(document.activeElement) ? sign(document.activeElement) : null;
+    renderDetails();
+    if (held !== null) ([...body.querySelectorAll('a, button, input')].find((el) => sign(el) === held) || document.querySelector('#details [data-close]')).focus();
+  }
+
+  // An open details dialog follows the clock. Its countdown is written every second with the page's others; here,
+  // only at the moments the occurrence (or the other region's) starts or ends, on a clock jump, or when the display
+  // zone changes, the lines that then read differently are written again. Nothing else is touched: the buttons, the
+  // links and the focus stay as they are. The start or the end is said once for a screen reader.
+  const DETAILS_CELLS = '#details-title, .details-list > dt, .details-list > dd', DETAILS_LABELS = '.details-actions [aria-label]';
+  function refreshDetails(now, force) {
+    if (!detailsOpen || !(force || now >= detailsNext || upcomingZone() !== detailsZone)) return;
+    const was = detailsOpen.phase, p = detailsParts();
+    if (!p) return;
+    const body = $('details-body'), fresh = h('div', {}, ...p.nodes);
+    const pairs = (sel) => { const a = [...body.querySelectorAll(sel)], b = [...fresh.querySelectorAll(sel)]; return a.length === b.length ? a.map((el, i) => [el, b[i]]) : null; };
+    const cells = pairs(DETAILS_CELLS), labels = pairs(DETAILS_LABELS);
+    if (!cells || !labels) redrawDetails(); // a line came or went (the region was changed in another tab)
+    else {
+      for (const [old, neu] of cells) if (!old.isEqualNode(neu)) old.replaceChildren(...neu.childNodes);
+      for (const [old, neu] of labels) if (old.getAttribute('aria-label') !== neu.getAttribute('aria-label')) old.setAttribute('aria-label', neu.getAttribute('aria-label'));
+      detailsOpen.phase = p.phase;
+    }
+    if (p.phase !== was) $('details-say').textContent = p.phase === 'on' ? `${p.name} has started.` : p.phase === 'after' ? `${p.name} has ended.` : '';
   }
 
   /** note: a line for the top of the details, when a share link opened them and something about it needs saying. */
   function openDetails(id, atMs, trigger, note) {
     detailsOpen = { id, at: atMs, trigger, fkey: trigger && trigger.getAttribute('data-fkey'), note: note || '' };
     renderDetails();
+    $('details-say').textContent = '';
     const d = $('details');
     if (!d.open) d.showModal();
   }
@@ -1885,6 +1930,7 @@
     render(Boolean(resumed));
     checkReminders(nowMs()); // after sleep or a clock change too: what has started is never shown late
     refreshUpcoming(nowMs(), Boolean(resumed)); // the open Reminders dialog follows the clock
+    refreshDetails(nowMs(), Boolean(resumed)); // and so do open event details
     if (!prefs.newsCollapsed && Date.now() - newsTried > News.REFRESH_MS) loadNews();
     timer = setTimeout(tick, 1000 - (nowMs() % 1000) + 5);
   }

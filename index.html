@@ -6,24 +6,24 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="dark light">
-  <script src="js/theme-boot.js?v=0.4.0"></script>
-  <script defer src="js/config.js?v=0.4.0"></script>
+  <script src="js/theme-boot.js?v=0.5.0"></script>
+  <script defer src="js/config.js?v=0.5.0"></script>
   <script defer src="events-data.js?r=2"></script>
   <script defer src="forever-data.js?r=2"></script>
-  <script defer src="js/schedule.js?v=0.4.0"></script>
-  <script defer src="js/store.js?v=0.4.0"></script>
-  <script defer src="js/news.js?v=0.4.0"></script>
-  <script defer src="js/search.js?v=0.4.0"></script>
-  <script defer src="js/ics.js?v=0.4.0"></script>
-  <script defer src="js/calendar-entry.js?v=0.4.0"></script>
-  <script defer src="js/share.js?v=0.4.0"></script>
-  <script defer src="js/reminders.js?v=0.4.0"></script>
-  <script defer src="js/checklist.js?v=0.4.0"></script>
-  <script defer src="js/backup.js?v=0.4.0"></script>
-  <script defer src="js/clock.js?v=0.4.0"></script>
-  <script defer blocking="render" src="js/app.js?v=0.4.0"></script>
+  <script defer src="js/schedule.js?v=0.5.0"></script>
+  <script defer src="js/store.js?v=0.5.0"></script>
+  <script defer src="js/news.js?v=0.5.0"></script>
+  <script defer src="js/search.js?v=0.5.0"></script>
+  <script defer src="js/ics.js?v=0.5.0"></script>
+  <script defer src="js/calendar-entry.js?v=0.5.0"></script>
+  <script defer src="js/share.js?v=0.5.0"></script>
+  <script defer src="js/reminders.js?v=0.5.0"></script>
+  <script defer src="js/checklist.js?v=0.5.0"></script>
+  <script defer src="js/backup.js?v=0.5.0"></script>
+  <script defer src="js/clock.js?v=0.5.0"></script>
+  <script defer blocking="render" src="js/app.js?v=0.5.0"></script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23101114'/%3E%3Ccircle cx='32' cy='34' r='19' fill='none' stroke='%23e2a93b' stroke-width='5'/%3E%3Cpath d='M32 34V22M32 34l9 6' stroke='%23e9e4da' stroke-width='5' stroke-linecap='round'/%3E%3Crect x='26' y='6' width='12' height='7' rx='2' fill='%23e2a93b'/%3E%3C/svg%3E">
-  <title>WoW Tracker v0.4.0 - Resets, Events &amp; Holidays | RadMage Labs</title>
+  <title>WoW Tracker v0.5.0 - Resets, Events &amp; Holidays | RadMage Labs</title>
   <meta name="description" content="World of Warcraft reset and event tracker in your local time, for Retail and WoW: Forever: daily and weekly resets, holidays, the Darkmoon Faire and more.">
   <link rel="canonical" href="https://radmagelabs.com/wow/">
   <meta property="og:type" content="website">
@@ -37,7 +37,7 @@
   <meta property="og:image:alt" content="WoW Tracker on Retail: the Retail and Forever switch beside the title, the daily and weekly reset countdowns and the Trading Post for the Americas, the newest Blizzard News headlines labeled All versions, the Show only quick filters above the category filters and the search box, and the first Happening now cards">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"WoW Tracker","url":"https://radmagelabs.com/wow/","applicationCategory":"GameApplication","operatingSystem":"Any","isAccessibleForFree":true,"description":"World of Warcraft reset and event tracker in your local time, for Retail and WoW: Forever: daily and weekly resets, holidays, the Darkmoon Faire and more.","image":"https://radmagelabs.com/assets/og/wowtracker.png","screenshot":"https://radmagelabs.com/assets/og/wowtracker.png","about":{"@type":"VideoGame","name":"World of Warcraft"},"author":{"@type":"Person","name":"RadMageIRL","url":"https://radmagelabs.com/"},"sameAs":"https://github.com/RadMageIRL/wowtracker"}</script>
-  <link rel="stylesheet" href="style.css?v=0.4.0">
+  <link rel="stylesheet" href="style.css?v=0.5.0">
 </head>
 <body>
   <a class="skip" href="#coming-title">Skip to Coming up</a>
@@ -48,7 +48,7 @@
         <button type="button" class="seg-btn" data-edition="retail" aria-pressed="true">Retail</button>
         <button type="button" class="seg-btn" data-edition="forever" aria-pressed="false">Forever</button>
       </div>
-      <span class="tag">v0.4.0 · Resets, Events &amp; Holidays · <a id="labs-link" href="https://radmagelabs.com/">RadMage Labs</a></span>
+      <span class="tag">v0.5.0 · Resets, Events &amp; Holidays · <a id="labs-link" href="https://radmagelabs.com/">RadMage Labs</a></span>
     </div>
     <div class="region seg" role="group" aria-label="Region">
       <button type="button" class="seg-btn" data-region="us" aria-pressed="true">Americas</button>
@@ -217,7 +217,7 @@
 
   <dialog id="about" aria-labelledby="about-title">
     <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
-    <h2 id="about-title">WoW Tracker v0.4.0</h2>
+    <h2 id="about-title">WoW Tracker v0.5.0</h2>
     <p id="about-intro">A World of Warcraft (Retail) dashboard for resets and scheduled events: when the next daily and weekly resets are, what is in its scheduled window now, and what starts next, in your local time.</p>
     <h3>Scheduled, not live</h3>
     <p>Every time here comes from a published schedule or a fixed game rule. The game offers no public live-event feed, so nothing on this page is read from the game. During maintenance or a hotfix a realm can be early or late.</p>
@@ -301,7 +301,7 @@
     <p class="subscribe-status" id="subscribe-status" role="status"></p>
     <h3>Which way to use</h3>
     <ul class="subscribe-ways">
-      <li><strong>Google Calendar:</strong> Add to Google Calendar opens Google's own "Add calendar" question, on a computer. In my test it added a test calendar and followed later changes about an hour and a half after they were published. The Google Calendar phone apps cannot add a calendar by address: add it on a computer and it shows on your phone too.</li>
+      <li><strong>Google Calendar:</strong> Add to Google Calendar opens Google's own "Add calendar" question, on a computer. In my tests it added a test calendar and followed later changes, once about an hour and a half after they were published and once only after more than three hours. The Google Calendar phone apps cannot add a calendar by address: add it on a computer and it shows on your phone too.</li>
       <li><strong>Apple Calendar (iPhone, iPad, Mac):</strong> Open in a calendar app is a webcal link, which Apple devices offer to subscribe to. I have not tested it on an Apple device.</li>
       <li><strong>Outlook:</strong> copy the address, then in Outlook's calendar choose Add calendar, Subscribe from web, and paste it. I have not tested it in Outlook.</li>
       <li><strong>Any other app, or if a button does nothing:</strong> copy the address and paste it where your calendar app asks for a calendar's address (often called Subscribe, Add by URL or From internet).</li>
@@ -319,6 +319,7 @@
   <dialog id="details" class="details" aria-labelledby="details-title">
     <div class="dialog-close"><button type="button" class="btn small" data-close>Close</button></div>
     <div id="details-body"></div>
+    <p id="details-say" class="sr-only" role="status"></p>
   </dialog>
 
   <dialog id="suggest-dialog" class="suggest" aria-labelledby="suggest-title">

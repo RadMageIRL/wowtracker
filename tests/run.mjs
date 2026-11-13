@@ -48,7 +48,7 @@ shareTests(test);
 // ---- The page ----
 
 const html = file('index.html');
-const VERSION = '0.4.0';
+const VERSION = '0.5.0';
 
 test('the version is the same in the title, header, About, README and every asset link', () => {
   assert.ok(html.includes(`<title>WoW Tracker v${VERSION} - `));

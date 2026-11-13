@@ -3093,6 +3093,226 @@ check('a closed Reminders dialog is not touched by the clock and is current when
   await page.close();
 });
 
+// ---- Open event details follow the clock (v0.5) ----
+
+/** Marks every element of the open details and counts what is done to them from now on: built (elements put into or taken out of the body), written (words or attributes changed outside the countdown) and ticks (the countdown's own text). */
+const WATCH_DETAILS = `(() => { const body = document.getElementById('details-body'); [...body.querySelectorAll('*')].forEach((el, i) => { el.__mark = i; });
+  window.__det = { built: 0, written: 0, ticks: 0 };
+  new MutationObserver((ms) => { for (const m of ms) { const el = m.target.nodeType === 1 ? m.target : m.target.parentElement;
+    if (m.target === body) window.__det.built += m.addedNodes.length + m.removedNodes.length; else if (el && el.closest('[data-until]')) window.__det.ticks++; else window.__det.written++; } }).observe(body, { childList: true, subtree: true, characterData: true, attributes: true }); })()`;
+/** The counts, and how many of the details' lines, buttons and links are elements made after the marking (none, if nothing was rebuilt). */
+const detWatch = (page) => page.eval(`({ ...window.__det, fresh: [...document.querySelectorAll('#details-body :is(h2, dl, dt, dd, a, button, input, p, div)')].filter((el) => el.__mark === undefined).length })`);
+const detRows = (page) => page.eval(`Object.fromEntries([...document.querySelectorAll('#details dt')].map((dt) => [dt.textContent, dt.nextElementSibling.textContent]))`);
+const detState = (page) => page.eval(`({ title: document.getElementById('details-title').textContent, said: document.getElementById('details-say').textContent, focus: document.activeElement.id || document.activeElement.getAttribute('data-ics') || document.activeElement.tagName,
+  start: Number(document.querySelector('#details [data-ics]').dataset.start), counting: document.querySelectorAll('#details [data-until]').length })`);
+
+check('open event details follow the clock: at the start the countdown gives way to On now and the time left, at the end to Ended, in the second it happens; the same occurrence, the same elements, the focus kept, each change said once, and reminders delivered as before', async () => {
+  const slot = utc('2026-11-08T20:30:00Z'), surge = 'Curse Surge: The Looming Mutagenitor'; // Curse Surge slots are 30 minutes long, one after another
+  const page = await open({ at: utc('2026-11-08T20:24:54Z'), prefs: { starred: ['curse-surge'] }, reminders: { on: true, lead: 5, notify: false, hourly: true } });
+  await click(page, `#next-list [data-details="curse-surge"][data-start="${slot}"]`);
+  await page.waitFor(`document.getElementById('details').open`);
+  let d = await detRows(page);
+  assert.match(d.When, /^Starts Sun, Nov 8, 2:30 PM, ends Sun, Nov 8, 3:00 PM · in 5m 0\ds$/);
+  assert.equal(d.Europe, 'Siege at the Whispering Marsh: Starts Sun, Nov 8, 2:30 PM (Predicted)');
+  await page.eval(WATCH_DETAILS);
+  await page.eval(`document.getElementById('details-link').focus()`);
+  // Before the start, across the reminder's own time (20:25:00): the countdown is the only thing written.
+  await page.waitFor(`document.querySelectorAll('#reminders-tray .reminder').length === 1`, 15000);
+  await sleep(2200);
+  let w = await detWatch(page);
+  assert.deepEqual([w.built, w.written, w.fresh], [0, 0, 0], 'nothing but the countdown was touched');
+  assert.ok(w.ticks >= 2, `the countdown ran (${w.ticks})`);
+  assert.deepEqual(await detState(page), { title: surge, said: '', focus: 'details-link', start: slot, counting: 1 });
+  assert.deepEqual(await page.eval(`(() => { const say = document.getElementById('details-say'); return [say.getAttribute('role'), say.className, say.closest('dialog').id]; })()`), ['status', 'sr-only', 'details'], 'the line that says a start or an end: polite, unseen, inside the dialog');
+  // 20:30:00: it starts.
+  await jumpClock(page, '2026-11-08T20:29:57Z');
+  await page.waitFor(`/^On now/.test(document.querySelector('#details dd').textContent)`, 8000);
+  let clock = await page.eval('Date.now()');
+  assert.ok(clock >= slot && clock < slot + 3000, `it changed at the start: ${new Date(clock).toISOString()}`);
+  d = await detRows(page);
+  assert.match(d.When, /^On now, ends Sun, Nov 8, 3:00 PM · ends in (30m 00s|29m 5\ds)$/);
+  assert.equal(d.Europe, 'Siege at the Whispering Marsh: On now, ends Sun, Nov 8, 3:00 PM (Predicted)');
+  assert.deepEqual(await detState(page), { title: surge, said: `${surge} has started.`, focus: 'details-link', start: slot, counting: 1 }, 'the same occurrence, said once, the focus where it was');
+  w = await detWatch(page);
+  assert.deepEqual([w.built, w.fresh], [0, 0], 'no line, button or link was rebuilt');
+  assert.ok(w.written > 0 && w.written <= 6, `only the lines that changed were written (${w.written})`);
+  // The new countdown runs, and between changes nothing else is written.
+  const then = (await detRows(page)).When, quiet = w.written;
+  await sleep(3000);
+  assert.notEqual((await detRows(page)).When, then, 'the time left counts down');
+  assert.equal((await detWatch(page)).written, quiet, 'three seconds with no change write nothing but the countdown');
+  // 21:00:00: it ends. The details stay with it and say so; they do not move on to the next slot.
+  await jumpClock(page, '2026-11-08T20:59:57Z');
+  await page.waitFor(`/^Ended/.test(document.querySelector('#details dd').textContent)`, 8000);
+  clock = await page.eval('Date.now()');
+  assert.ok(clock >= slot + 30 * 60000 && clock < slot + 30 * 60000 + 3000, `it changed at the end: ${new Date(clock).toISOString()}`);
+  d = await detRows(page);
+  assert.deepEqual([d.When, d.Europe], ['Ended Sun, Nov 8, 3:00 PM', 'Siege at the Whispering Marsh: Ended Sun, Nov 8, 3:00 PM (Predicted)']);
+  assert.deepEqual(await detState(page), { title: surge, said: `${surge} has ended.`, focus: 'details-link', start: slot, counting: 0 });
+  w = await detWatch(page);
+  assert.deepEqual([w.built, w.fresh], [0, 0]);
+  assert.equal(await copiedLink(page), `${CANON}#retail/curse-surge/us/20261108T2030Z`, 'Copy link still names the occurrence the details opened on');
+  // Delivery is what it was: this slot's reminder and the next slot's, once each, under the same keys.
+  assert.deepEqual(Object.keys(JSON.parse(await item(page, 'reminded'))).sort(), [`us|curse-surge|${slot}|5`, `us|curse-surge|${slot + 30 * 60000}|5`]);
+  // Unstarring draws the details again: still the occurrence they opened on.
+  await click(page, '#details [data-star]');
+  assert.deepEqual([await text(page, '#details-title'), (await detRows(page)).When], [surge, 'Ended Sun, Nov 8, 3:00 PM']);
+  // The clock is set back (a correction, a changed device clock): the details go back with it.
+  await page.eval(`(() => { const base = Date.now, back = base() - ${utc('2026-11-08T20:10:00Z')}; Date.now = () => base() - back; })()`);
+  await page.waitFor(`/^Starts Sun, Nov 8, 2:30 PM/.test(document.querySelector('#details dd').textContent)`, 8000);
+  assert.match((await detRows(page)).When, /· in (20m 00s|19m 5\ds)$/);
+  assert.equal(await text(page, '#details-say'), '', 'nothing is said of a start that is ahead again');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('closed event details are not worked on by the clock; open ones are worked out only when something changes, restyle about once a second, and take a new time zone in place with the focus kept', async () => {
+  const page = await open({ at: utc('2026-11-08T20:29:55Z') });
+  // How often the details are worked out at all (the page calls WoWSchedule.nextBoundary for nothing else).
+  await page.eval(`window.__worked = 0; { const real = WoWSchedule.nextBoundary; WoWSchedule.nextBoundary = (...a) => { window.__worked++; return real(...a); }; }`);
+  const worked = () => page.eval('window.__worked');
+  await page.waitFor(`Date.now() >= ${utc('2026-11-08T20:30:02Z')}`, 15000); // closed, across the start of a Curse Surge slot
+  assert.equal(await worked(), 0, 'closed: not once');
+  const faire = utc('2026-12-06T08:00:00Z');
+  await click(page, `#calendar [data-details="darkmoon-faire"][data-start="${faire}"]`);
+  await page.waitFor(`document.getElementById('details').open`);
+  assert.equal(await worked(), 1, 'once, to draw them');
+  assert.match((await detRows(page)).When, /^Starts Sun, Dec 6, 2:00 AM, ends Sun, Dec 13, 2:00 AM · in 27d 11h$/);
+  await page.eval(WATCH_DETAILS);
+  await page.eval(`document.querySelector('#details [data-ics]').focus()`);
+  await page.send('Performance.enable', {});
+  const recalcs = async () => (await page.send('Performance.getMetrics', {})).metrics.find((m) => m.name === 'RecalcStyleCount').value;
+  const styles = await recalcs();
+  await sleep(3000);
+  assert.equal(await worked(), 1, 'open with nothing changing: not worked out on the tick');
+  let w = await detWatch(page);
+  assert.deepEqual([w.built, w.written, w.fresh], [0, 0, 0], 'three idle seconds write nothing into the details');
+  const n = (await recalcs()) - styles;
+  assert.ok(n < 20, `${n} style recalculations in 3 s with the details open`);
+  // The device changes time zone with the details open: the same elements, their times and the buttons' names rewritten.
+  await page.setTimezone('Europe/Berlin');
+  await page.waitFor(`/^Starts Sun, Dec 6, 9:00 AM/.test(document.querySelector('#details dd').textContent)`, 8000);
+  const d = await detRows(page);
+  assert.match(d.When, /^Starts Sun, Dec 6, 9:00 AM, ends Sun, Dec 13, 9:00 AM · in 27d 11h$/);
+  assert.match(d.Later, /^Jan 3 - Jan 10 \(starts Sun, Jan 3, 9:00 AM\)/);
+  assert.deepEqual(await page.eval(`[...document.querySelectorAll('#details .details-actions [aria-label]')].map((b) => b.getAttribute('aria-label')).filter((t) => /Dec 6/.test(t))`),
+    ['Add Darkmoon Faire on Sun, Dec 6, 9:00 AM to your calendar (downloads a calendar file)', 'Copy a link to Darkmoon Faire on Sun, Dec 6, 9:00 AM']);
+  w = await detWatch(page);
+  assert.deepEqual([w.built, w.fresh], [0, 0], 'no line, button or link was rebuilt');
+  assert.equal(await page.eval(`document.activeElement.getAttribute('data-ics')`), 'darkmoon-faire', 'the focus stays on the button in use');
+  assert.equal(await text(page, '#details-say'), '', 'a change of zone is not a start or an end');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('details opened just before the US clocks go back count down to the start in real seconds, not by the wall clock, and say On now at that instant', async () => {
+  // America/Chicago leaves daylight time at 2026-11-01 07:00 UTC: 1:59:59 AM CDT is followed by 1:00:00 AM CST. A Curse Surge slot starts then.
+  const start = utc('2026-11-01T07:00:00Z');
+  const page = await open({ at: start - 9000 });
+  await click(page, `#next-list [data-details="curse-surge"][data-start="${start}"]`);
+  await page.waitFor(`document.getElementById('details').open`);
+  assert.match((await detRows(page)).When, /^Starts Sun, Nov 1, 1:00 AM, ends Sun, Nov 1, 1:30 AM · in \ds$/, 'seconds away, though the wall clock reads an hour earlier');
+  await page.waitFor(`/^On now/.test(document.querySelector('#details dd').textContent)`, 15000);
+  const clock = await page.eval('Date.now()');
+  assert.ok(clock >= start && clock < start + 3000, new Date(clock).toISOString());
+  assert.match((await detRows(page)).When, /^On now, ends Sun, Nov 1, 1:30 AM · ends in (30m 00s|29m 5\ds)$/);
+  assert.match(await text(page, '#details-say'), /^Curse Surge: .+ has started\.$/);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('a region or time display changed in another tab is drawn into open details too, with the focus kept on the same button', async () => {
+  const at = utc('2026-11-10T18:00:00Z'), faire = utc('2026-12-06T08:00:00Z');
+  const one = await open({ at });
+  const two = await open({ at, keepStorage: true });
+  await click(one, `#calendar [data-details="darkmoon-faire"][data-start="${faire}"]`);
+  await one.waitFor(`document.getElementById('details').open`);
+  await one.eval(`document.getElementById('details-link').focus()`);
+  let d = await detRows(one);
+  assert.match(d.When, /^Starts Sun, Dec 6, 2:00 AM, /);
+  assert.match(d.Region, /^Americas /);
+  await click(two, '[data-region="eu"]');
+  await one.waitFor(`/^Europe/.test([...document.querySelectorAll('#details dt')].find((x) => x.textContent === 'Region').nextElementSibling.textContent)`, 8000);
+  d = await detRows(one);
+  assert.match(d.When, /^Starts Sat, Dec 5, 5:00 PM, /, "Europe's own Faire, as on the page behind");
+  assert.ok('Americas' in d && !('Europe' in d), 'and the other region is now the Americas');
+  assert.equal(await one.eval(`document.activeElement.id`), 'details-link', 'the focus is on Copy link still');
+  await two.eval(`(() => { const s = document.getElementById('time-mode'); s.value = 'utc'; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await one.waitFor(`/UTC/.test(document.querySelector('#details dd').textContent)`, 8000);
+  assert.match((await detRows(one)).When, /^Starts Sat 5 Dec, 23:00 UTC, /);
+  assert.equal(await one.eval(`document.activeElement.id`), 'details-link');
+  assert.deepEqual([...one.problems, ...two.problems], []);
+  await one.close(); await two.close();
+});
+
+check('the other region\'s line in open details changes at its own start, with nothing said and nothing else written', async () => {
+  // The December Darkmoon Faire: Europe's opens 2026-12-05 23:00 UTC, nine hours before the Americas' (2026-12-06 08:00 UTC).
+  const eu = utc('2026-12-05T23:00:00Z'), us = utc('2026-12-06T08:00:00Z');
+  const page = await open({ at: eu - 8000 });
+  await click(page, `#next-list [data-details="darkmoon-faire"][data-start="${us}"]`);
+  await page.waitFor(`document.getElementById('details').open`);
+  let d = await detRows(page);
+  assert.match(d.When, /^Starts Sun, Dec 6, 2:00 AM, /);
+  assert.equal(d.Europe, 'Starts Sat, Dec 5, 5:00 PM (Predicted time)');
+  await page.eval(WATCH_DETAILS);
+  await page.waitFor(`/^On now/.test([...document.querySelectorAll('#details dt')].find((x) => x.textContent === 'Europe').nextElementSibling.textContent)`, 15000);
+  const clock = await page.eval('Date.now()');
+  assert.ok(clock >= eu && clock < eu + 3000, new Date(clock).toISOString());
+  d = await detRows(page);
+  assert.equal(d.Europe, 'On now, ends Sat, Dec 12, 5:00 PM (Predicted time)');
+  assert.match(d.When, /^Starts Sun, Dec 6, 2:00 AM, ends Sun, Dec 13, 2:00 AM · in 8h 59m$/, 'this region\'s own line is as it was');
+  const w = await detWatch(page);
+  assert.deepEqual([w.built, w.fresh, w.written], [0, 0, 1], 'one line written, nothing rebuilt');
+  assert.equal(await text(page, '#details-say'), '', 'the event shown has not started: nothing is said');
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('details opened by a link with no time stay with the occurrence they opened on when it ends; the end is said once, not again when the zone changes, and not carried into the next details opened', async () => {
+  const end = utc('2026-11-08T20:30:00Z'), surge = "Curse Surge: The Broodmother's Nest"; // the slot from 20:00 to 20:30 UTC
+  const page = await open({ at: end - 8000, url: `${BASE}#retail/curse-surge` });
+  await page.waitFor(`document.getElementById('details').open`);
+  assert.equal(await text(page, '#details-title'), surge);
+  assert.match((await detRows(page)).When, /^On now, ends Sun, Nov 8, 2:30 PM · ends in \ds$/);
+  await page.waitFor(`/^Ended/.test(document.querySelector('#details dd').textContent)`, 15000);
+  const clock = await page.eval('Date.now()');
+  assert.ok(clock >= end && clock < end + 3000, new Date(clock).toISOString());
+  assert.deepEqual([await text(page, '#details-title'), (await detRows(page)).When, await text(page, '#details-say')], [surge, 'Ended Sun, Nov 8, 2:30 PM', `${surge} has ended.`], 'not the slot that has just begun');
+  assert.equal(await page.eval(`Number(document.querySelector('#details [data-ics]').dataset.start)`), end - 30 * 60000);
+  // A new time zone rewrites the times; the end is not said a second time.
+  await page.eval(`window.__said = 0; new MutationObserver((ms) => { window.__said += ms.length; }).observe(document.getElementById('details-say'), { childList: true, subtree: true, characterData: true })`);
+  await page.setTimezone('Europe/Berlin');
+  await page.waitFor(`document.querySelector('#details dd').textContent === 'Ended Sun, Nov 8, 9:30 PM'`, 8000);
+  assert.deepEqual([await page.eval('window.__said'), await text(page, '#details-say')], [0, `${surge} has ended.`]);
+  // Other details opened afterwards start with nothing said.
+  await closeDetails(page);
+  await click(page, '#calendar [data-details="darkmoon-faire"]');
+  await page.waitFor(`document.getElementById('details').open`);
+  assert.deepEqual([await text(page, '#details-title'), await text(page, '#details-say')], ['Darkmoon Faire', '']);
+  assert.deepEqual(page.problems, []);
+  await page.close();
+});
+
+check('when another tab changes to a region the event does not run in, open details say so and the focus goes to Close, the button it was on being gone', async () => {
+  // WoW: Forever's Fireworks Spectacular runs in the Americas only (2027-07-04 11:00 UTC).
+  const at = utc('2027-07-01T18:00:00Z');
+  const one = await open({ at, url: `${BASE}#forever` });
+  const two = await open({ at, url: `${BASE}#forever`, keepStorage: true });
+  await click(one, '#calendar [data-details="fireworks-spectacular"]');
+  await one.waitFor(`document.getElementById('details').open`);
+  await one.eval(`document.querySelector('#details [data-ics]').focus()`);
+  assert.match((await detRows(one)).When, /^Starts Sun, Jul 4, 6:00 AM, /);
+  await click(two, '[data-region="eu"]');
+  await one.waitFor(`/^Europe/.test([...document.querySelectorAll('#details dt')].find((x) => x.textContent === 'Region').nextElementSibling.textContent)`, 8000);
+  const d = await detRows(one);
+  assert.equal(d.When, 'It does not run in this region.');
+  assert.equal(await one.eval(`document.querySelector('#details [data-ics]')`), null, 'no occurrence, so no Add to calendar');
+  assert.equal(await one.eval(`document.activeElement.textContent`), 'Close', 'the focus is not lost to the page behind');
+  assert.equal(await one.eval(`document.activeElement.closest('dialog').id`), 'details');
+  assert.deepEqual([...one.problems, ...two.problems], []);
+  await one.close(); await two.close();
+});
+
 // ---- Footer ----
 
 check('the footer links go where config.js says, and Share passes the canonical address', async () => {

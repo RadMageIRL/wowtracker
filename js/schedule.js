@@ -275,6 +275,18 @@
     return items.slice().sort((a, b) => tier(a) - tier(b) || a.start - b.start || shown(a).localeCompare(shown(b), 'en') || byId(a, b));
   }
 
+  /** Where a window stands at nowMs: 'before' its start, 'on' from the start until the end, 'after' from the end on; 'none' without a window. */
+  function phase(w, nowMs) {
+    return !w ? 'none' : nowMs < w.start ? 'before' : nowMs < w.end ? 'on' : 'after';
+  }
+
+  /** The first start or end among the windows that is still ahead of nowMs: the next moment any of them changes phase. Infinity if none. */
+  function nextBoundary(list, nowMs) {
+    let next = Infinity;
+    for (const w of list) if (w) for (const t of [w.start, w.end]) if (t > nowMs && t < next) next = t;
+    return next;
+  }
+
   /** Whole calendar days from nowMs's day to ms's day, both read in `zone`. */
   function dayDiff(ms, nowMs, zone) {
     const a = wallClock(zone, nowMs), b = wallClock(zone, ms);
@@ -294,7 +306,7 @@
     wallClock, offsetMin, wallToUtc, addDays,
     resetInstants, nextReset, previousReset, dayRange, weekRange,
     rotationName, windows, currentWindow, scheduleFor, happening, upcoming, nextOf,
-    duration, dayKey, dayDiff, dayLabel, weekSpanText, weekOrder,
+    duration, dayKey, dayDiff, dayLabel, weekSpanText, weekOrder, phase, nextBoundary,
   };
   if (typeof module === 'object' && module.exports) module.exports = Schedule;
   else root.WoWSchedule = Schedule;

@@ -282,4 +282,39 @@ export function engineTests(test) {
     const monday = { type: 'weekly', weekday: 1, time: '00:00', zone: 'Europe/Paris' };
     assert.deepEqual(range(S.weekRange(monday, utc('2026-10-22T12:00:00Z'))), ['2026-10-18T22:00:00Z', '2026-10-25T23:00:00Z']);
   });
+  // What open event details follow: where a window stands, and the next moment that changes.
+  test('a window is before its start, on from the start itself until the end, and after from the end itself; no window has no phase', () => {
+    const w = { start: utc('2026-11-08T20:30:00Z'), end: utc('2026-11-08T21:00:00Z') };
+    assert.equal(S.phase(w, w.start - 1), 'before');
+    assert.equal(S.phase(w, w.start), 'on', 'the start instant is already on');
+    assert.equal(S.phase(w, w.end - 1), 'on');
+    assert.equal(S.phase(w, w.end), 'after', 'the end instant is already after');
+    assert.equal(S.phase(null, w.start), 'none');
+  });
+
+  test('the next moment something changes is the first start or end still ahead, never one at or behind now, across several windows and missing ones', () => {
+    const a = { start: utc('2026-11-08T20:30:00Z'), end: utc('2026-11-08T21:00:00Z') };
+    const b = { start: utc('2026-11-08T13:00:00Z'), end: utc('2026-11-08T20:45:00Z') }; // the other region's: on now, ends first
+    assert.equal(iso(S.nextBoundary([a], a.start - 1)), '2026-11-08T20:30:00Z');
+    assert.equal(iso(S.nextBoundary([a], a.start)), '2026-11-08T21:00:00Z', 'at the start the next change is the end');
+    assert.equal(iso(S.nextBoundary([a, b], a.start)), '2026-11-08T20:45:00Z', 'the nearer of the two');
+    assert.equal(iso(S.nextBoundary([b, a], a.start)), '2026-11-08T20:45:00Z', 'in either order');
+    assert.equal(iso(S.nextBoundary([a, null], utc('2026-11-08T20:45:00Z'))), '2026-11-08T21:00:00Z', 'a region without the event is passed over');
+    assert.equal(S.nextBoundary([a, b], a.end), Infinity, 'nothing ahead once both have ended');
+    assert.equal(S.nextBoundary([null, null], 0), Infinity);
+    assert.equal(S.nextBoundary([], 0), Infinity);
+  });
+
+  test('a window that starts as the US clocks go back (2026-11-01 07:00 UTC) changes phase at that instant, an hour of wall time notwithstanding', () => {
+    // 06:59:59 UTC is 1:59:59 AM CDT; 07:00:00 UTC is 1:00:00 AM CST. The phase and the next change are instants, not wall times.
+    const w = { start: utc('2026-11-01T07:00:00Z'), end: utc('2026-11-01T07:30:00Z') };
+    assert.deepEqual([S.wallClock('America/Chicago', w.start - 1000).h, S.wallClock('America/Chicago', w.start).h], [1, 1], 'the same wall hour on both sides');
+    assert.equal(S.phase(w, w.start - 1000), 'before');
+    assert.equal(S.nextBoundary([w], w.start - 1000) - (w.start - 1000), 1000, 'one second away, not an hour and a second');
+    assert.equal(S.phase(w, w.start), 'on');
+    // And a week-long one across the European change of 2027-03-28 ends at its instant.
+    const eu = { start: utc('2027-03-24T04:00:00Z'), end: utc('2027-03-31T03:00:00Z') };
+    assert.equal(S.phase(eu, utc('2027-03-31T02:59:59Z')), 'on');
+    assert.equal(S.phase(eu, utc('2027-03-31T03:00:00Z')), 'after');
+  });
 }
